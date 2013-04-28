@@ -1,0 +1,21 @@
+#container {
+  width: 1008px;
+  margin: 0 auto;
+  padding-top:15px;
+}
+h1, label, input, p {
+  text-align: center;
+}
+label {
+	margin-top:20px;
+}
+input {
+	font-size:24px;
+	text-transform:uppercase;
+}
+#board div {
+	margin:5px;
+	padding:5px;
+	display:inline-block;
+	border:1px solid #bbb;
+}
