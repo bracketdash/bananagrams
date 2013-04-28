@@ -23,12 +23,11 @@ var counts = {
 };
 
 // check if a root exists in the dictionary
-function rootExists(word){
+function rootExists(members){
 	counts.rootExists++;
-	var members = word.split('');
 	var currentMember = all;
 	for(var i = 0, ii = members.length; i < ii; i++){
-		if(currentMember.hasOwnProperty(members[i])){
+		if(currentMember[members[i]]){
 			currentMember = currentMember[members[i]];
 		} else {
 			return false;
@@ -37,15 +36,14 @@ function rootExists(word){
 	return true;
 }
 
-function isWholeWord(word){
+function isWholeWord(members){
 	counts.isWholeWord++;
-	var members = word.split('');
 	var currentMember = all;
 	for(var i = 0, ii = members.length; i < ii; i++){
 		currentMember = currentMember[members[i]];
-		if(i == members.length - 1 && !currentMember.hasOwnProperty('0')){
-			return false;
-		}
+	}
+	if(!currentMember['0']){
+		return false;
 	}
 	return true;
 }
