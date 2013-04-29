@@ -52,11 +52,69 @@ function wordlist(string){
 	return result;
 }
 
+// generate the board
+function generateBoard(words, tracker){
+	var hm = [], vm = [];
+	for(var x=0,xx=tracker.length;x<xx;x++){
+		var horizMax = tracker[x][1] + 1, verticMax = tracker[x][2] + 1;
+		if(tracker[x][3] == 1){
+			horizMax = horizMax + words[tracker[x][0]].length - 1;
+		} else {
+			verticMax = verticMax + words[tracker[x][0]].length - 1;
+		}
+		hm.push(horizMax);
+		vm.push(verticMax);
+	}
+	hm.sort(function(a,b){
+		if(a>b){
+			return 1;
+		} else if(a<b){
+			return -1;
+		}
+		return 0;
+	});
+	vm.sort(function(a,b){
+		if(a>b){
+			return 1;
+		} else if(a<b){
+			return -1;
+		}
+		return 0;
+	});
+	var board = [];
+	for(var y=0,yy=vm[0];y<yy;y++){
+		board.push([]);
+		for(var x=0,xx=hm[0];x<xx;x++){
+			board[y].push(' ');
+		}
+	}
+	
+	// TODO: place the words on the blank board
+	// for(var x=0,xx=tracker.length;x<xx;x++){
+	
+	return board;
+}
+
+// try all the different words on the board
+function placeWords(words, tracker){
+	
+	// TODO: place the words
+	
+	// generate the board based on tracker
+	var board = generateBoard(words, tracker);
+	
+	console.log(board);
+}
+
 // solve function
 function solve(string){
 	
 	// get the possible words
 	var words = wordlist(string);
+	
+	// place the words
+	// [word index, first letter x, first letter y, 0=down/1=right]
+	placeWords(words, [[0,0,0,0]]);
 	
 	// what next?
 	
