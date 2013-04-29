@@ -96,8 +96,18 @@ function generateBoard(words, tracker){
 		}
 	}
 	
-	// TODO: place the words on the blank board
-	// for(var x=0,xx=tracker.length;x<xx;x++){
+	// place the words on the blank board
+	for(var x=0,xx=tracker.length;x<xx;x++){
+		for(var y=0,yy=words[tracker[x][0]].length;y<yy;y++){
+			var coordX = tracker[x][1], coordY = tracker[x][2];
+			if(tracker[x][3] == 1){
+				coordX = coordX + y;
+			} else {
+				coordY = coordY + y;
+			}
+			board[coordY][coordX] = words[tracker[x][0]][y];
+		}
+	}
 	
 	return board;
 }
@@ -105,7 +115,7 @@ function generateBoard(words, tracker){
 // try all the different words on the board
 function placeWords(words, tracker){
 	
-	// TODO: place the words
+	// TODO: figure out an arrangement of words that will use all of the letters
 	
 	// generate the board based on tracker
 	var board = generateBoard(words, tracker);
