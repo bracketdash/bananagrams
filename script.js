@@ -54,7 +54,11 @@ function wordlist(string){
 
 // generate the board
 function generateBoard(words, tracker){
-	var hm = [], vm = [];
+	
+	// define our vars
+	var board = [], hm = [], vm = [];
+	
+	// get the vertical and horizontal maximums from tracker
 	for(var x=0,xx=tracker.length;x<xx;x++){
 		var horizMax = tracker[x][1] + 1, verticMax = tracker[x][2] + 1;
 		if(tracker[x][3] == 1){
@@ -65,6 +69,8 @@ function generateBoard(words, tracker){
 		hm.push(horizMax);
 		vm.push(verticMax);
 	}
+	
+	// sort the maximums to find the highest
 	hm.sort(function(a,b){
 		if(a>b){
 			return 1;
@@ -81,7 +87,8 @@ function generateBoard(words, tracker){
 		}
 		return 0;
 	});
-	var board = [];
+	
+	// build a blank board with appropriate dimensions
 	for(var y=0,yy=vm[0];y<yy;y++){
 		board.push([]);
 		for(var x=0,xx=hm[0];x<xx;x++){
@@ -103,6 +110,7 @@ function placeWords(words, tracker){
 	// generate the board based on tracker
 	var board = generateBoard(words, tracker);
 	
+	// remove this for production
 	console.log(board);
 }
 
@@ -114,11 +122,10 @@ function solve(string){
 	
 	// place the words
 	// [word index, first letter x, first letter y, 0=down/1=right]
-	placeWords(words, [[0,0,0,0]]);
+	var boardArr = placeWords(words, [[0,0,0,0]]);
 	
-	// what next?
-	
-	// return the word list
+	// return the word list, for now
+	// TODO: change this to return boardArr
 	return words;
 }
 
