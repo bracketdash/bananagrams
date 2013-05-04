@@ -1,21 +1,44 @@
+body {
+	padding-bottom:30px;
+}
+#crunching {
+	position:fixed;
+	top:7px;
+	right:10px;
+	font-size:14px;
+	font-weight:bold;
+	color:#555;
+}
 #container {
   width: 1008px;
   margin: 0 auto;
   padding-top:15px;
 }
-h1, label, input, p {
+h1, input, p {
   text-align: center;
-}
-label {
-	margin-top:20px;
 }
 input {
 	font-size:24px;
 	text-transform:uppercase;
 }
-#board div {
+#chosen {
+	padding-bottom:10px;
+	border-bottom:1px solid #ddd;
+	margin-bottom:10px;
+}
+#possible {
+	margin-top:10px;
+	border-top:1px solid #ddd;
+	padding-top:10px;
+}
+#chosen div, #possible div {
 	margin:5px;
 	padding:5px;
 	display:inline-block;
 	border:1px solid #bbb;
+	border-radius:2px;
+	cursor:pointer;
+}
+#chosen div:hover, #possible div:hover {
+	border-color:#333;
 }

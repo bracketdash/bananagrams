@@ -3,7 +3,7 @@
 	<head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Bananagrams Solver</title>
+        <title>Bananagrams Helper</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -13,12 +13,17 @@
         <![endif]-->
     </head>
     <body>
+    	<div id="crunching">Crunching letters, please hold...</div>
         <div id="container">
-        	<h1>Bananagrams Solver</h1>
-        	<label class="muted">Enter your letters in the space below. The board will be updated automatically.</label>
+        	<h1>Bananagrams Helper</h1>
+        	<p>Enter your letters in the space below. The board will be updated automatically.</p>
 			<input type="text" class="input-block-level" />
-			<p id="msg-unused" class="text-error">Some letters (<span id="unused"></span>) could not be used. Try putting one back and taking two more.</p>
-			<div id="board"></div>
+			<div id="chosen"></div>
+			<p>
+				Below are possible words with the tiles you have, minus those used to create the words above.<br />
+				Click a word below to add it above. Click a word above to remove it.
+			</p>
+			<div id="possible"></div>
 		</div>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/1.2.0/lodash.min.js"></script>
