@@ -18,12 +18,8 @@
         	<h1>Bananagrams Helper</h1>
         	<p>Enter your letters in the space below. The board will be updated automatically.</p>
 			<input type="text" class="input-block-level" />
-			<div id="chosen"></div>
-			<p>
-				Below are words that can be made with the tiles you have left after forming the words above, excluding those that share no letters with any of the above.<br />
-				Click a word below to add it above. Click a word above to remove it.
-			</p>
-			<div id="possible"></div>
+			<p>Remaining letters: <span id="remaining"></span></p>
+			<div id="board"></div>
 		</div>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/1.2.0/lodash.min.js"></script>

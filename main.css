@@ -14,31 +14,24 @@ body {
   margin: 0 auto;
   padding-top:15px;
 }
-h1, input, p {
+h1 {
   text-align: center;
 }
 input {
 	font-size:24px;
 	text-transform:uppercase;
 }
-#chosen {
-	padding-bottom:10px;
-	border-bottom:1px solid #ddd;
-	margin-bottom:10px;
+#board table {
+	border-collapse:separate;
+	border-spacing:2px;
 }
-#possible {
-	margin-top:10px;
-	border-top:1px solid #ddd;
-	padding-top:10px;
-}
-#chosen div, #possible div {
-	margin:5px;
-	padding:5px;
-	display:inline-block;
+#board td {
+	width:30px;
+	height:30px;
 	border:1px solid #bbb;
-	border-radius:2px;
-	cursor:pointer;
-}
-#chosen div:hover, #possible div:hover {
-	border-color:#333;
+	font-size:20px;
+	font-weight:bold;
+	color:#333;
+	line-height:30px;
+	text-align:center;
 }
