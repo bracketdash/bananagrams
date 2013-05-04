@@ -52,16 +52,53 @@ function solve(string){
 	return result;
 }
 
+function differenceLeaveDupes(arrayA,arrayB){
+	arrayA = arrayA.slice();
+	arrayB = arrayB.slice();
+	$.each(arrayA, function(indexA,valueA){
+		$.each(arrayB, function(indexB, valueB){
+			if(valueA == valueB){
+				arrayA[indexA] = null;
+				arrayB[indexB] = null;
+				return false;        
+			}
+		});
+	});
+	var arrayC = [];
+	$.each(arrayA,function(idx,val){
+		if(val != null){
+			arrayC.push(val);
+		}
+	});
+	return arrayC;
+}
+
+// weed out words that don't share any letters with chosen words
+function ringer(letters, chosen){
+	var words = solve(differenceLeaveDupes(letters, chosen).join(''));
+	if(chosen.length && words.length){
+		var wordlist = [];
+		for(var x=0,xx=words.length;x<xx;x++){
+			if(_.intersection(words[x].split(''), chosen).length > 0){
+				wordlist.push(words[x]);
+			}
+		}
+		return wordlist;
+	}
+	return words;
+}
+
 // show the possible words
 function showPossible(){
-	var words = solve(_.difference($('input').val().split(''), $('#chosen').text().split('')).join('')),
-		markup = '';
+	var chosen = $('#chosen').text().split('');
+	var words = ringer($('input').val().split(''), chosen);
+	var markup = '';
 	if(words.length){
 		for(var x=0,xx=words.length;x<xx;x++){
 			markup += '<div>' + words[x] + '</div>';
 		}
 	} else {
-		markup = '<span class="muted">No words could be formed with the available letter(s): '+_.difference($('input').val().split(''), $('#chosen').text().split('')).join(', ')+'</span>';
+		markup = '<p class="text-error">No viable words could be formed! Try putting one letter back and taking 2 more, or removing words from above.</p>';
 	}
 	$('#possible').html(markup);
 	$('#crunching').hide();
