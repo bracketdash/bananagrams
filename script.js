@@ -147,21 +147,13 @@ function solve(letters, tracker, board, uid){
 	PROCEDURE
 	---------
 	
-	BLANK BOARD (start here):
+	1. if the board is blank...
+		
+		a. make a list of words with the available letters
+		
+		b. add each word to the current WORDLIST
 	
-	1. make an array of words that can be formed from the available letters
-	
-	2. save them to the HISTORY ARRAY as the first WORDLIST
-	
-	2. add the longest word to the board
-	
-	3. if all the letters are used, the puzzle is SOLVED
-	
-	4. if there are still letters in the rack, create a new WORDLIST and continue to NON-BLANK BOARD
-	
-	NON-BLANK BOARD:
-	
-	1. Loop through each cell on the board...
+	2. if the board is not blank, loop through each cell on the board and...
 	
 		a. generate the CONSTRAINT PATTERN for candidate words to match
 	
@@ -169,29 +161,35 @@ function solve(letters, tracker, board, uid){
 		
 		c. add each word to the current WORDLIST
 		
-	2. if the WORDLIST is not empty, sort the words from longest to shortest
+	3. if the WORDLIST is not empty, sort the words from longest to shortest
 	
-	3. if the WORDLIST is empty...
+	4. if the WORDLIST is empty...
 		
-		a. if this is the first WORDLIST, stop here and run UNSOLVABLE
+		a. if this is the first WORDLIST...
 		
-		b. if this is not the first WORDLIST, remove the current WORDLIST
+			i. inform the user that not all the letters could used
+			
+			ii. encourage the user to put one letter back and take three in return
+			
+			iii. stop here
 		
-		c. remove the last played word from both the board and the current WORDLIST
+		b. if this is not the first WORDLIST...
 		
-		d. repeat NON-BLANK BOARD from step 3
+			i. remove the current WORDLIST
+		
+			ii. remove the last played word from both the board and the current WORDLIST
+		
+			iii. stop here and repeat from step 4
 	
-	4. add the first word from the current WORDLIST to the appropriate place on the board
+	5. add the first word from the current WORDLIST to the appropriate place on the board
 	
-	5. if all the letters are used, the puzzle is SOLVED
+	6. if all the letters are used, the puzzle is SOLVED
 	
-	6. if there are still letters in the rack, create a new WORDLIST and repeat NON-BLANK BOARD
-	
-	UNSOLVABLE:
-	
-	1. Inform the user that not all the letters could used
-	
-	2. Encourage the user to do a "DUMP!" (put one letter back and take three in return)
+	7. if there are still letters in the rack...
+		
+		a. create a new WORDLIST
+		
+		b. repeat from step 1
 	
 	
 	CONCEPTS
