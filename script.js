@@ -144,63 +144,82 @@ function solve(letters, tracker, board, uid){
 	
 	/*
 	
-	TODO:
-	1. create a list of candidate words (see below) [IN PROGRESS]
-	2. store a history of the board so we can step back and try different words.
-	3. try the first candidate word first.
-	4. if that word works, continue and try to add another candidate word to the board
-	5. if at any point no candidate words can be formed, restore the previous state of the board and try with the next candidate word from the last batch
-	6. if all the candidate words have been tried and none of them could produce more candidate words, restore the state before the previous state of the board
+	PROCEDURE
+	---------
 	
-	Candidate Words
-	---------------
-	If the board is blank:
+	BLANK BOARD (start here):
 	
-	1. make a list of words that can be formed from the available letters [DONE]
+	1. make an array of words that can be formed from the available letters
 	
-	If the board is not blank:
+	2. save them to the HISTORY ARRAY as the first WORDLIST
 	
-	1. make a collection of attachment points based on the board [IN PROGRESS]
+	2. add the longest word to the board
 	
-	Example: If this is the current board...
+	3. if all the letters are used, the puzzle is SOLVED
 	
-	   P  T
-	   OFFICE
-	   N  L
-	ICKY  EL
+	4. if there are still letters in the rack, create a new WORDLIST and continue to NON-BLANK BOARD
 	
-	This would be the attachmentPoints array: [
-		{direction:'across',part:'p..t',     constraints:['.f','.f']                          },
-		{direction:'across',part:'office'                                                     },
-		{direction:'across',part:'...n..l..',constraints:['.i','.c','.k','f.','f.','c.l','e.']},
-		{direction:'across',part:'icky..el', constraints:['.','.']                            },
-		{direction:'down'  ,part:'i'                                                          },
-		{direction:'down'  ,part:'c'                                                          },
-		{direction:'down'  ,part:'...k',     constraints:['.p','.office','.n']                },
-		{direction:'down'  ,part:'pony'                                                       },
-		{direction:'down'  ,part:'.f..',     constraints:['p.','n.','icky.']                  },
-		{direction:'down'  ,part:'.f..',     constraints:['.t','.l','.el']                    },
-		{direction:'down'  ,part:'tile'                                                       },
-		{direction:'down'  ,part:'.c.l',     constraints:['t.','l.']                          },
-		{direction:'down'  ,part:'e..',      constraints:['.','el.']                          }
-	]
+	NON-BLANK BOARD:
 	
-	2. make a list of words based on the attachment points
+	1. Loop through each cell on the board...
 	
-	Example: For the first attachment point above, assuming available letters (A H B Y E L K)...
+		a. generate the CONSTRAINT PATTERN for candidate words to match
+	
+		b. make a list of words with the available letters that match the pattern
 		
-		1. Find all the words that can be formed with the letters A H B Y E L K P
-			a. The last "P" can only be the last or second to last letter.
-			b. If the last "P" is the second to last letter, the last letter + "F" must also form a valid word.
+		c. add each word to the current WORDLIST
 		
-		2. Find all the words that can be formed with the letters A H B Y E L K T
-			a. The first "T" can only be the first or second letter.
-			b. If the first "T" is the second letter, the first letter + "F" must also form a valid word.
+	2. if the WORDLIST is not empty, sort the words from longest to shortest
+	
+	3. if the WORDLIST is empty...
 		
-		3. Find all the words that can be formed with the letters A H B Y E L K P T
-			a. All the words must contain the pattern /p..t/
-			b. The first letter between "P" and "T" + "F" must also form a valid word.
-			c. The second letter between "P" and "T" + "F" must also form a valid word.
+		a. if this is the first WORDLIST, stop here and run UNSOLVABLE
+		
+		b. if this is not the first WORDLIST, remove the current WORDLIST
+		
+		c. remove the last played word from both the board and the current WORDLIST
+		
+		d. repeat NON-BLANK BOARD from step 3
+	
+	4. add the first word from the current WORDLIST to the appropriate place on the board
+	
+	5. if all the letters are used, the puzzle is SOLVED
+	
+	6. if there are still letters in the rack, create a new WORDLIST and repeat NON-BLANK BOARD
+	
+	UNSOLVABLE:
+	
+	1. Inform the user that not all the letters could used
+	
+	2. Encourage the user to do a "DUMP!" (put one letter back and take three in return)
+	
+	
+	CONCEPTS
+	--------
+	
+	HISTORY ARRAY:
+	
+	This is an array to keep track of which words are available at each board state.
+	
+	Example:
+	
+	var history = [
+		// first WORDLIST
+		[{word:'aardvark',x:0,y:0,dir:'right'}, {word:'bark',x:0,y:0,dir:'right'}, ...],
+		// second WORDLIST
+		[{word:'disaster',x:3,y:0,dir:'down'}, ...]
+	];
+	
+	In the above example, the board currently has one word on it, "aardvark"
+	and the app has generated a list of possible words for the second word.
+	It will try all permutations after playing "disaster", then "danger" and so on.
+	If none of them work out, it will remove the entire array for the second board state
+	and "aardvark" from the first board state's array, making the only word on the board "bark"
+	
+	
+	CONSTRAINT PATTERN:
+	
+	This is the magical sauce of the app. I am still figuring this part out. Hang tight.
 	
 	*/
 	
@@ -226,7 +245,7 @@ function solve(letters, tracker, board, uid){
 			
 			// SECTION
 			// NOTE: this section will have to be replaced once we start doing history stuff
-			tracker = [[0,0,0,0]];
+			tracker = [[0,0,0,1]];
 			letters = differenceLeaveDupes(letters, words[0].split(''));
 			// /SECTION
 			
