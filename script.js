@@ -20,9 +20,9 @@ var all = JSON.parse('{'+all.replace(/([a-z])/g,"\"$1\":{").replace(/([0-9])/g, 
 
 // subtract one array from another, leaving leftover duplicates
 var differenceLeaveDupes = function(arrayA,arrayB){
-	arrayA = arrayA.slice();
-	arrayB = arrayB.slice();
-	$.each(arrayA, function(indexA,valueA){
+	arrayA = arrayA;
+	arrayB = arrayB.split('');
+	$.each(arrayA, function(indexA, valueA){
 		$.each(arrayB, function(indexB, valueB){
 			if(valueA == valueB){
 				arrayA[indexA] = null;
@@ -47,23 +47,19 @@ var getPattern = function(x, y, dir){
 }
 
 var getWords = function(x, y, dir){
-	
-	// TODO #1
-	// must return wordlist like this:
-	// [{word:'disaster',x:3,y:0,dir:'down'}, ...]
-	
-	// TODO #2
-	// the args have changed to (x, y, dir, pattern)
-	
-	// define our vars
-	var result = [];
-	
-	// the looper function
+	if(board.length){
+		console.log('board is not blank: get a pattern');
+		return [];
+		var pattern = getPattern(x, y, dir);
+	}
+	var words = [];
 	function looper(object, traypart, prefix){
 		_.forOwn(object, function(val, key){
 			var traytray = traypart.slice();
 			if(key == '0'){
-				result.push(prefix);
+				if(!board.length || prefix.test(pattern)){
+					words.push({word:prefix, x:x, y:y, dir:dir});
+				}
 			}
 			if(traytray.indexOf(key) != -1){
 				traytray.splice(traytray.indexOf(key),1);
@@ -72,35 +68,20 @@ var getWords = function(x, y, dir){
 		});
 	}
 	
-	// run the looper function
+	// console.log('run the looper function');
 	looper(all, letters, '');
 	
-	// sort the words by length, longest first
-	result.sort(function(a,b){
-		if(a.length < b.length){
-			return 1;
-		} else if(a.length > b.length){
-			return -1;
-		}
-		return 0;
-	});
-	
-	// return the word list
-	return result;
+	console.log('return the word list');
+	return words;
 }
 
 // generate and display the board
 var processBoard = function(){
 	
-	// TODO
-	// arguments have been removed
-	// need to build the board based on history
-	
-	// define our vars
 	var hm = [],
 		vm = [];
 	
-	// get the vertical and horizontal maximums from history
+	// console.log('get the vertical and horizontal maximums from history');
 	_.each(history, function(wordlist, step){
 		var wordObj = wordlist[0],
 			horizMax = wordObj.x + 1,
@@ -114,7 +95,7 @@ var processBoard = function(){
 		vm.push(verticMax);
 	});
 	
-	// sort the maximums to find the highest
+	// console.log('sort the maximums to find the highest');
 	hm.sort(function(a,b){
 		if(a>b){
 			return 1;
@@ -132,7 +113,7 @@ var processBoard = function(){
 		return 0;
 	});
 	
-	// build a blank board with appropriate dimensions
+	// console.log('build a blank board with appropriate dimensions');
 	board = [];
 	for(var y=0,yy=vm[0];y<yy;y++){
 		board.push([]);
@@ -141,7 +122,7 @@ var processBoard = function(){
 		}
 	}
 	
-	// place the words on the blank board
+	// console.log('place the words on the blank board');
 	_.each(history, function(wordlist, step){
 		var wordObj = wordlist[0];
 		for(var y=0,yy=wordObj.word.length;y<yy;y++){
@@ -156,7 +137,7 @@ var processBoard = function(){
 		}
 	});
 	
-	// generate the markup
+	// console.log('generate the markup');
 	var markup = '<table>';
 	for(var x=0,xx=board.length;x<xx;x++){
 		markup += '<tr><td>' + board[x].join('</td><td>') + '</td></tr>';
@@ -175,20 +156,21 @@ var solve = function(id){
 	
 	var words;
 	if(board.length){
-		// the board is not blank
+		console.log('the board is not blank');
 		words = [];
 		_.each(board, function(rowObject, row){
-			_.each(row, function(cellObject, cell){
+			_.each(rowObject, function(cellObject, cell){
+				console.log('running getWords for down and right at (' + row + ', ' + cell + ')');
 				words = words.concat(getWords(row, cell, 'down'), getWords(row, cell, 'right'));
 			});
 		});
 	} else {
-		// the board is blank
+		console.log('the board is blank');
 		words = getWords(0, 0, 'right');
 	}
 	
 	if(words.length){
-		// sort the words from longest to shortest
+		// console.log('sort the words from longest to shortest');
 		words.sort(function(a,b){
 			if(a.word.length < b.word.length){
 				return 1;
@@ -199,10 +181,10 @@ var solve = function(id){
 		});
 	}
 	
-	// add the wordlist to history
+	// console.log('add the wordlist to history');
 	history.push(words);
 	
-	// process words
+	// console.log('process words');
 	processWords(id);
 }
 
@@ -214,44 +196,47 @@ var processWords = function(id){
 	}
 	
 	if(!history[history.length-1].length){
-		// current wordlist is empty
+		console.log('current wordlist is empty');
 		if(history.length === 1){
-			// tell the user to try a dump or wait for a peel
+			console.log('tell the user to try a dump or wait for a peel');
 			$('#remaining').empty();
 			$('#board').html('<p class="text-error">No words could be formed with the provided letters. Try a dump or wait for a peel.</p>');
 		} else {
-			// step back and try a different word
+			// console.log('step back and try a different word');
 			history.splice(history.length-1,1);
+			letters = letters.concat(history[history.length-1][0].word.split(''));
 			history[history.length-1].splice(0,1);
 			
-			// process the board
+			console.log('trying another of a remaining ' + history[history.length-1].length + ' words');
+			
+			// console.log('process the board');
 			processBoard();
 			$('#remaining').removeClass('muted').html(letters.join(' '));
 			
-			// process words again
+			// console.log('process words again');
 			setTimeout(function(){
 				processWords(id);
-			}, 500);
+			}, 250);
 		}
 		$('#crunching').hide();
 		return;
 	}
 	
-	// get the remaining letters
+	// console.log('get the remaining letters');
 	letters = differenceLeaveDupes(letters, history[history.length-1][0].word);
 	
 	if(letters.length){
-		// there are still letters on the rack
+		// console.log('there are still letters on the rack');
 		$('#remaining').removeClass('muted').html(letters.join(' '));
 		setTimeout(function(){
 			solve(id);
-		}, 500);
+		}, 250);
 	} else {
-		// all the letters are used
+		// console.log('all the letters are used');
 		$('#remaining').addClass('muted').html('None! Hurray!');
 	}
 	
-	// process the board
+	// console.log('process the board');
 	processBoard();
 }
 
