@@ -1,3 +1,6 @@
+// some vars
+var letters, history, board, uid;
+
 // build the dictionary
 var all = JSON.parse('{'+all.replace(/([a-z])/g,"\"$1\":{").replace(/([0-9])/g, function($1){
 		var a = parseFloat($1), b = '';
@@ -15,8 +18,42 @@ var all = JSON.parse('{'+all.replace(/([a-z])/g,"\"$1\":{").replace(/([0-9])/g, 
 		return '"0":1'+b+',';
 	})+'"0":1}}}}}}}}');
 
-// get a list of possible words given a set of letters
-function getWords(letters){
+// subtract one array from another, leaving leftover duplicates
+var differenceLeaveDupes = function(arrayA,arrayB){
+	arrayA = arrayA.slice();
+	arrayB = arrayB.slice();
+	$.each(arrayA, function(indexA,valueA){
+		$.each(arrayB, function(indexB, valueB){
+			if(valueA == valueB){
+				arrayA[indexA] = null;
+				arrayB[indexB] = null;
+				return false;        
+			}
+		});
+	});
+	var arrayC = [];
+	$.each(arrayA,function(idx,val){
+		if(val != null){
+			arrayC.push(val);
+		}
+	});
+	return arrayC;
+}
+
+var getPattern = function(x, y, dir){
+	
+	// TODO: build a constraining pattern for a given starting point and direction
+	
+}
+
+var getWords = function(x, y, dir){
+	
+	// TODO #1
+	// must return wordlist like this:
+	// [{word:'disaster',x:3,y:0,dir:'down'}, ...]
+	
+	// TODO #2
+	// the args have changed to (x, y, dir, pattern)
 	
 	// define our vars
 	var result = [];
@@ -52,8 +89,12 @@ function getWords(letters){
 	return result;
 }
 
-// generate the board
-function generateBoard(words, tracker){
+// generate and display the board
+var processBoard = function(){
+	
+	// TODO
+	// arguments have been removed
+	// need to build the board based on history
 	
 	// define our vars
 	var board = [], hm = [], vm = [];
@@ -109,186 +150,116 @@ function generateBoard(words, tracker){
 		}
 	}
 	
-	return board;
-}
-
-// subtract one array from another, leaving leftover duplicates
-function differenceLeaveDupes(arrayA,arrayB){
-	arrayA = arrayA.slice();
-	arrayB = arrayB.slice();
-	$.each(arrayA, function(indexA,valueA){
-		$.each(arrayB, function(indexB, valueB){
-			if(valueA == valueB){
-				arrayA[indexA] = null;
-				arrayB[indexB] = null;
-				return false;        
-			}
-		});
-	});
-	var arrayC = [];
-	$.each(arrayA,function(idx,val){
-		if(val != null){
-			arrayC.push(val);
-		}
-	});
-	return arrayC;
+	// generate the markup
+	var markup = '<table>';
+	for(var x=0,xx=board.length;x<xx;x++){
+		markup += '<tr><td>' + board[x].join('</td><td>') + '</td></tr>';
+	}
+	markup += '</table>';
+	$('#board').html(markup);
 }
 
 // solve the board
-function solve(letters, tracker, board, uid){
+var solve = function(id){
 	
-	// exit out if this is not the most current instance
-	if(window.uniqueId != uid){
-		return false;
+	// exit if id conflict
+	if(id != uid){
+		return;
 	}
 	
-	/*
-	
-	PROCEDURE
-	---------
-	
-	1. if the board is blank...
-		
-		a. make a list of words with the available letters
-		
-		b. add each word to the current WORDLIST
-	
-	2. if the board is not blank, loop through each cell on the board and...
-	
-		a. generate the CONSTRAINT PATTERN for candidate words to match
-	
-		b. make a list of words with the available letters that match the pattern
-		
-		c. add each word to the current WORDLIST
-		
-	3. if the WORDLIST is not empty, sort the words from longest to shortest
-	
-	4. if the WORDLIST is empty...
-		
-		a. if this is the first WORDLIST...
-		
-			i. inform the user that not all the letters could used
-			
-			ii. encourage the user to put one letter back and take three in return
-			
-			iii. stop here
-		
-		b. if this is not the first WORDLIST...
-		
-			i. remove the current WORDLIST
-		
-			ii. remove the last played word from both the board and the current WORDLIST
-		
-			iii. stop here and repeat from step 4
-	
-	5. add the first word from the current WORDLIST to the appropriate place on the board
-	
-	6. if all the letters are used, the puzzle is SOLVED
-	
-	7. if there are still letters in the rack...
-		
-		a. create a new WORDLIST
-		
-		b. repeat from step 1
-	
-	
-	CONCEPTS
-	--------
-	
-	HISTORY ARRAY:
-	
-	This is an array to keep track of which words are available at each board state.
-	
-	Example:
-	
-	var history = [
-		// first WORDLIST
-		[{word:'aardvark',x:0,y:0,dir:'right'}, {word:'bark',x:0,y:0,dir:'right'}, ...],
-		// second WORDLIST
-		[{word:'disaster',x:3,y:0,dir:'down'}, ...]
-	];
-	
-	In the above example, the board currently has one word on it, "aardvark"
-	and the app has generated a list of possible words for the second word.
-	It will try all permutations after playing "disaster", then "danger" and so on.
-	If none of them work out, it will remove the entire array for the second board state
-	and "aardvark" from the first board state's array, making the only word on the board "bark"
-	
-	
-	CONSTRAINT PATTERN:
-	
-	This is the magical sauce of the app. I am still figuring this part out. Hang tight.
-	
-	*/
-	
-	// create a space for markup to queue
-	var markup = '';
-	
-	// tracker template: [word index, first letter x, first letter y, 0=down/1=right]
-	
-	if(tracker.length){
+	var words;
+	if(board.length){
 		// the board is not blank
-		// make the attachmentPoints collection
-		var attachmentPoints = [];
-		
-		// UNDER CONSTRUCTION
-		
-		// TODO: remove this once this section works without returning false
-		console.log('Board is not blank. This piece is still under construction.');
-		return false;
+		words = [];
+		_.each(board, function(rowObject, row){
+			_.each(row, function(cellObject, cell){
+				words = words.concat(getWords(row, cell, 'down'), getWords(row, cell, 'right'));
+			});
+		});
 	} else {
 		// the board is blank
-		var words = getWords(letters);
-		if(words.length){
-			
-			// SECTION
-			// NOTE: this section will have to be replaced once we start doing history stuff
-			tracker = [[0,0,0,1]];
-			letters = differenceLeaveDupes(letters, words[0].split(''));
-			// /SECTION
-			
-			board = generateBoard(words, tracker);
-			markup = '<table>';
-			for(var x=0,xx=board.length;x<xx;x++){
-				markup += '<tr><td>' + board[x].join('</td><td>') + '</td></tr>';
-			}
-			markup += '</table>';
-		} else {
-			markup = '<p class="text-error">No words could be formed with the provided letters. Try a dump or wait for a peel.</p>';
-		}
+		words = getWords(0, 0, 'right');
 	}
 	
-	// do some DOM stuff
+	if(words.length){
+		// sort the words from longest to shortest
+		words.sort(function(a,b){
+			if(a.word.length < b.word.length){
+				return 1;
+			} else if(a.word.length > b.word.length){
+				return -1;
+			}
+			return 0;
+		});
+	}
+	
+	// add the wordlist to history
+	history.push(words);
+	
+	// process words
+	processWords(id);
+}
+
+var processWords = function(id){
+	
+	// exit if id conflict
+	if(id != uid){
+		return;
+	}
+	
+	if(!history[history.length-1].length){
+		// current wordlist is empty
+		if(history.length === 1){
+			// tell the user to try a dump or wait for a peel
+			$('#remaining').empty();
+			$('#board').html('<p class="text-error">No words could be formed with the provided letters. Try a dump or wait for a peel.</p>');
+		} else {
+			// step back and try a different word
+			history.splice(history.length-1,1);
+			history[history.length-1].splice(0,1);
+			
+			// process the board
+			processBoard();
+			$('#remaining').removeClass('muted').html(letters.join(' '));
+			
+			// process words again
+			setTimeout(function(){
+				processWords(id);
+			}, 500);
+		}
+		$('#crunching').hide();
+		return;
+	}
+	
+	// get the remaining letters
+	letters = differenceLeaveDupes(letters, history[history.length-1][0].word);
+	
 	if(letters.length){
+		// there are still letters on the rack
 		$('#remaining').removeClass('muted').html(letters.join(' '));
+		setTimeout(function(){
+			solve(id);
+		}, 500);
 	} else {
+		// all the letters are used
 		$('#remaining').addClass('muted').html('None! Hurray!');
 	}
-	$('#board').html(markup);
-	$('#crunching').hide();
 	
-	// go again
-	setTimeout(function(){
-		if(letters.length){
-			solve(letters, tracker, board, uid);
-		} else {
-			console.log('The board is solved!');
-		}
-	},100);
+	// process the board
+	processBoard();
 }
 
 $(function(){
 	$('input').focus().keyup(function(e){
-		var $t = $(this);
-		if(typeof timer != 'undefined'){
-			clearTimeout(timer);
+		$(this).val($(this).val().replace(/[^a-z]/gi, '').toLowerCase());
+		if(e.keyCode == 13){
+			$('#crunching').show();
+			letters = $(this).val().split('');
+			history = [];
+			board = [];
+			uid = _.uniqueId();
+			solve(uid);
 		}
-		$('#crunching').show();
-		window.timer = setTimeout(function(){
-			$t.val($t.val().replace(/[^a-z]/gi, '').toLowerCase());
-			window.uniqueId = _.uniqueId();
-			solve($t.val().split(''), [], [], uniqueId);
-		},500);
 	});
 	$('#crunching').hide();
 });
