@@ -19,8 +19,8 @@ var all = JSON.parse('{'+all.replace(/([a-z])/g,"\"$1\":{").replace(/([0-9])/g, 
 	})+'"0":1}}}}}}}}');
 
 // subtract one array from another, leaving leftover duplicates
-var differenceLeaveDupes = function(arrayA,arrayB){
-	arrayA = arrayA;
+var differenceLeaveDupes = function(arrayA, arrayB){
+	arrayA = arrayA.split('');
 	arrayB = arrayB.split('');
 	$.each(arrayA, function(indexA, valueA){
 		$.each(arrayB, function(indexB, valueB){
@@ -42,14 +42,14 @@ var differenceLeaveDupes = function(arrayA,arrayB){
 
 var getPattern = function(x, y, dir){
 	
-	// TODO: build a constraining pattern for a given starting point and direction
+	// console.log('building a constraining pattern for (' + x + ', ' + y + ') ' + dir);
 	
+	return new RegExp();
 }
 
 var getWords = function(x, y, dir){
 	if(board.length){
-		console.log('board is not blank: get a pattern');
-		return [];
+		// console.log('board is not blank: get a pattern');
 		var pattern = getPattern(x, y, dir);
 	}
 	var words = [];
@@ -57,11 +57,10 @@ var getWords = function(x, y, dir){
 		_.forOwn(object, function(val, key){
 			var traytray = traypart.slice();
 			if(key == '0'){
-				if(!board.length || prefix.test(pattern)){
+				if(!board.length || pattern.test(prefix)){
 					words.push({word:prefix, x:x, y:y, dir:dir});
 				}
-			}
-			if(traytray.indexOf(key) != -1){
+			} else if(traytray.indexOf(key) != -1){
 				traytray.splice(traytray.indexOf(key),1);
 				looper(val, traytray, prefix + key);
 			}
@@ -71,7 +70,7 @@ var getWords = function(x, y, dir){
 	// console.log('run the looper function');
 	looper(all, letters, '');
 	
-	console.log('return the word list');
+	// console.log('returning ' + words.length + ' words');
 	return words;
 }
 
@@ -98,17 +97,17 @@ var processBoard = function(){
 	// console.log('sort the maximums to find the highest');
 	hm.sort(function(a,b){
 		if(a>b){
-			return 1;
-		} else if(a<b){
 			return -1;
+		} else if(a<b){
+			return 1;
 		}
 		return 0;
 	});
 	vm.sort(function(a,b){
 		if(a>b){
-			return 1;
-		} else if(a<b){
 			return -1;
+		} else if(a<b){
+			return 1;
 		}
 		return 0;
 	});
@@ -122,6 +121,8 @@ var processBoard = function(){
 		}
 	}
 	
+	// console.log('board is ' + vm[0] + ' tall and ' + hm[0] + ' wide');
+	
 	// console.log('place the words on the blank board');
 	_.each(history, function(wordlist, step){
 		var wordObj = wordlist[0];
@@ -133,6 +134,7 @@ var processBoard = function(){
 			} else {
 				coordY += y;
 			}
+			// console.log('setting (' + coordY + ', ' + coordX + ') to ' + wordObj.word[y]);
 			board[coordY][coordX] = wordObj.word[y];
 		}
 	});
@@ -160,12 +162,14 @@ var solve = function(id){
 		words = [];
 		_.each(board, function(rowObject, row){
 			_.each(rowObject, function(cellObject, cell){
-				console.log('running getWords for down and right at (' + row + ', ' + cell + ')');
-				words = words.concat(getWords(row, cell, 'down'), getWords(row, cell, 'right'));
+				if(board[row][cell] != ' '){
+					// console.log('getting possible words at "' + board[row][cell] + '" (' + row + ', ' + cell + ')');
+					words = words.concat(getWords(cell, row, 'down'), getWords(cell, row, 'right'));
+				}
 			});
 		});
 	} else {
-		console.log('the board is blank');
+		// console.log('the board is blank');
 		words = getWords(0, 0, 'right');
 	}
 	
@@ -196,15 +200,14 @@ var processWords = function(id){
 	}
 	
 	if(!history[history.length-1].length){
-		console.log('current wordlist is empty');
+		// console.log('current wordlist is empty');
 		if(history.length === 1){
-			console.log('tell the user to try a dump or wait for a peel');
+			// console.log('tell the user to try a dump or wait for a peel');
 			$('#remaining').empty();
 			$('#board').html('<p class="text-error">No words could be formed with the provided letters. Try a dump or wait for a peel.</p>');
 		} else {
 			// console.log('step back and try a different word');
 			history.splice(history.length-1,1);
-			letters = letters.concat(history[history.length-1][0].word.split(''));
 			history[history.length-1].splice(0,1);
 			
 			console.log('trying another of a remaining ' + history[history.length-1].length + ' words');
@@ -223,7 +226,8 @@ var processWords = function(id){
 	}
 	
 	// console.log('get the remaining letters');
-	letters = differenceLeaveDupes(letters, history[history.length-1][0].word);
+	var lettersOnBoard = _.flatten(board).join('').replace(/ /g,'');
+	letters = differenceLeaveDupes($('input').val(), lettersOnBoard);
 	
 	if(letters.length){
 		// console.log('there are still letters on the rack');
