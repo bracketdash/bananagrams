@@ -40,26 +40,29 @@ var differenceLeaveDupes = function(arrayA, arrayB){
 	return arrayC;
 }
 
-var getPattern = function(x, y, dir){
-	
-	// console.log('building a constraining pattern for (' + x + ', ' + y + ') ' + dir);
-	
-	return new RegExp();
-}
+// TODO: CHANGE NEEDED
+// we also want to find words that might start before a filled cell
+// accomodate for all x values before x if searching for horizontal words
+// accomodate for all y values before y if searching for vertical words
 
-var getWords = function(x, y, dir){
+var getWords = function(rc, dir){
 	if(board.length){
 		// console.log('board is not blank: get a pattern');
-		var pattern = getPattern(x, y, dir);
+		// TODO
+		var pattern = new RegExp();
 	}
+	
+	// TODO
+	// the below works if the board is blank
+	// we need to change it so if the board is not blank
+	// it will look for words that fit in with the existing word(s)
+	
 	var words = [];
 	function looper(object, traypart, prefix){
 		_.forOwn(object, function(val, key){
 			var traytray = traypart.slice();
 			if(key == '0'){
-				if(!board.length || pattern.test(prefix)){
-					words.push({word:prefix, x:x, y:y, dir:dir});
-				}
+				words.push({word:prefix, x:0, y:0, dir:'right'});
 			} else if(traytray.indexOf(key) != -1){
 				traytray.splice(traytray.indexOf(key),1);
 				looper(val, traytray, prefix + key);
@@ -165,16 +168,14 @@ var solve = function(id){
 		// console.log('the board is not blank');
 		words = [];
 		_.each(board, function(rowObject, row){
-			_.each(rowObject, function(cellObject, cell){
-				if(board[row][cell] != ' '){
-					// console.log('getting possible words at "' + board[row][cell] + '" (' + row + ', ' + cell + ')');
-					words = words.concat(getWords(cell, row, 'down'), getWords(cell, row, 'right'));
-				}
-			});
+			words = words.concat(getWords(row, 'right'));
+		});
+		_.each(board[0], function(cellObject, cell){
+			words = words.concat(getWords(cell, 'down'));
 		});
 	} else {
 		// console.log('the board is blank');
-		words = getWords(0, 0, 'right');
+		words = getWords(0, 'right');
 	}
 	
 	if(words.length){
@@ -214,7 +215,7 @@ var processWords = function(id){
 			history.splice(history.length-1,1);
 			history[history.length-1].splice(0,1);
 			
-			console.log('trying another of a remaining ' + history[history.length-1].length + ' words');
+			// console.log('trying another of a remaining ' + history[history.length-1].length + ' words');
 			
 			// console.log('process the board');
 			processBoard();
