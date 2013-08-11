@@ -97,19 +97,22 @@ var processBoard = function(){
 	// need to build the board based on history
 	
 	// define our vars
-	var board = [], hm = [], vm = [];
+	var hm = [],
+		vm = [];
 	
-	// get the vertical and horizontal maximums from tracker
-	for(var x=0,xx=tracker.length;x<xx;x++){
-		var horizMax = tracker[x][1] + 1, verticMax = tracker[x][2] + 1;
-		if(tracker[x][3] == 1){
-			horizMax = horizMax + words[tracker[x][0]].length - 1;
+	// get the vertical and horizontal maximums from history
+	_.each(history, function(wordlist, step){
+		var wordObj = wordlist[0],
+			horizMax = wordObj.x + 1,
+			verticMax = wordObj.y + 1;
+		if(wordObj.dir == 'right'){
+			horizMax += wordObj.word.length - 1;
 		} else {
-			verticMax = verticMax + words[tracker[x][0]].length - 1;
+			verticMax += wordObj.word.length - 1;
 		}
 		hm.push(horizMax);
 		vm.push(verticMax);
-	}
+	});
 	
 	// sort the maximums to find the highest
 	hm.sort(function(a,b){
@@ -130,6 +133,7 @@ var processBoard = function(){
 	});
 	
 	// build a blank board with appropriate dimensions
+	board = [];
 	for(var y=0,yy=vm[0];y<yy;y++){
 		board.push([]);
 		for(var x=0,xx=hm[0];x<xx;x++){
@@ -138,17 +142,19 @@ var processBoard = function(){
 	}
 	
 	// place the words on the blank board
-	for(var x=0,xx=tracker.length;x<xx;x++){
-		for(var y=0,yy=words[tracker[x][0]].length;y<yy;y++){
-			var coordX = tracker[x][1], coordY = tracker[x][2];
-			if(tracker[x][3] == 1){
-				coordX = coordX + y;
+	_.each(history, function(wordlist, step){
+		var wordObj = wordlist[0];
+		for(var y=0,yy=wordObj.word.length;y<yy;y++){
+			var coordX = wordObj.x,
+				coordY = wordObj.y;
+			if(wordObj.dir == 'right'){
+				coordX += y;
 			} else {
-				coordY = coordY + y;
+				coordY += y;
 			}
-			board[coordY][coordX] = words[tracker[x][0]][y];
+			board[coordY][coordX] = wordObj.word[y];
 		}
-	}
+	});
 	
 	// generate the markup
 	var markup = '<table>';
