@@ -139,6 +139,10 @@ var processBoard = function(){
 		}
 	});
 	
+	// console.log('get the remaining letters');
+	var lettersOnBoard = _.flatten(board).join('').replace(/ /g,'');
+	letters = differenceLeaveDupes($('input').val(), lettersOnBoard);
+	
 	// console.log('generate the markup');
 	var markup = '<table>';
 	for(var x=0,xx=board.length;x<xx;x++){
@@ -158,7 +162,7 @@ var solve = function(id){
 	
 	var words;
 	if(board.length){
-		console.log('the board is not blank');
+		// console.log('the board is not blank');
 		words = [];
 		_.each(board, function(rowObject, row){
 			_.each(rowObject, function(cellObject, cell){
@@ -225,9 +229,8 @@ var processWords = function(id){
 		return;
 	}
 	
-	// console.log('get the remaining letters');
-	var lettersOnBoard = _.flatten(board).join('').replace(/ /g,'');
-	letters = differenceLeaveDupes($('input').val(), lettersOnBoard);
+	// console.log('process the board');
+	processBoard();
 	
 	if(letters.length){
 		// console.log('there are still letters on the rack');
@@ -239,9 +242,6 @@ var processWords = function(id){
 		// console.log('all the letters are used');
 		$('#remaining').addClass('muted').html('None! Hurray!');
 	}
-	
-	// console.log('process the board');
-	processBoard();
 }
 
 $(function(){
