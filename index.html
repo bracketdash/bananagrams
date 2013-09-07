@@ -32,7 +32,7 @@
 						</div>
 						<div class="remaining-letters">
 							<div class="btn btn-danger" ng-repeat="letter in m.letters" ng-bind="letter"
-								ng-click="m.letters.splice($index,1)"></div>
+								ng-click="removeLetter($index, letter)"></div>
 						</div>
 					</div>
 				</div>

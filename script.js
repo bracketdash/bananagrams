@@ -59,74 +59,73 @@ bh.controller('bhCtrl', function($scope){
 			trailing: true
 		}),
 		processBoard: function(){
-			if($scope.m.board.length === 0){
-				$scope.m.boardArr = [];
-				return;
-			}
 			var hm = [], vm = [], board = [];
-			_.each($scope.m.board, function(wordObj){
-				var horizMax = wordObj.x + 1,
-					verticMax = wordObj.y + 1;
-				if(wordObj.dir == 'right'){
-					horizMax += wordObj.word.length - 1;
-				} else {
-					verticMax += wordObj.word.length - 1;
-				}
-				hm.push(horizMax);
-				vm.push(verticMax);
-			});
-			hm.sort(function(a,b){
-				if(a>b){
-					return -1;
-				} else if(a<b){
-					return 1;
-				}
-				return 0;
-			});
-			vm.sort(function(a,b){
-				if(a>b){
-					return -1;
-				} else if(a<b){
-					return 1;
-				}
-				return 0;
-			});
-			for(var y=0,yy=vm[0];y<yy;y++){
-				board.push([]);
-				for(var x=0,xx=hm[0];x<xx;x++){
-					board[y].push({letter:''});
-				}
-			}
-			_.each($scope.m.board, function(wordObj, wordIndex){
-				for(var y=0,yy=wordObj.word.length;y<yy;y++){
-					var coordX = wordObj.x,
-						coordY = wordObj.y;
+			if($scope.m.board.length){
+				_.each($scope.m.board, function(wordObj){
+					var horizMax = wordObj.x + 1,
+						verticMax = wordObj.y + 1;
 					if(wordObj.dir == 'right'){
-						coordX += y;
+						horizMax += wordObj.word.length - 1;
 					} else {
-						coordY += y;
+						verticMax += wordObj.word.length - 1;
 					}
-					if(board[coordY][coordX].letter == ''){
-						board[coordY][coordX] = {letter: wordObj.word[y], words: [wordIndex]};
-					} else {
-						board[coordY][coordX].words.push(wordIndex);
+					hm.push(horizMax);
+					vm.push(verticMax);
+				});
+				hm.sort(function(a,b){
+					if(a>b){
+						return -1;
+					} else if(a<b){
+						return 1;
+					}
+					return 0;
+				});
+				vm.sort(function(a,b){
+					if(a>b){
+						return -1;
+					} else if(a<b){
+						return 1;
+					}
+					return 0;
+				});
+				for(var y=0,yy=vm[0];y<yy;y++){
+					board.push([]);
+					for(var x=0,xx=hm[0];x<xx;x++){
+						board[y].push({letter:''});
 					}
 				}
-			});
+				_.each($scope.m.board, function(wordObj, wordIndex){
+					for(var y=0,yy=wordObj.word.length;y<yy;y++){
+						var coordX = wordObj.x,
+							coordY = wordObj.y;
+						if(wordObj.dir == 'right'){
+							coordX += y;
+						} else {
+							coordY += y;
+						}
+						if(board[coordY][coordX].letter == ''){
+							board[coordY][coordX] = {letter: wordObj.word[y], words: [wordIndex]};
+						} else {
+							board[coordY][coordX].words.push(wordIndex);
+						}
+					}
+				});
+			}
 			var lettersOnBoard = _.pluck(_.filter(_.flatten(board), function(cell){
 				return cell.letter != '';
 			}), 'letter');
-			$.each($scope.m.letters, function(indexA, valueA){
+			var allletters = $scope.m.allletters.slice();
+			$.each(allletters, function(indexA, valueA){
 				$.each(lettersOnBoard, function(indexB, valueB){
 					if(valueA == valueB){
-						$scope.m.letters[indexA] = null;
+						allletters[indexA] = null;
 						lettersOnBoard[indexB] = null;
 						return false;        
 					}
 				});
 			});
 			var remainingLetters = [];
-			$.each($scope.m.letters, function(idx,val){
+			$.each(allletters, function(idx,val){
 				if(val != null){
 					remainingLetters.push(val);
 				}
@@ -138,6 +137,7 @@ bh.controller('bhCtrl', function($scope){
 	
 	$scope.m = {
 		activeCell: [],
+		allletters: [],
 		board: [],
 		boardArr: [],
 		emptyboardmsg: 'Enter your initial set of letters to get started.',
@@ -154,15 +154,16 @@ bh.controller('bhCtrl', function($scope){
 		$scope.m.wordlistmsg = 'Select a letter on the board.';
 	}
 	
+	$scope.removeLetter = function(index, letter){
+		$scope.m.letters.splice(index, 1);
+		$scope.m.allletters.splice(_.indexOf($scope.m.allletters, letter), 1);
+	}
+	
 	$scope.removeWords = function(cell){
 		if(cell.letter == ''){
 			return false;
 		}
 		_.each(cell.words, function(wordIndex){
-			// TODO: add the letter from this word back to the pot
-			// TODO: but don't forget that some letters will remain...
-			// TODO: maybe we should have a variable that houses all the letters so
-			// TODO: we can just let the board processor handle remaining letters
 			$scope.m.board[wordIndex] = null;
 		});
 		_.each($scope.m.board, function(word, index){
@@ -187,6 +188,7 @@ bh.controller('bhCtrl', function($scope){
 		$scope.m.step = 2;
 		$scope.m.wordlistmsg = 'Processing...';
 		$scope.m.letters = $scope.m.initialset.split('');
+		$scope.m.allletters = $scope.m.letters;
 		$scope.m.emptyboardmsg = 'Select a word to the left to place it on the board.';
 		utilities.findInitialWordlist();
 	}
@@ -210,6 +212,7 @@ bh.controller('bhCtrl', function($scope){
 				var inp = String.fromCharCode(e.keyCode);
 				if(/[a-zA-Z]/.test(inp)){
 					$scope.m.letters.push(inp.toLowerCase());
+					$scope.m.allletters.push(inp.toLowerCase());
 					if($scope.m.board.length === 0 || $scope.m.activeCell.length){
 						$scope.m.wordlist = [];
 						$scope.m.wordlistmsg = 'Processing...';
