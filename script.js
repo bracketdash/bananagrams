@@ -25,6 +25,47 @@ bh.controller('bhCtrl', function($scope){
 				return;
 			}
 			// TODO: search for words that can connect to the active board cell
+			
+			/*
+			
+			Game plan:
+			
+			- for each possible word section (see below):
+				- create regex patterns possible words must adhere to
+				- make a temporary variable that has all the remaining letters
+					AND the letters that are part of the regex pattern
+				- get all the words that match the regex pattern
+			- then, for each word that makes other words on the board, if any:
+				- remove any words that make invalid words
+			
+			What constitutes a possible word section?
+			
+			Take the following example board:
+			
+			WORDS
+			 R  O
+			 DEN
+			 I
+			 NAUGHT
+			 A  R
+			 R  A
+			 Y  PIE
+			    E
+			
+			If the user selects the "A" in "ORDINARY"...
+			
+			These would be the regex patterns for the possible word sections to loop over:
+			
+			- .*a.
+			- .*a.{2}r.*
+			- .r.*
+			
+			Once all possible words given those patterns are found, loop through them and
+				make sure they don't create any invalid words by accident
+			
+			*/
+			
+			
 		}, 500, {
 			leading: false,
 			trailing: true
