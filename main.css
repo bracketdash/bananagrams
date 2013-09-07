@@ -20,7 +20,12 @@ input {
 .wordlist .btn {
 	text-transform:uppercase;
 }
+.board-row {
+	height:30px;
+	margin-bottom:1px;
+}
 .board-cell {
+	float:left;
 	width:30px;
 	height:30px;
 	border:1px solid #fff;
@@ -30,7 +35,6 @@ input {
 	line-height:30px;
 	text-align:center;
 	margin-right:1px;
-	margin-bottom:1px;
 	text-transform:uppercase;
 	cursor:pointer;
 }
