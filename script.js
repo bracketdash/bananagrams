@@ -20,6 +20,15 @@ bh.controller('bhCtrl', function($scope){
 				return '"0":1'+b+',';
 			})+'"0":1}}}}}}}}');
 		},
+		findConnectingWords: _.throttle(function(){
+			if($scope.m.activeCell.length === 0){
+				return;
+			}
+			// TODO: search for words that can connect to the active board cell
+		}, 500, {
+			leading: false,
+			trailing: true
+		}),
 		findInitialWordlist: _.throttle(function(){
 			var words = [];
 			function looper(object, traypart, prefix){
@@ -152,6 +161,7 @@ bh.controller('bhCtrl', function($scope){
 		$scope.m.board.push(word);
 		$scope.m.wordlist = [];
 		$scope.m.wordlistmsg = 'Select a letter on the board.';
+		$scope.m.activeCell = [];
 	}
 	
 	$scope.removeLetter = function(index, letter){
@@ -171,6 +181,11 @@ bh.controller('bhCtrl', function($scope){
 				$scope.m.board.splice(index, 1);
 			}
 		});
+		if($scope.m.board.length === 0){
+			$scope.m.wordlistmsg = 'Processing...';
+			utilities.findInitialWordlist();
+		}
+		$scope.m.activeCell = [];
 	}
 	
 	$scope.selectLetter = function(r, c, cell){
@@ -178,7 +193,7 @@ bh.controller('bhCtrl', function($scope){
 			return false;
 		}
 		$scope.m.activeCell = [r, c];
-		// TODO: search for words that can connect to this letter on the board
+		utilities.findConnectingWords();
 	}
 	
 	$scope.submitInitial = function(){
@@ -221,7 +236,7 @@ bh.controller('bhCtrl', function($scope){
 								utilities.findInitialWordlist();
 							},0);
 						} else {
-							// TODO: re-search for words that can connect to the selected letter on the board
+							utilities.findConnectingWords();
 						}
 					}
 					$scope.$$phase || $scope.$digest();
