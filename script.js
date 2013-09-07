@@ -24,6 +24,19 @@ bh.controller('bhCtrl', function($scope){
 			if($scope.m.activeCell.length === 0){
 				return;
 			}
+			var ba = $scope.m.boardArr,
+				ac = $scope.m.activeCell,
+				dir = 'down',
+				words = [];
+			if((ac[0] == 0 || ba[ac[0]-1][ac[1]] != '') && (ac[0] == ba.length-1 || ba[ac[0]+1][ac[1]] != '')){
+				if((ac[1] == 0 || ba[ac[0]][ac[1]-1] != '') && (ac[1] == ba[0].length-1 || ba[ac[0]][ac[1]+1] != '')){
+					$scope.m.wordlist = [];
+					$scope.m.wordlistmsg = 'No words could be found.';
+					return;
+				}
+				dir = 'right';
+			}
+			
 			// TODO: search for words that can connect to the active board cell
 			
 			/*
@@ -203,6 +216,20 @@ bh.controller('bhCtrl', function($scope){
 		$scope.m.wordlist = [];
 		$scope.m.wordlistmsg = 'Select a letter on the board.';
 		$scope.m.activeCell = [];
+	}
+	
+	$scope.cellClass = function(r, c, cell){
+		var sclass = '', ac = $scope.m.activeCell;
+		if(cell.letter != ''){
+			sclass += 'letter';
+		}
+		if(cell.letter != '' && ac.length && ac[0] == r && ac[1] == c){
+			sclass += ' ';
+		}
+		if(ac.length && ac[0] == r && ac[1] == c){
+			sclass += 'active';
+		}
+		return sclass;
 	}
 	
 	$scope.removeLetter = function(index, letter){

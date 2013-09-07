@@ -53,8 +53,8 @@
 						Double-click a word to remove it from the board.</p>
 					<div class="board-row" ng-repeat="row in m.boardArr">
 						<div class="board-cell" ng-repeat="cell in row" ng-bind="cell.letter"
-							ng-class="cell.letter != '' && 'letter' || ''" ng-dblclick="removeWords(cell)"
-							ng-click="selectLetter($parent.$index, $index, cell)"></div>
+							ng-dblclick="removeWords(cell)" ng-click="selectLetter($parent.$index, $index, cell)"
+							ng-class="cellClass($parent.$index, $index, cell)"></div>
 					</div>
 				</div>
 			</div>
