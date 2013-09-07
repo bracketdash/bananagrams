@@ -1,19 +1,6 @@
 body {
 	padding-bottom:30px;
 }
-#crunching {
-	position:fixed;
-	top:7px;
-	right:10px;
-	font-size:14px;
-	font-weight:bold;
-	color:#555;
-}
-#container {
-  width: 1008px;
-  margin: 0 auto;
-  padding-top:15px;
-}
 h1 {
   text-align: center;
 }
@@ -21,17 +8,35 @@ input {
 	font-size:24px;
 	text-transform:uppercase;
 }
-#board table {
-	border-collapse:separate;
-	border-spacing:2px;
+.remaining-letters {
+	margin-bottom:-5px;
 }
-#board td {
+.remaining-letters .btn {
+	width:39px;
+	margin-right:5px;
+	margin-bottom:5px;
+	text-transform:uppercase;
+}
+.wordlist .btn {
+	text-transform:uppercase;
+}
+.board-cell {
 	width:30px;
 	height:30px;
-	border:1px solid #bbb;
+	border:1px solid #fff;
 	font-size:20px;
 	font-weight:bold;
 	color:#333;
 	line-height:30px;
 	text-align:center;
+	margin-right:1px;
+	margin-bottom:1px;
+	text-transform:uppercase;
+	cursor:pointer;
+}
+.board-row .letter {
+	border:1px solid #bbb;
+}
+.board-row .letter:hover {
+	border:1px solid #333;
 }
