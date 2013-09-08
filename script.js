@@ -28,7 +28,8 @@ bh.controller('bhCtrl', function($scope){
 				ac = $scope.m.activeCell,
 				dir = 'down',
 				words = [],
-				lineofsight = [];
+				lineofsight = [],
+				selectedletter = ac[0];
 			if((ac[0] == 0 || ba[ac[0]-1][ac[1]] != '') && (ac[0] == ba.length-1 || ba[ac[0]+1][ac[1]] != '')){
 				if((ac[1] == 0 || ba[ac[0]][ac[1]-1] != '') && (ac[1] == ba[0].length-1 || ba[ac[0]][ac[1]+1] != '')){
 					$scope.m.wordlist = [];
@@ -37,28 +38,81 @@ bh.controller('bhCtrl', function($scope){
 				}
 				dir = 'right';
 				lineofsight = _.pluck(ba[ac[0]], 'letter');
+				selectedletter = ac[1];
 			} else {
 				lineofsight = _.pluck(_.pluck(ba, ac[1]), 'letter');
 			}
+			var templetters = lineofsight.join('').split(''),
+				lettersfound = 0;
+			_.each(lineofsight, function(letter, index){
+				if(letter == ''){
+					if(lettersfound == 0 || lettersfound == templetters.length){
+						lineofsight.splice(index,1);
+						if(lettersfound == 0){
+							selectedletter--;
+						}
+					}
+				} else {
+					lettersfound++;
+				}
+			});
+			
+			/*
+			
+			Example: l.f..n...t..n
+			
+			Pattern: ^(.?(.*l.))f(.?(.{2}n(.?(.{3}t(.?(.{2}n.*)|.{0,1}))|.{0,2}))|.{0,1})$
+			
+			- if this is the first letter
+				- if it is not the selected letter
+					- (.?(
+				- .*[letter]
+			- if this is not the first letter
+			- count the number of blanks between this and the next letter
+				- at least one?
+					- .
+				- more than one?
+					- {[number of spaces]}
+			- close the group
+				- ))
+			
+			*/
+			
+			var pattern = '^', blanks = 0;
+			
+			// UNDER CONSTRUCTION
+			_.each(lineofsight, function(letter, index){
+				if(index == 0){
+					if(index != selectedletter){
+						pattern += '(.?(';
+					}
+					pattern += '.*' + letter;
+				} else if(letter == ''){
+					blanks++;
+				} else {
+					if(blanks > 0){
+						pattern += '.';
+						if(blanks > 1){
+							pattern += '{' + blanks + '}';
+						}
+						blanks = 0;
+					}
+				}
+			});
+			
+			
+			pattern += '$';
 			
 			/*
 			
 			TODO:
 			
-			- create a regex pattern that matches the lineofsight array
 			- temporarily add the letters from the line of sight to the tray
 			- find all the words that...
 				- can be made with the tray
 				- match the pattern
 				- do not create invalid peripheral words
 				- do not use the temporary letters in places other than existing tiles
-			
-			Example:
-			
-			lineofsight: ..l.f..n...t..n
-			selected:       /^\
-			pattern: (.?(.*l.)|.*)f(.?(.{2}n(.?(.{2}t(.?(.{2}n.*)|.))|.{1,2}))|.)
-			temporary letters: l, f, n, t, n
 			
 			*/
 			
