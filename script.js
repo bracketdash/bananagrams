@@ -27,7 +27,8 @@ bh.controller('bhCtrl', function($scope){
 			var ba = $scope.m.boardArr,
 				ac = $scope.m.activeCell,
 				dir = 'down',
-				words = [];
+				words = [],
+				lineofsight = [];
 			if((ac[0] == 0 || ba[ac[0]-1][ac[1]] != '') && (ac[0] == ba.length-1 || ba[ac[0]+1][ac[1]] != '')){
 				if((ac[1] == 0 || ba[ac[0]][ac[1]-1] != '') && (ac[1] == ba[0].length-1 || ba[ac[0]][ac[1]+1] != '')){
 					$scope.m.wordlist = [];
@@ -35,46 +36,29 @@ bh.controller('bhCtrl', function($scope){
 					return;
 				}
 				dir = 'right';
+				lineofsight = _.pluck(ba[ac[0]], 'letter');
+			} else {
+				lineofsight = _.pluck(_.pluck(ba, ac[1]), 'letter');
 			}
-			
-			// TODO: search for words that can connect to the active board cell
 			
 			/*
 			
-			Game plan:
+			TODO:
 			
-			- for each possible word section (see below):
-				- create regex patterns possible words must adhere to
-				- make a temporary variable that has all the remaining letters
-					AND the letters that are part of the regex pattern
-				- get all the words that match the regex pattern
-			- then, for each word that makes other words on the board, if any:
-				- remove any words that make invalid words
+			- create a regex pattern that matches the lineofsight array
+			- temporarily add the letters from the line of sight to the tray
+			- find all the words that...
+				- can be made with the tray
+				- match the pattern
+				- do not create invalid peripheral words
+				- do not use the temporary letters in places other than existing tiles
 			
-			What constitutes a possible word section?
+			Example:
 			
-			Take the following example board:
-			
-			WORDS
-			 R  O
-			 DEN
-			 I
-			 NAUGHT
-			 A  R
-			 R  A
-			 Y  PIE
-			    E
-			
-			If the user selects the "A" in "ORDINARY"...
-			
-			These would be the regex patterns for the possible word sections to loop over:
-			
-			- .*a.
-			- .*a.{2}r.*
-			- .r.*
-			
-			Once all possible words given those patterns are found, loop through them and
-				make sure they don't create any invalid words by accident
+			lineofsight: ..l.f..n...t..n
+			selected:       /^\
+			pattern: (.?(.*l.)|.*)f(.?(.{2}n(.?(.{2}t(.?(.{2}n.*)|.))|.{1,2}))|.)
+			temporary letters: l, f, n, t, n
 			
 			*/
 			
