@@ -56,54 +56,92 @@ bh.controller('bhCtrl', function($scope){
 					lettersfound++;
 				}
 			});
-			
-			/*
-			
-			Example: l.f..n...t..n
-			
-			Pattern: ^(.?(.*l.))f(.?(.{2}n(.?(.{3}t(.?(.{2}n.*)|.{0,1}))|.{0,2}))|.{0,1})$
-			
-			- if this is the first letter
-				- if it is not the selected letter
-					- (.?(
-				- .*[letter]
-			- if this is not the first letter
-			- count the number of blanks between this and the next letter
-				- at least one?
-					- .
-				- more than one?
-					- {[number of spaces]}
-			- close the group
-				- ))
-			
-			*/
-			
-			var pattern = '^', blanks = 0;
-			
-			// UNDER CONSTRUCTION
+			var blanks = 0, segments = [];
 			_.each(lineofsight, function(letter, index){
-				if(index == 0){
-					if(index != selectedletter){
-						pattern += '(.?(';
-					}
-					pattern += '.*' + letter;
-				} else if(letter == ''){
+				if(letter == ''){
 					blanks++;
 				} else {
-					if(blanks > 0){
-						pattern += '.';
-						if(blanks > 1){
-							pattern += '{' + blanks + '}';
-						}
-						blanks = 0;
-					}
+					segments.push({
+						letter: letter,
+						leadingBlanks: blanks,
+						beforeSelected: index <= selectedletter,
+						afterSelected: index >= selectedletter
+					});
+					blanks = 0;
 				}
 			});
-			
-			
-			pattern += '$';
+			var patterns = [];
+			_.each(_.where(segments, {beforeSelected: true}), function(preSegment, preIndex){
+				_.each(_.where(segments, {afterSelected: true}), function(postSegment, postIdx){
+					var pattern = '',
+						postIndex = postIdx + selectedletter,
+						letters = [];
+					if(preIndex > 0){
+						pattern = '^';
+					}
+					_.each(segments.slice(preIndex, postIndex+1), function(workingSegment, workingIdx){
+						var leadingBlanks = workingSegment.leadingBlanks;
+						if(workingIdx == 0){
+							if(preIndex > 0 && leadingBlanks > 1){
+								leadingBlanks--;
+								pattern += '.';
+								if(leadingBlanks > 1){
+									pattern += '{0,' + leadingBlanks + '}';
+								}
+							}
+						} else if(leadingBlanks > 0){
+							pattern += '.';
+							if(leadingBlanks > 1){
+								pattern += '{' + leadingBlanks + '}';
+							}
+						}
+						pattern += workingSegment.letter;
+						if(postIndex == workingIdx + preIndex && postIndex < segments.length-1){
+							var followingBlanks = segments[workingIdx + preIndex + 1].leadingBlanks - 1;
+							pattern += '.';
+							if(leadingBlanks > 1){
+								pattern += '{0,' + leadingBlanks + '}';
+							}
+						}
+						letters.push(workingSegment.letter);
+					});
+					if(postIndex < segments.length-1){
+						pattern += '$';
+					}
+					patterns.push({letters: letters, pattern: pattern});
+				});
+			});
 			
 			/*
+			
+			Examples:
+			
+			l.f..n...t..n, f selected
+			
+			var patterns = [
+				{letters: ['l','f','n','t','n'], pattern: 'l.f.{2}n.{3}t.{2}n'},
+				{letters: ['l','f','n','t'], pattern: 'l.f.{2}n.{3}t.{0,1}$'},
+				{letters: ['l','f','n'], pattern: 'l.f.{2}n.{0,2}$'},
+				{letters: ['l','f'], pattern: 'l.f.{0,1}$'},
+				{letters: ['f','n','t','n'], pattern: '^f.{2}n.{3}t.{2}n'},
+				{letters: ['f','n','t'], pattern: '^f.{2}n.{3}t.{0,1}$'},
+				{letters: ['f','n'], pattern: '^f.{2}n.{0,2}$'},
+				{letters: ['f'], pattern: '^f.{0,1}$'}
+			];
+			
+			l.f..n...t..n, first n selected
+			
+			var patterns = [
+				{letters: ['l','f','n','t','n'], pattern: 'l.f.{2}n.{3}t.{2}n'},
+				{letters: ['l','f','n','t'], pattern: 'l.f.{2}n.{3}t.{0,1}$'},
+				{letters: ['l','f','n'], pattern: 'l.f.{2}n.{0,2}$'},
+				{letters: ['f','n','t','n'], pattern: '^f.{2}n.{3}t.{2}n'},
+				{letters: ['f','n','t'], pattern: '^f.{2}n.{3}t.{0,1}$'},
+				{letters: ['f','n'], pattern: '^f.{2}n.{0,2}$'},
+				{letters: ['n','t','n'], pattern: '^.{0,1}n.{3}t.{2}n'},
+				{letters: ['n','t'], pattern: '^.{0,1}n.{3}t.{0,1}$'},
+				{letters: ['n'], pattern: '^.{0,1}n.{0,2}$'}
+			];
 			
 			TODO:
 			
@@ -116,6 +154,7 @@ bh.controller('bhCtrl', function($scope){
 			
 			*/
 			
+			var pattern = patterns.join('|');
 			
 		}, 500, {
 			leading: false,
