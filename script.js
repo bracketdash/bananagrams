@@ -309,7 +309,7 @@ bh.controller('bhCtrl', function($scope){
 		$scope.m.step = 2;
 		$scope.m.wordlistmsg = 'Processing...';
 		$scope.m.letters = $scope.m.initialset.split('');
-		$scope.m.allletters = $scope.m.letters;
+		$scope.m.allletters = $scope.m.letters.splice();
 		$scope.m.emptyboardmsg = 'Select a word to the left to place it on the board.';
 		utilities.findInitialWordlist();
 	}
