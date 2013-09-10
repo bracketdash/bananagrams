@@ -143,19 +143,48 @@ bh.controller('bhCtrl', function($scope){
 				{letters: ['n'], pattern: '^.{0,1}n.{0,2}$'}
 			];
 			
-			TODO:
-			
-			- temporarily add the letters from the line of sight to the tray
-			- find all the words that...
-				- can be made with the tray
-				- match the pattern
-				- do not create invalid peripheral words
-				- do not use the temporary letters in places other than existing tiles
-			
 			*/
-			
-			var pattern = patterns.join('|');
-			
+			var wordlist = [];
+			function looper(object, patternRegEx, traypart, prefix){
+				_.forOwn(object, function(val, key){
+					var traytray = traypart.slice();
+					if(key == '0'){
+						if(patternRegEx.test(prefix)){
+							words.push({word:prefix, x:0, y:0, dir:'down'});
+							// TODO: check to see if this creates invalid peripherals
+							// TODO: check to make sure this only uses the extra letters if they already exist on the board
+						}
+					} else if(traytray.indexOf(key) != -1){
+						traytray.splice(traytray.indexOf(key),1);
+						looper(val, patternRegEx, traytray, prefix + key);
+					}
+				});
+			}
+			_.each(patterns, function(pattern, index){
+				var tray = $scope.m.letters.slice().concat(pattern.letters),
+					patternRegEx = new RegExp(pattern.pattern);
+				looper(all, patternRegEx, tray, '');
+			});
+			if(words.length){
+				words.sort(function(a,b){
+					if(a.word.length < b.word.length){
+						return 1;
+					} else if(a.word.length > b.word.length){
+						return -1;
+					}
+					return 0;
+				});
+				if(words.length > 100){
+					$scope.m.wordlistmsg = 'Found more than 100 words:';
+					words = words.slice(0,100);
+				} else {
+					$scope.m.wordlistmsg = 'Found ' + words.length + ' words:';
+				}
+			} else {
+				$scope.m.wordlistmsg = 'No words could be found.';
+			}
+			$scope.m.wordlist = words;
+			$scope.$$phase || $scope.$digest();
 		}, 500, {
 			leading: false,
 			trailing: true
