@@ -108,15 +108,12 @@ bh.controller('bhCtrl', function($scope){
 					if(postIndex < segments.length-1){
 						pattern += '$';
 					}
-					patterns.push({letters: letters, pattern: pattern});
+					patterns.push({letters: letters, pattern: new RegExp(pattern)});
 				});
 			});
-			
 			/*
 			
-			Examples:
-			
-			l.f..n...t..n, f selected
+			Example: l.f..n...t..n, f selected
 			
 			var patterns = [
 				{letters: ['l','f','n','t','n'], pattern: 'l.f.{2}n.{3}t.{2}n'},
@@ -129,41 +126,40 @@ bh.controller('bhCtrl', function($scope){
 				{letters: ['f'], pattern: '^f.{0,1}$'}
 			];
 			
-			l.f..n...t..n, first n selected
-			
-			var patterns = [
-				{letters: ['l','f','n','t','n'], pattern: 'l.f.{2}n.{3}t.{2}n'},
-				{letters: ['l','f','n','t'], pattern: 'l.f.{2}n.{3}t.{0,1}$'},
-				{letters: ['l','f','n'], pattern: 'l.f.{2}n.{0,2}$'},
-				{letters: ['f','n','t','n'], pattern: '^f.{2}n.{3}t.{2}n'},
-				{letters: ['f','n','t'], pattern: '^f.{2}n.{3}t.{0,1}$'},
-				{letters: ['f','n'], pattern: '^f.{2}n.{0,2}$'},
-				{letters: ['n','t','n'], pattern: '^.{0,1}n.{3}t.{2}n'},
-				{letters: ['n','t'], pattern: '^.{0,1}n.{3}t.{0,1}$'},
-				{letters: ['n'], pattern: '^.{0,1}n.{0,2}$'}
-			];
-			
 			*/
 			var wordlist = [];
-			function looper(object, patternRegEx, traypart, prefix){
+			function looper(object, pattern, traypart, prefix){
 				_.forOwn(object, function(val, key){
 					var traytray = traypart.slice();
 					if(key == '0'){
-						if(patternRegEx.test(prefix)){
-							words.push({word:prefix, x:0, y:0, dir:'down'});
-							// TODO: check to see if this creates invalid peripherals
-							// TODO: check to make sure this only uses the extra letters if they already exist on the board
+						var matches = prefix.match(pattern.pattern);
+						if(matches.length){
+							_.each(matches, function(match, index){
+								var indexOfFirstPatternLetterInWord = prefix.split(match, index).join(match).length + _.indexOf(pattern.letters[0], match);
+								
+								/*
+								
+								- line the word up on the board
+								- get the x/col and y/row of the word
+								- check each vertical the word changes on the board for any peripherals it would create
+									- if all of these peripherals exist in the dictionary, add the word:
+										- words.push({word:prefix, x:col, y:row, dir:dir});
+											
+								Note 1: It's okay to add the same word twice if it's going in different positions on the board.
+								Note 2: Because of all the checks and number of loops, there may be some big performance hits.
+								
+								*/
+							});
 						}
 					} else if(traytray.indexOf(key) != -1){
 						traytray.splice(traytray.indexOf(key),1);
-						looper(val, patternRegEx, traytray, prefix + key);
+						looper(val, pattern, traytray, prefix + key);
 					}
 				});
 			}
 			_.each(patterns, function(pattern, index){
-				var tray = $scope.m.letters.slice().concat(pattern.letters),
-					patternRegEx = new RegExp(pattern.pattern);
-				looper(all, patternRegEx, tray, '');
+				var tray = $scope.m.letters.slice().concat(pattern.letters);
+				looper(all, pattern, tray, '');
 			});
 			if(words.length){
 				words.sort(function(a,b){
