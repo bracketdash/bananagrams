@@ -1,3 +1,14 @@
+/*
+
+TODO:
+
+- lots of testing with a bunch of different initial letter sets, words, etc.
+- when the user hovers over a word, show a ghost of it on the board
+- right now we're only searching for connecting words in one direction
+	- what if they select a letter that can have connecting words in both directions?
+
+*/
+
 var bh = angular.module('bh', []);
 
 bh.controller('bhCtrl', function($scope){
@@ -21,27 +32,45 @@ bh.controller('bhCtrl', function($scope){
 			})+'"0":1}}}}}}}}');
 		},
 		findConnectingWords: _.throttle(function(){
+			
+			console.log('Finding connecting words...');
+			
 			if($scope.m.activeCell.length === 0){
 				return;
 			}
+			
+			console.log('Setting up some variables...');
+			
 			var ba = $scope.m.boardArr,
 				ac = $scope.m.activeCell,
 				dir = 'down',
 				words = [],
 				lineofsight = [],
 				selectedletter = ac[0];
-			if((ac[0] == 0 || ba[ac[0]-1][ac[1]] != '') && (ac[0] == ba.length-1 || ba[ac[0]+1][ac[1]] != '')){
-				if((ac[1] == 0 || ba[ac[0]][ac[1]-1] != '') && (ac[1] == ba[0].length-1 || ba[ac[0]][ac[1]+1] != '')){
+			
+			console.log('Figuring out the basics...');
+			// TODO: this logic is still kinda faulty--deserves a second look and lots of testing
+			
+			if(ac[1] > 0 && ba[ac[1]-1][ac[1]] != '' && ac[1] < ba.length-1 && ba[ac[1]+1][ac[0]] != ''){
+				if(ac[0] > 0 && ba[ac[1]][ac[0]-1] != '' && ac[0] < ba[0].length-1 && ba[ac[1]][ac[0]+1] != ''){
 					$scope.m.wordlist = [];
 					$scope.m.wordlistmsg = 'No words could be found.';
+					$scope.$$phase || $scope.$digest();
+					
+					console.log('No words found.');
+					
 					return;
 				}
 				dir = 'right';
-				lineofsight = _.pluck(ba[ac[0]], 'letter');
-				selectedletter = ac[1];
+				lineofsight = _.pluck(ba[ac[1]], 'letter');
+				selectedletter = ac[0];
 			} else {
-				lineofsight = _.pluck(_.pluck(ba, ac[1]), 'letter');
+				lineofsight = _.pluck(_.pluck(ba, ac[0]), 'letter');
 			}
+			
+			console.log('dir: ', dir);
+			console.log('Creating lineofsight...');
+			
 			var templetters = lineofsight.join('').split(''),
 				lettersfound = 0, lineofsightoffset = 0;
 			_.each(lineofsight, function(letter, index){
@@ -57,6 +86,10 @@ bh.controller('bhCtrl', function($scope){
 					lettersfound++;
 				}
 			});
+			
+			console.log('lineofsight:', lineofsight, 'selectedletter:', selectedletter);
+			console.log('Creating segments...');
+			
 			var blanks = 0, segments = [];
 			_.each(lineofsight, function(letter, index){
 				if(letter == ''){
@@ -71,6 +104,11 @@ bh.controller('bhCtrl', function($scope){
 					blanks = 0;
 				}
 			});
+			
+			console.log('segments:');
+			console.log(segments);
+			console.log('Creating patterns...');
+			
 			var patterns = [];
 			_.each(_.where(segments, {beforeSelected: true}), function(preSegment, preIndex){
 				_.each(_.where(segments, {afterSelected: true}), function(postSegment, postIdx){
@@ -115,44 +153,95 @@ bh.controller('bhCtrl', function($scope){
 							offset += segement.leadingBlanks + 1;
 						});
 					}
-					patterns.push({letters: letters, pattern: new RegExp(pattern), offset: offset});
+					patterns.push({letters: letters, pattern: new RegExp(pattern, 'g'), offset: offset});
 				});
 			});
+			
+			console.log(patterns);
+			console.log('Creating wordlist...');
+			
 			var wordlist = [];
+			function getPath(obj, ks){
+				if (obj === undefined) return void 0;
+				if (ks.length === 0) return obj;
+				if (obj === null) return void 0;
+				return getPath(obj[_.first(ks)], _.rest(ks));
+			}
 			function looper(object, pattern, traypart, prefix){
 				_.forOwn(object, function(val, key){
 					var traytray = traypart.slice();
 					if(key == '0'){
-						var matches = prefix.match(pattern.pattern);
-						if(matches.length){
-							_.each(matches, function(match, index){
-								var boardOffset = lineofsightoffset + selectedletter - (prefix.split(match, index).join(match).length + pattern.offset),
-									word = {word: prefix, dir: dir}, pass = true;
-								if(dir == 'down'){
-									word.x = boardOffset;
-									word.y = ac[1];
-								} else {
-									word.x = ac[0];
-									word.y = boardOffset;
-								}
-								for(var y=0,yy=word.word.length;y<yy;y++){
-									var coordX = word.x, coordY = word.y, peripheral = '';
+						if(_.indexOf(prefix, lineofsight[selectedletter]) > 0){
+							var matches = prefix.match(pattern.pattern);
+							if(matches != null && matches.length){
+								_.each(matches, function(match, index){
+									var boardOffset = lineofsightoffset + selectedletter - (prefix.split(match, index+1).join(match).length + pattern.offset),
+										word = {word: prefix, dir: dir}, pass = true;
 									if(dir == 'right'){
-										coordX += y;
-										// check tiles just above and below this in $scope.m.boardArr to see if a peripheral word is formed when word.word[y] is added
-										// if so, set the variable 'peripheral' to the formed word
+										word.x = boardOffset;
+										word.y = ac[1];
 									} else {
-										coordY += y;
-										// check tiles just left and right of this in $scope.m.boardArr to see if a peripheral word is formed when word.word[y] is added
-										// if so, set the variable 'peripheral' to the formed word
+										word.x = ac[0];
+										word.y = boardOffset;
 									}
-									// if peripheral.length > 0, check it against the dictionary
-									// if it is not in the dictionary, pass = false
-								}
-								if(pass){
-									words.push(word);
-								}
-							});
+									for(var y=0,yy=word.word.length;y<yy;y++){
+										var coordX = word.x, coordY = word.y, pline = [], peripheral = [];
+										if(dir == 'right'){
+											coordX += y;
+											if($scope.m.boardArr[0].length > coordX){
+												pline = $scope.m.boardArr[coordY];
+												if(coordX > 0 && pline[coordX-1].letter != ''){
+													_.each(_.first(pline, coordX-1).reverse(), function(letter){
+														if(letter.letter == ''){
+															return false;
+														}
+														peripheral.push(letter.letter);
+													});
+													peripheral.reverse();
+												}
+												peripheral.push(pline[coordX]);
+												if(coordX > 0 && coordX < pline.length-1 && pline[coordX+1].letter != ''){
+													_.each(_.rest(pline, coordX+1), function(letter){
+														if(letter.letter == ''){
+															return false;
+														}
+														peripheral.push(letter.letter);
+													});
+												}
+											}
+										} else {
+											coordY += y;
+											if($scope.m.boardArr.length > coordY){
+												pline = _.pluck($scope.m.boardArr, coordX);
+												if(coordY > 0 && pline[coordY-1].letter != ''){
+													_.each(_.first(pline, coordY-1).reverse(), function(letter){
+														if(letter.letter == ''){
+															return false;
+														}
+														peripheral.push(letter.letter);
+													});
+													peripheral.reverse();
+												}
+												peripheral.push(pline[coordY]);
+												if(coordY > 0 && coordY < pline.length-1 && pline[coordY+1].letter != ''){
+													_.each(_.rest(pline, coordY+1), function(letter){
+														if(letter.letter == ''){
+															return false;
+														}
+														peripheral.push(letter.letter);
+													});
+												}
+											}
+										}
+										if(peripheral.length && typeof getPath(all, peripheral) == 'undefined'){
+											pass == false;
+										}
+									}
+									if(pass){
+										words.push(word);
+									}
+								});
+							}
 						}
 					} else if(traytray.indexOf(key) != -1){
 						traytray.splice(traytray.indexOf(key),1);
@@ -162,8 +251,13 @@ bh.controller('bhCtrl', function($scope){
 			}
 			_.each(patterns, function(pattern, index){
 				var tray = $scope.m.letters.slice().concat(pattern.letters);
+				console.log('Running original looper...');
 				looper(all, pattern, tray, '');
 			});
+			
+			console.log('Wordlist:');
+			console.log(words);
+			
 			if(words.length){
 				words.sort(function(a,b){
 					if(a.word.length < b.word.length){
@@ -317,6 +411,19 @@ bh.controller('bhCtrl', function($scope){
 	};
 	
 	$scope.addWordToBoard = function(word){
+		if(word.x < 0){
+			var absx = Math.abs(word.x);
+			_.each($scope.m.board, function(word){
+				word.x += absx;
+			});
+			word.x = 0;
+		}if(word.y < 0){
+			var absy = Math.abs(word.y);
+			_.each($scope.m.board, function(word){
+				word.y += absy;
+			});
+			word.y = 0;
+		}
 		$scope.m.board.push(word);
 		$scope.m.wordlist = [];
 		$scope.m.wordlistmsg = 'Select a letter on the board.';
@@ -365,7 +472,7 @@ bh.controller('bhCtrl', function($scope){
 		if(cell.letter == ''){
 			return false;
 		}
-		$scope.m.activeCell = [r, c];
+		$scope.m.activeCell = [c, r];
 		utilities.findConnectingWords();
 	}
 	
@@ -376,7 +483,7 @@ bh.controller('bhCtrl', function($scope){
 		$scope.m.step = 2;
 		$scope.m.wordlistmsg = 'Processing...';
 		$scope.m.letters = $scope.m.initialset.split('');
-		$scope.m.allletters = $scope.m.letters.splice();
+		$scope.m.allletters = $scope.m.letters.slice();
 		$scope.m.emptyboardmsg = 'Select a word to the left to place it on the board.';
 		utilities.findInitialWordlist();
 	}
