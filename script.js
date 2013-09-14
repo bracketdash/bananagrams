@@ -43,12 +43,13 @@ bh.controller('bhCtrl', function($scope){
 				lineofsight = _.pluck(_.pluck(ba, ac[1]), 'letter');
 			}
 			var templetters = lineofsight.join('').split(''),
-				lettersfound = 0;
+				lettersfound = 0, lineofsightoffset = 0;
 			_.each(lineofsight, function(letter, index){
 				if(letter == ''){
 					if(lettersfound == 0 || lettersfound == templetters.length){
 						lineofsight.splice(index,1);
 						if(lettersfound == 0){
+							lineofsightoffset++;
 							selectedletter--;
 						}
 					}
@@ -108,25 +109,15 @@ bh.controller('bhCtrl', function($scope){
 					if(postIndex < segments.length-1){
 						pattern += '$';
 					}
-					patterns.push({letters: letters, pattern: new RegExp(pattern)});
+					var offset = 0;
+					if(!preSegment.afterSelected){
+						offset = _.each(segments.slice(preIndex+1, _.indexOf(_.findWhere(segments, {beforeSelected: true, afterSelected: true}))+1), function(segment){
+							offset += segement.leadingBlanks + 1;
+						});
+					}
+					patterns.push({letters: letters, pattern: new RegExp(pattern), offset: offset});
 				});
 			});
-			/*
-			
-			Example: l.f..n...t..n, f selected
-			
-			var patterns = [
-				{letters: ['l','f','n','t','n'], pattern: 'l.f.{2}n.{3}t.{2}n'},
-				{letters: ['l','f','n','t'], pattern: 'l.f.{2}n.{3}t.{0,1}$'},
-				{letters: ['l','f','n'], pattern: 'l.f.{2}n.{0,2}$'},
-				{letters: ['l','f'], pattern: 'l.f.{0,1}$'},
-				{letters: ['f','n','t','n'], pattern: '^f.{2}n.{3}t.{2}n'},
-				{letters: ['f','n','t'], pattern: '^f.{2}n.{3}t.{0,1}$'},
-				{letters: ['f','n'], pattern: '^f.{2}n.{0,2}$'},
-				{letters: ['f'], pattern: '^f.{0,1}$'}
-			];
-			
-			*/
 			var wordlist = [];
 			function looper(object, pattern, traypart, prefix){
 				_.forOwn(object, function(val, key){
@@ -135,18 +126,26 @@ bh.controller('bhCtrl', function($scope){
 						var matches = prefix.match(pattern.pattern);
 						if(matches.length){
 							_.each(matches, function(match, index){
-								var indexOfFirstPatternLetterInWord = prefix.split(match, index).join(match).length + _.indexOf(pattern.letters[0], match);
-								
+								var boardOffset = lineofsightoffset + selectedletter - (prefix.split(match, index).join(match).length + pattern.offset);
+								var word = {word: prefix, dir: dir};
+								if(dir == 'down'){
+									word.x = boardOffset;
+									word.y = ac[1];
+								} else {
+									word.x = ac[0];
+									word.y = boardOffset;
+								}
+								var bc = _.clone($scope.m.boardArr, true);
 								/*
 								
-								- line the word up on the board
-								- get the x/col and y/row of the word
+								TODO:
+								Place the word on bc, then 
 								- check each vertical the word changes on the board for any peripherals it would create
-									- if all of these peripherals exist in the dictionary, add the word:
-										- words.push({word:prefix, x:col, y:row, dir:dir});
-											
-								Note 1: It's okay to add the same word twice if it's going in different positions on the board.
-								Note 2: Because of all the checks and number of loops, there may be some big performance hits.
+									- if all of these peripherals exist in the dictionary, add the word: words.push(word);
+								
+								Note:
+								Because of the amount of logic in a potentially very high number of loops, there may be some performance hits.
+								We may need to use setTimeout(function(){}, 0) at some point.
 								
 								*/
 							});
