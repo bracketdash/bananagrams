@@ -126,8 +126,13 @@ bh.controller('bhCtrl', function($scope){
 						var matches = prefix.match(pattern.pattern);
 						if(matches.length){
 							_.each(matches, function(match, index){
+<<<<<<< HEAD
 								var boardOffset = lineofsightoffset + selectedletter - (prefix.split(match, index).join(match).length + pattern.offset);
 								var word = {word: prefix, dir: dir};
+=======
+								var boardOffset = lineofsightoffset + selectedletter - (prefix.split(match, index).join(match).length + pattern.offset),
+									word = {word: prefix, dir: dir}, pass = true;
+>>>>>>> 3d5d50227ec5a4cac4ae34f0e5b62e206ed75da2
 								if(dir == 'down'){
 									word.x = boardOffset;
 									word.y = ac[1];
@@ -135,6 +140,7 @@ bh.controller('bhCtrl', function($scope){
 									word.x = ac[0];
 									word.y = boardOffset;
 								}
+<<<<<<< HEAD
 								var bc = _.clone($scope.m.boardArr, true);
 								/*
 								
@@ -148,6 +154,25 @@ bh.controller('bhCtrl', function($scope){
 								We may need to use setTimeout(function(){}, 0) at some point.
 								
 								*/
+=======
+								for(var y=0,yy=word.word.length;y<yy;y++){
+									var coordX = word.x, coordY = word.y, peripheral = '';
+									if(dir == 'right'){
+										coordX += y;
+										// check tiles just above and below this in $scope.m.boardArr to see if a peripheral word is formed when word.word[y] is added
+										// if so, set the variable 'peripheral' to the formed word
+									} else {
+										coordY += y;
+										// check tiles just left and right of this in $scope.m.boardArr to see if a peripheral word is formed when word.word[y] is added
+										// if so, set the variable 'peripheral' to the formed word
+									}
+									// if peripheral.length > 0, check it against the dictionary
+									// if it is not in the dictionary, pass = false
+								}
+								if(pass){
+									words.push(word);
+								}
+>>>>>>> 3d5d50227ec5a4cac4ae34f0e5b62e206ed75da2
 							});
 						}
 					} else if(traytray.indexOf(key) != -1){
