@@ -3,6 +3,8 @@
 TODO:
 
 - lots of testing with a bunch of different initial letter sets, words, etc.
+	- logic to determine search direction is buggy
+	- still experiencing conflicting overwrites
 - when the user hovers over a word, show a ghost of it on the board
 - right now we're only searching for connecting words in one direction
 	- what if they select a letter that can have connecting words in both directions?
