@@ -13,7 +13,7 @@ program:
 if words can be found
     (PLACEMENT) [placer.js] place the longest word on the board
     if there are letters left
-        [board.js] for each row and column on the board
+        for each row and column on the board
             [matcher.js] find words that could fit
         if words can be found
             GOTO PLACEMENT AND CONTINUE

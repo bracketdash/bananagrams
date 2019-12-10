@@ -11,8 +11,8 @@ function getTrie() {
         });
 		return '"_":1' + brackets + ',';
     });
-    trie = trie.replace(/([A-Z])/g, function(letter) {
-        let num = letter.charCodeAt() - 55;
+    trie = trie.replace(/([A-Z])/g, function(num) {
+        num = num.charCodeAt() - 55;
         let brackets = '';
         _.times(num, function() {
             brackets += '}';
