@@ -11,10 +11,10 @@ program:
 
 [combinator.js] find words that can be made with the letters
 if words can be found
-    (PLACEMENT) place the longest word on the board
+    (PLACEMENT) [placer.js] place the longest word on the board
     if there are letters left
-        for each row and column on the board
-            [findWordsThatFit.js] find words that could fit (TODO: ..made from the remaining letters)
+        [board.js] for each row and column on the board
+            [matcher.js] find words that could fit
         if words can be found
             GOTO PLACEMENT AND CONTINUE
         if words could not be found
