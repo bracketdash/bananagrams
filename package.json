@@ -1,0 +1,11 @@
+{
+  "name": "bananagrams",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
+}
