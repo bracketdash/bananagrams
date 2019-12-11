@@ -1,45 +1,35 @@
 const _ = require('lodash');
 
 function placeWord(board, word, row, col, dir) {
-    
-    // first resize the board if necessary
-    // TODO: abstract these out to keep things DRY
-    if (col + word.length > board[0].length) {
-        // add columns to the right
-        _.times((col + word.length) - board.length, function() {
-            let newCol = [];
-            _.times(board.length, function() {
-                newCol.push(' ');
-            });
-            board.push(newCol);
-        });
-    } else if (col < 0) {
-        // add columns to the left
-        _.times(-col, function() {
-            let newCol = [];
-            _.times(board.length, function() {
-                newCol.push(' ');
-            });
-            board.push(newCol);
+
+    let wordLen = {right:0,down:0};
+    wordLen[dir] = word.length;
+
+    // add rows to the top if needed
+    if (row < 0) {
+        _.times(-row, function() {
+            board.unshift(_.map(Array(board[0].length), () => ' '));
         });
     }
-    if (row + word.length > board.length) {
-        // add rows to the bottom
-        _.times((row + word.length) - board.length, function() {
-            let newRow = [];
-            _.times(board[0].length, function() {
-                newRow.push(' ');
-            });
-            board.push(newRow);
+
+    // add rows to the bottom if needed
+    if (row + wordLen.down > board.length) {
+        _.times(row + wordLen.down - board.length, function() {
+            board.push(_.map(Array(board[0].length), () => ' '));
         });
-    } else if (row < 0) {
-        // add rows to the top
-        _.times(-row, function() {
-            let newRow = [];
-            _.times(board[0].length, function() {
-                newRow.push(' ');
-            });
-            board.unshift(newRow);
+    }
+
+    // add columns to the left if needed
+    if (col < 0) {
+        board = _.map(board, function(boardRow) {
+            return _.map(Array(-col), () => ' ').concat(boardRow);
+        });
+    }
+
+    // add columns to the right if needed
+    if (col + wordLen.right > board[0].length) {
+        board = _.map(board, function(boardRow) {
+            return boardRow.concat(_.map(Array(col + wordLen.right - board[0].length), () => ' '))
         });
     }
 
@@ -57,7 +47,8 @@ let board = [
     [' ', 'm', ' '],
     [' ', 'n', ' ']
 ];
-console.log(placeWord(board, 'boom', 4, -2, 'row'));
+
+board = placeWord(board, 'boom', 4, -2, 'right');
 
 /*
 expected return:
@@ -70,3 +61,7 @@ expected return:
     [' ', ' ', ' ', 'n', ' ']
 ];
 */
+
+board = placeWord(board, 'wonder', 1, 2, 'down');
+
+console.log(board);
