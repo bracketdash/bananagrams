@@ -18,9 +18,8 @@ function placeAndContinue(board, incomingMatches, disallowedWords, trie, letters
         printBoard(board);
         return;
     }
-    console.log('Placing "' + match.word + '"...');
+    console.log('Placing:');
     console.log(match);
-    // TODO: BUG - trying to place "tot" instead of "hot"?
     board = placer.placeWord(board, match.word, match.row, match.col, match.dir);
     _.forEach(match.word, function(matchWordLetter) {
         letters = letters.replace(matchWordLetter, '');
@@ -34,7 +33,10 @@ function placeAndContinue(board, incomingMatches, disallowedWords, trie, letters
             console.log(matches.length + ' matches found in ' + (new Date().getTime() - getMatchesStartTime) + 'ms');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.length));
-                placeAndContinue(board, matches, disallowedWords, trie, letters, 0);
+                console.log('Looping back...');
+                setTimeout(function() {
+                    placeAndContinue(board, matches, disallowedWords, trie, letters, 0);
+                });
             } else {
                 /*
                 TODO:

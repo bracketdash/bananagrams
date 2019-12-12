@@ -7,11 +7,11 @@ module.exports = {
         if (row < 0 || row + wordLen.col > board.length) {
             let newRow = _.map(Array(board[0].length), () => ' ');
             if (row < 0) {
-                _.times(-row, () => board.unshift(newRow));
+                _.times(-row, () => board.unshift(_.clone(newRow)));
                 row = 0;
             }
             if (row + wordLen.col > board.length) {
-                _.times(row + wordLen.col - board.length, () => board.push(newRow));
+                _.times(row + wordLen.col - board.length, () => board.push(_.clone(newRow)));
             }
         }
         if (col < 0 || col + wordLen.row > board[0].length) {
