@@ -5,9 +5,22 @@ const dict = require('./dict.js');
 const matcher = require('./matcher.js');
 const placer = require('./placer.js');
 
+function printBoard(board) {
+    _.forEach(board, function(boardRow) {
+        console.log(boardRow.join(' '));
+    });
+}
+
 function placeAndContinue(board, words, disallowedWords, trie, letters, selectedWordIndex) {
     let selectedWord = words[selectedWordIndex];
+    if (!selectedWord) {
+        console.log('NO SOLUTION! Tiles left: ' + letters.join(' '));
+        printBoard(board);
+    }
     board = placer.placeWord(board, selectedWord, 0, 0, 'row');
+    _.forEach(selectedWord, function(selectedWordLetter) {
+        letters = letters.replace(selectedWordLetter, '');
+    });
     if (letters.length - selectedWord.length > 0) {
         matcher.getMatches(trie, letters, disallowedWords, board).then(function(matches) {
             
@@ -29,10 +42,8 @@ function placeAndContinue(board, words, disallowedWords, trie, letters, selected
             }
         });
     } else {
-        console.log('SOLUTION FOUND');
-        _.forEach(board, function(boardRow) {
-            console.log(boardRow.join(' '));
-        });
+        console.log('SOLUTION FOUND!');
+        printBoard(board);
     }
 }
 
@@ -54,7 +65,7 @@ function solve(letters, disallowedWords) {
             });
             placeAndContinue([[]], words, disallowedWords, trie, letters, 0);
         } else {
-            console.log('NO SOLUTION');
+            console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
         }
     });
 }

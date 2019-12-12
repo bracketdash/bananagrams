@@ -33,12 +33,8 @@ module.exports = {
         });
         return matches;
     },
-    getMatches: function(trie, letters, disallowedWords, board) {
+    getMatches: function(trie, lettersLeft, disallowedWords, board) {
         return new Promise(function(resolve) {
-            let lettersLeft = letters;
-            _.forEach(selectedWord, function(selectedWordLetter) {
-                lettersLeft = lettersLeft.replace(selectedWordLetter, '');
-            });
             let columns = [];
             _.times(board[0].length, function() {
                 columns.push([]);
