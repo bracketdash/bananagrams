@@ -18,17 +18,23 @@ function placeAndContinue(board, words, disallowedWords, trie, letters, selected
         printBoard(board);
         return;
     }
+    console.log('Placing first word(' + selectedWord + ')...');
     board = placer.placeWord(board, selectedWord, 0, 0, 'row');
     _.forEach(selectedWord, function(selectedWordLetter) {
         letters = letters.replace(selectedWordLetter, '');
     });
+    console.log('Tiles left: ' + letters);
     if (letters.length) {
+        console.log('Getting matches...');
+        const getMatchesStartTime = new Date().getTime();
         matcher.getMatches(trie, letters, disallowedWords, board).then(function(matches) {
             
+            console.log(matches.length + ' matches found in ' + (new Date().getTime() - getMatchesStartTime) + 'ms');
             console.log(matches);
 
             if (matches.length) {
                 // TODO: placeAndContinue(...)
+                // TODO: update placeAndContinue to take a set of matches instead of just words
             } else {
                 /*
                 TODO:
@@ -49,26 +55,34 @@ function placeAndContinue(board, words, disallowedWords, trie, letters, selected
 }
 
 function solve(letters, disallowedWords) {
+    console.log('Decompressing dictionary...');
+    const trieStartTime = new Date().getTime();
     const trie = dict.getTrie();
-    combinator.makeWordsWith(trie, letters).then(function(words) {
-        if (disallowedWords) {
-            words = _.difference(words, disallowedWords);
-        }
-        if (words.length) {
-            words = words.sort(function(a, b) {
-                if (a.length > b.length) {
-                    return -1;
-                } else if (a.length < b.length) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-            placeAndContinue([[]], words, disallowedWords, trie, letters, 0);
-        } else {
-            console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
-        }
+    letters = letters.toLowerCase();
+    disallowedWords = _.map(disallowedWords, (disallowedWord) => disallowedWord.toLowerCase());
+    setTimeout(function() {
+        console.log('Dictionary decompressed in ' + (new Date().getTime() - trieStartTime) + 'ms');
+        combinator.makeWordsWith(trie, letters).then(function(words) {
+            if (disallowedWords) {
+                words = _.difference(words, disallowedWords);
+            }
+            if (words.length) {
+                words = words.sort(function(a, b) {
+                    if (a.length > b.length) {
+                        return -1;
+                    } else if (a.length < b.length) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+                console.log(words.length + ' initial word combos generated...');
+                placeAndContinue([[]], words, disallowedWords, trie, letters, 0);
+            } else {
+                console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
+            }
+        });
     });
 }
 
-solve('akdfjkfsdlsf', ['letters']);
+solve('someletterstoworkwith');
