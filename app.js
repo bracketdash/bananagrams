@@ -16,12 +16,13 @@ function placeAndContinue(board, words, disallowedWords, trie, letters, selected
     if (!selectedWord) {
         console.log('NO SOLUTION! Tiles left: ' + letters.join(' '));
         printBoard(board);
+        return;
     }
     board = placer.placeWord(board, selectedWord, 0, 0, 'row');
     _.forEach(selectedWord, function(selectedWordLetter) {
         letters = letters.replace(selectedWordLetter, '');
     });
-    if (letters.length - selectedWord.length > 0) {
+    if (letters.length) {
         matcher.getMatches(trie, letters, disallowedWords, board).then(function(matches) {
             
             console.log(matches);
@@ -70,4 +71,4 @@ function solve(letters, disallowedWords) {
     });
 }
 
-solve('letters', ['letters']);
+solve('akdfjkfsdlsf', ['letters']);
