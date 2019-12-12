@@ -30,10 +30,11 @@ function placeAndContinue(board, incomingMatches, disallowedWords, trie, letters
         console.log('Getting matches...');
         const getMatchesStartTime = new Date().getTime();
         matcher.getMatches(trie, letters, disallowedWords, board).then(function(matches) {
+            // TODO: this is also returning matches that are invalid
+            // TODO: we need to remove matches that would accidentally create words not in the dictionary
             console.log(matches.length + ' matches found in ' + (new Date().getTime() - getMatchesStartTime) + 'ms');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
-                console.log(matches);
                 console.log('Looping back...');
                 setTimeout(function() {
                     placeAndContinue(board, matches, disallowedWords, trie, letters, 0);
@@ -65,6 +66,7 @@ function solve(letters, disallowedWords) {
     disallowedWords = _.map(disallowedWords, (disallowedWord) => disallowedWord.toLowerCase());
     setTimeout(function() {
         console.log('Dictionary decompressed in ' + (new Date().getTime() - trieStartTime) + 'ms');
+        console.log('Generating initial set of word combos from letters...');
         combinator.makeWordsWith(trie, letters).then(function(words) {
             if (disallowedWords) {
                 words = _.difference(words, disallowedWords);
@@ -95,4 +97,4 @@ function solve(letters, disallowedWords) {
     });
 }
 
-solve('someletterstoworkwith');
+solve('somemoreletterstoworkwith');
