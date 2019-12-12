@@ -32,7 +32,8 @@ function placeAndContinue(board, incomingMatches, disallowedWords, trie, letters
         matcher.getMatches(trie, letters, disallowedWords, board).then(function(matches) {
             console.log(matches.length + ' matches found in ' + (new Date().getTime() - getMatchesStartTime) + 'ms');
             if (matches.length) {
-                matches = _.reverse(_.sortBy(matches, (match) => match.length));
+                matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
+                console.log(matches);
                 console.log('Looping back...');
                 setTimeout(function() {
                     placeAndContinue(board, matches, disallowedWords, trie, letters, 0);
