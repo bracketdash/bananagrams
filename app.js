@@ -11,30 +11,30 @@ function printBoard(board) {
     });
 }
 
-function placeAndContinue(board, words, disallowedWords, trie, letters, selectedWordIndex) {
-    let selectedWord = words[selectedWordIndex];
-    if (!selectedWord) {
+function placeAndContinue(board, incomingMatches, disallowedWords, trie, letters, selectedMatchIndex) {
+    let match = incomingMatches[selectedMatchIndex];
+    if (!match) {
         console.log('NO SOLUTION! Tiles left: ' + letters.join(' '));
         printBoard(board);
         return;
     }
-    console.log('Placing first word(' + selectedWord + ')...');
-    board = placer.placeWord(board, selectedWord, 0, 0, 'row');
-    _.forEach(selectedWord, function(selectedWordLetter) {
-        letters = letters.replace(selectedWordLetter, '');
+    console.log('Placing "' + match.word + '"...');
+    console.log(match);
+    // TODO: BUG - trying to place "tot" instead of "hot"?
+    board = placer.placeWord(board, match.word, match.row, match.col, match.dir);
+    _.forEach(match.word, function(matchWordLetter) {
+        letters = letters.replace(matchWordLetter, '');
     });
+    printBoard(board);
     console.log('Tiles left: ' + letters);
     if (letters.length) {
         console.log('Getting matches...');
         const getMatchesStartTime = new Date().getTime();
         matcher.getMatches(trie, letters, disallowedWords, board).then(function(matches) {
-            
             console.log(matches.length + ' matches found in ' + (new Date().getTime() - getMatchesStartTime) + 'ms');
-            console.log(matches);
-
             if (matches.length) {
-                // TODO: placeAndContinue(...)
-                // TODO: update placeAndContinue to take a set of matches instead of just words
+                matches = _.reverse(_.sortBy(matches, (match) => match.length));
+                placeAndContinue(board, matches, disallowedWords, trie, letters, 0);
             } else {
                 /*
                 TODO:
@@ -77,7 +77,14 @@ function solve(letters, disallowedWords) {
                     }
                 });
                 console.log(words.length + ' initial word combos generated...');
-                placeAndContinue([[]], words, disallowedWords, trie, letters, 0);
+                placeAndContinue([[]], _.map(words, function(word) {
+                    return {
+                        word: word,
+                        dir: 'row',
+                        row: 0,
+                        col: 0
+                    };
+                }), disallowedWords, trie, letters, 0);
             } else {
                 console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
             }
