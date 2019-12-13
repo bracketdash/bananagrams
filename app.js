@@ -1,5 +1,20 @@
 const express = require('express');
 const solver = require('./solver.js');
-// GET / (UI)
-// GET /get-wordlist
-// GET /solve?letters=someletters&disallowedWords=word,word,..
+const app = express();
+app.get('/', function(req, res) {
+    res.send('UI coming soon.');
+});
+app.get('/solve', function(req, res) {
+    let disallowedWords = false;
+    if (!req.query.letters) {
+        res.send('No letters. No solution.');
+    }
+    if (req.query.disallowedWords) {
+        disallowedWords = req.query.disallowedWords.split(',');
+    }
+    solver.solve(req.query.letters, disallowedWords).then(function(answer) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(answer);
+    });
+});
+app.listen(3000, () => console.log('App started successfully.'));

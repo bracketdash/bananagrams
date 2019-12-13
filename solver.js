@@ -111,28 +111,6 @@ function getTrie() {
     return trie;
 }
 
-// get the full word list
-
-function getWordListLoop(trie, currentPrefix, words, resolve) {
-    _.forEach(trie, function(nextLevel, newLetter) {
-        if (newLetter === '_') {
-            words.push(currentPrefix);
-            if (currentPrefix === 'zzzs') {
-                resolve(words);
-            }
-        } else {
-            getWordListLoop(nextLevel, currentPrefix + newLetter, words, resolve);
-        }
-    });
-}
-
-function getWordList() {
-    return new Promise(function(resolve) {
-        let words = [];
-        getWordListLoop(trie, '', words, resolve);
-    });
-}
-
 // gets words that can be made with the given letters
 
 function makeWordsWithLoop(trie, letters, prefix, words, resolve) {
@@ -213,19 +191,25 @@ function printBoard(board, letters) {
 // generate a solution board given a set of letters
 // optionally provide a set of disallowed words (e.g. your friends won't accept something the solver generates)
 
-function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMatchIndex) {
+function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMatchIndex, solveResolve) {
     let match = incomingMatches[selectedMatchIndex];
     if (!match) {
         console.log('NO SOLUTION YET! :(');
         printBoard(board, letters);
+        solveResolve({
+            solved: false,
+            board: board,
+            letters: letters
+        });
         return;
     }
     console.log('Placing "' + match.word + '"...');
     let newBoard = placeWord(board, match.word, match.row, match.col, match.dir);
+    // TODO: Looks like this is still letting everything through...
     getBoardValidity(newBoard, disallowedWords).then(function(valid) {
         if (!valid) {
             console.log('Couldn\'t place word. Trying next one...');
-            solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1));
+            solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1), solveResolve);
         }
     });
     _.forEach(match.word, function(matchWordLetter) {
@@ -237,50 +221,58 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
             console.log(matches.length + ' matches found.');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
-                solveLoop(newBoard, matches, disallowedWords, letters, 0);
+                solveLoop(newBoard, matches, disallowedWords, letters, 0, solveResolve);
             } else {
                 console.log('Removing last word added and trying next word...');
-                solveLoop(board, incomingMatches, disallowedWords, (letters + match.word), (selectedMatchIndex + 1));
+                solveLoop(board, incomingMatches, disallowedWords, (letters + match.word), (selectedMatchIndex + 1), solveResolve);
             }
         });
     } else {
         console.log('SOLUTION FOUND!');
+        solveResolve({
+            solved: true,
+            board: newBoard
+        });
     }
 }
 
 function solve(letters, disallowedWords) {
-    letters = letters.toLowerCase();
-    disallowedWords = _.map(disallowedWords, (disallowedWord) => disallowedWord.toLowerCase());
-    makeWordsWith(letters).then(function(words) {
-        if (disallowedWords) {
-            words = _.difference(words, disallowedWords);
-        }
-        console.log(words.length + ' initial words generated.');
-        if (words.length) {
-            words = words.sort(function(a, b) {
-                if (a.length > b.length) {
-                    return -1;
-                } else if (a.length < b.length) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-            solveLoop([[]], _.map(words, function(word) {
-                return {
-                    word: word,
-                    dir: 'row',
-                    row: 0,
-                    col: 0
-                };
-            }), disallowedWords, letters, 0);
-        } else {
-            console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
-        }
+    return new Promise(function(solveResolve) {
+        letters = letters.toLowerCase();
+        disallowedWords = _.map(disallowedWords, (disallowedWord) => disallowedWord.toLowerCase());
+        makeWordsWith(letters).then(function(words) {
+            if (disallowedWords) {
+                words = _.difference(words, disallowedWords);
+            }
+            console.log(words.length + ' initial words generated.');
+            if (words.length) {
+                words = words.sort(function(a, b) {
+                    if (a.length > b.length) {
+                        return -1;
+                    } else if (a.length < b.length) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+                solveLoop([[]], _.map(words, function(word) {
+                    return {
+                        word: word,
+                        dir: 'row',
+                        row: 0,
+                        col: 0
+                    };
+                }), disallowedWords, letters, 0, solveResolve);
+            } else {
+                console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
+                solveResolve({
+                    solved: false,
+                    board: [],
+                    letters: letters
+                });
+            }
+        });
     });
 }
 
-// TODO: remove testing line
-solve('anotherperfectlyrealisticsetofletters');
-
-// module.exports = {solve};
+module.exports = {solve};
