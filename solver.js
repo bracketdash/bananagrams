@@ -210,24 +210,6 @@ function printBoard(board, letters) {
     console.log(' ');
 }
 
-// remove the last word added and try the next match from that set
-
-function removeLastWordAndTryNextMatch(/* TODO */) {
-    console.log('Removing the last word added to the board...');
-    console.log('(UNDER CONSTRUCTION)');
-    // TODO: Remove the last placed word from the board
-    console.log('Trying the next match from that set...');
-    console.log('(UNDER CONSTRUCTION: This is the end of the script for now.)');
-    /*
-    TODO:
-    solveLoop(...) except..
-        if there  are more words that we haven't tried
-            place the next word in the set on the board
-        if there are no more words left to try
-            EXIT (NO SOLUTION)
-    */
-}
-
 // generate a solution board given a set of letters
 // optionally provide a set of disallowed words (e.g. your friends won't accept something the solver generates)
 
@@ -239,24 +221,26 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
         return;
     }
     console.log('Placing "' + match.word + '"...');
-    board = placeWord(board, match.word, match.row, match.col, match.dir);
+    let newBoard = placeWord(board, match.word, match.row, match.col, match.dir);
+    getBoardValidity(newBoard, disallowedWords).then(function(valid) {
+        if (!valid) {
+            console.log('Couldn\'t place word. Trying next one...');
+            solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1));
+        }
+    });
     _.forEach(match.word, function(matchWordLetter) {
         letters = letters.replace(matchWordLetter, '');
     });
-    printBoard(board, letters);
-    getBoardValidity(board, disallowedWords).then(function(valid) {
-        if (!valid) {
-            removeLastWordAndTryNextMatch(/* TODO */);
-        }
-    });
+    printBoard(newBoard, letters);
     if (letters.length) {
-        getMatches(letters, disallowedWords, board).then(function(matches) {
+        getMatches(letters, disallowedWords, newBoard).then(function(matches) {
             console.log(matches.length + ' matches found.');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
-                solveLoop(board, matches, disallowedWords, letters, 0);
+                solveLoop(newBoard, matches, disallowedWords, letters, 0);
             } else {
-                removeLastWordAndTryNextMatch(/* TODO */);
+                console.log('Removing last word added and trying next word...');
+                solveLoop(board, incomingMatches, disallowedWords, (letters + match.word), (selectedMatchIndex + 1));
             }
         });
     } else {
