@@ -1,9 +1,50 @@
 // Bananagrams Solver
-// ENTRY POINT: solve()
+// ENTRY POINT: solve(...)
 
 const _ = require('lodash');
 const fs = require('fs');
 const trie = getTrie();
+
+// check if the board contains only valid words
+
+function getBoardValidity(board, disallowedWords) {
+    return new Promise(function(resolve) {
+        crawlBoard(board, function(boardRow) {
+            let words = _.split(_.trim(boardRow.join('')), /\s+/);
+            _.forEach(words, function(word) {
+                if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
+                    resolve(false);
+                }
+            });
+        }, function(boardColumn, boardColumnIndex) {
+            let words = _.split(_.trim(boardColumn.join('')), /\s+/);
+            _.forEach(words, function(word) {
+                if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
+                    resolve(false);
+                }
+            });
+            if (boardColumnIndex = board[0].length - 1) {
+                resolve(true);
+            }
+        });
+    });
+}
+
+// run functions on each row and column
+
+function crawlBoard(board, rowCallback, colCallback) {
+    let columns = [];
+    _.times(board[0].length, function() {
+        columns.push([]);
+    });
+    _.forEach(board, function(boardRow, boardRowIndex) {
+        rowCallback(boardRow, boardRowIndex);
+        _.forEach(boardRow, function(boardCol, boardColIndex) {
+            columns[boardColIndex].push(boardCol);
+        });
+    });
+    _.forEach(columns, colCallback);
+}
 
 // get words that can be added to the board with the given letters
 
@@ -25,24 +66,16 @@ function getMatchesLoop(words, strip, stripdex, dir) {
 
 function getMatches(letters, disallowedWords, board) {
     return new Promise(function(resolve) {
-        let columns = [];
-        _.times(board[0].length, function() {
-            columns.push([]);
-        });
-        let matches = [];
         makeWordsWith(letters).then(function(wordsWithLetters) {
+            let matches = [];
             if (disallowedWords) {
                 wordsWithLetters = _.difference(wordsWithLetters, disallowedWords);
             }
-            _.forEach(board, function(boardRow, boardRowIndex) {
+            crawlBoard(board, function(boardRow, boardRowIndex) {
                 matches = matches.concat(getMatchesLoop(wordsWithLetters, boardRow, boardRowIndex, 'row'));
-                _.forEach(boardRow, function(boardCol, boardColIndex) {
-                    columns[boardColIndex].push(boardCol);
-                });
-            });
-            _.forEach(columns, function(boardColumn, boardColumnIndex) {
+            }, function(boardColumn, boardColumnIndex) {
                 matches = matches.concat(getMatchesLoop(wordsWithLetters, boardColumn, boardColumnIndex, 'col'));
-                if (boardColumnIndex === columns.length - 1) {
+                if (boardColumnIndex === board[0].length - 1) {
                     resolve(matches);
                 }
             });
@@ -74,7 +107,7 @@ function getTrie() {
     return trie;
 }
 
-// get the full word list (not used but here for any future utility)
+// get the full word list
 
 function getWordListLoop(trie, currentPrefix, words, resolve) {
     _.forEach(trie, function(nextLevel, newLetter) {
@@ -207,12 +240,11 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
         letters = letters.replace(matchWordLetter, '');
     });
     printBoard(board, letters);
-    /*
-    TODO:
-    check the board to make sure all words are valid
-    (just in case placing this word created additional words)
-    if the board is invalid, removeLastWordAndTryNextMatch(TODO)
-    */
+    getBoardValidity(board, disallowedWords).then(function(valid) {
+        if (!valid) {
+            removeLastWordAndTryNextMatch(/* TODO */);
+        }
+    });
     if (letters.length) {
         getMatches(letters, disallowedWords, board).then(function(matches) {
             console.log(matches.length + ' matches found.');
