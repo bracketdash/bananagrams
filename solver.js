@@ -23,16 +23,15 @@ function getBoardValidity(board, disallowedWords) {
                     resolve(false);
                 }
             });
-            if (boardColumnIndex = board[0].length - 1) {
-                resolve(true);
-            }
+        }, function() {
+            resolve(true);
         });
     });
 }
 
 // run functions on each row and column
 
-function crawlBoard(board, rowCallback, colCallback) {
+function crawlBoard(board, rowCallback, colCallback, doneCallback) {
     let columns = [];
     _.times(board[0].length, function() {
         columns.push([]);
@@ -43,7 +42,12 @@ function crawlBoard(board, rowCallback, colCallback) {
             columns[boardColIndex].push(boardCol);
         });
     });
-    _.forEach(columns, colCallback);
+    _.forEach(columns, function(boardColumn, boardColumnIndex) {
+        colCallback(boardColumn, boardColumnIndex);
+        if (boardColumnIndex === columns.length - 1) {
+            doneCallback();
+        }
+    });
 }
 
 // get words that can be added to the board with the given letters
@@ -75,9 +79,9 @@ function getMatches(letters, disallowedWords, board) {
                 matches = matches.concat(getMatchesLoop(wordsWithLetters, boardRow, boardRowIndex, 'row'));
             }, function(boardColumn, boardColumnIndex) {
                 matches = matches.concat(getMatchesLoop(wordsWithLetters, boardColumn, boardColumnIndex, 'col'));
-                if (boardColumnIndex === board[0].length - 1) {
-                    resolve(matches);
-                }
+            }, function() {
+                console.log('matches.length inside getMatches: ' + matches.length);
+                resolve(matches);
             });
         });
     });
