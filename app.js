@@ -1,34 +1,8 @@
 // Bananagrams Solver
-
-// load vendor libs
+// ENTRY POINT: solve()
 
 const _ = require('lodash');
 const fs = require('fs');
-
-// load and build our word prefix tree
-
-function getTrie() {
-    let trie = fs.readFileSync('./trie.txt', 'utf8');
-    trie = trie.replace(/([a-z])/g,"\"$1\":{");
-    trie = trie.replace(/([0-9])/g, function(num) {
-        let brackets = '';
-        _.times(parseInt(num), function() {
-            brackets += '}';
-        });
-        return '"_":1' + brackets + ',';
-    });
-    trie = trie.replace(/([A-Z])/g, function(num) {
-        num = num.charCodeAt() - 55;
-        let brackets = '';
-        _.times(num, function() {
-            brackets += '}';
-        });
-        return '"_":1' + brackets + ',';
-    });
-    trie = JSON.parse('{' + trie + '"_":1}}}}}}}}');
-    return trie;
-}
-
 const trie = getTrie();
 
 // get words that can be added to the board with the given letters
@@ -80,6 +54,30 @@ function getMatches(letters, disallowedWords, board) {
             });
         });
     });
+}
+
+// load and build our word prefix tree
+
+function getTrie() {
+    let trie = fs.readFileSync('./trie.txt', 'utf8');
+    trie = trie.replace(/([a-z])/g,"\"$1\":{");
+    trie = trie.replace(/([0-9])/g, function(num) {
+        let brackets = '';
+        _.times(parseInt(num), function() {
+            brackets += '}';
+        });
+        return '"_":1' + brackets + ',';
+    });
+    trie = trie.replace(/([A-Z])/g, function(num) {
+        num = num.charCodeAt() - 55;
+        let brackets = '';
+        _.times(num, function() {
+            brackets += '}';
+        });
+        return '"_":1' + brackets + ',';
+    });
+    trie = JSON.parse('{' + trie + '"_":1}}}}}}}}');
+    return trie;
 }
 
 // get the full word list (not used but here for any future utility)
@@ -188,7 +186,6 @@ function printBoard(board, letters) {
     console.log(' ');
 }
 
-// ENTRY POINT ( solve() )
 // generate a solution board given a set of letters
 // optionally provide a set of disallowed words (e.g. your friends won't accept something the solver generates)
 
