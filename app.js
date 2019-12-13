@@ -105,15 +105,9 @@ function getWordList() {
 // gets words that can be made with the given letters
 
 function makeWordsWithLoop(trie, letters, prefix, words, resolve) {
-    /*
-    TODO:
-    this is generating a lot of duplicates (tens of thousands) and runs very slow
-    we should de-dupe the letters being looped through
-    we also need to make sure we still use a letter up to however many times it exists in the original set of letters
-    */
     let newPrefix = '';
     let lastLeaf = true;
-    _.forEach(letters, function(letter) {
+    _.forEach(_.uniq(letters), function(letter) {
         if (!!trie[letter]) {
             if (lastLeaf) {
                 lastLeaf = false;
