@@ -7,26 +7,24 @@ const trie = getTrie();
 
 // check if the board contains only valid words
 
-function getBoardValidity(board, disallowedWords) {
-    return new Promise(function(resolve) {
-        crawlBoard(board, function(boardRow) {
-            let words = _.split(_.trim(boardRow.join('')), /\s+/);
-            _.forEach(words, function(word) {
-                if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
-                    resolve(false);
-                }
-            });
-        }, function(boardColumn, boardColumnIndex) {
-            let words = _.split(_.trim(boardColumn.join('')), /\s+/);
-            _.forEach(words, function(word) {
-                if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
-                    resolve(false);
-                }
-            });
-        }, function() {
-            resolve(true);
+function isBoardValid(board, disallowedWords) {
+    let valid = true;
+    crawlBoard(board, function(boardRow) {
+        let words = _.split(_.trim(boardRow.join('')), /\s+/);
+        _.forEach(words, function(word) {
+            if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
+                valid = false;
+            }
+        });
+    }, function(boardColumn, boardColumnIndex) {
+        let words = _.split(_.trim(boardColumn.join('')), /\s+/);
+        _.forEach(words, function(word) {
+            if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
+                valid = false;
+            }
         });
     });
+    return valid;
 }
 
 // run functions on each row and column
@@ -44,7 +42,7 @@ function crawlBoard(board, rowCallback, colCallback, doneCallback) {
     });
     _.forEach(columns, function(boardColumn, boardColumnIndex) {
         colCallback(boardColumn, boardColumnIndex);
-        if (boardColumnIndex === columns.length - 1) {
+        if (doneCallback && boardColumnIndex === columns.length - 1) {
             doneCallback();
         }
     });
@@ -208,17 +206,15 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
     }
     console.log('Placing "' + match.word + '"...');
     let newBoard = placeWord(board, match.word, match.row, match.col, match.dir);
-    // TODO: this is causing some sort of infinite loop...
-    // TODO: Looks like this is still letting everything through...
-    // TODO: skipping for now - just means some of the final solutions won't be valid until we fix this
-    /*
-    getBoardValidity(newBoard, disallowedWords).then(function(valid) {
-        if (!valid) {
-            console.log('Couldn\'t place word. Trying next one...');
-            solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1), solveResolve);
-        }
-    });
-    */
+    if(!isBoardValid(newBoard, disallowedWords)) {
+        console.log('Couldn\'t place word. Trying next one...');
+        printBoard(newBoard, letters);
+        // oooh, I get what's happening - run node solver.js to see
+        // we are returning matches from getMatches that would overlap existing words on the baord
+        // need to not produce matches for cells that have words across them already (fix would be in getMatches)...
+        return;
+        solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1), solveResolve);
+    }
     _.forEach(match.word, function(matchWordLetter) {
         letters = letters.replace(matchWordLetter, '');
     });
