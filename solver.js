@@ -55,6 +55,9 @@ function crawlBoard(board, rowCallback, colCallback, doneCallback) {
 function getMatchesLoop(words, strip, stripdex, dir) {
     let notDir = dir === 'row' ? 'col' : 'row';
     let stripStr = strip.join('');
+    if (!_.trim(stripStr)) {
+        return [];
+    }
     let pattern = new RegExp(_.trim(stripStr).replace(/\s/g, '.'));
     let stripMatches = [];
     _.forEach(words, function(word) {
@@ -205,13 +208,17 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
     }
     console.log('Placing "' + match.word + '"...');
     let newBoard = placeWord(board, match.word, match.row, match.col, match.dir);
+    // TODO: this is causing some sort of infinite loop...
     // TODO: Looks like this is still letting everything through...
+    // TODO: skipping for now - just means some of the final solutions won't be valid until we fix this
+    /*
     getBoardValidity(newBoard, disallowedWords).then(function(valid) {
         if (!valid) {
             console.log('Couldn\'t place word. Trying next one...');
             solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1), solveResolve);
         }
     });
+    */
     _.forEach(match.word, function(matchWordLetter) {
         letters = letters.replace(matchWordLetter, '');
     });
