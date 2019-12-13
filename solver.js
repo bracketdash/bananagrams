@@ -282,4 +282,7 @@ function solve(letters, disallowedWords) {
     });
 }
 
-module.exports = {solve};
+// This set of letters provides a strange solution with gaps - should fix this before starting on UI or board validity function
+console.log(solve('somemorelettersletters'));
+
+//module.exports = {solve};
