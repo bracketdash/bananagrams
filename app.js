@@ -164,7 +164,6 @@ function placeWord(board, word, row, col, dir) {
 
 function printBoard(board, letters) {
     console.log(' ');
-    console.log('Board snapshot:');
     console.log(' ' + _.repeat('_', board[0].length*2) + '_');
     _.forEach(board, function(boardRow) {
         console.log('| ' + boardRow.join(' ') + ' |');
@@ -215,12 +214,10 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
     if the board is invalid, removeLastWordAndTryNextMatch(TODO)
     */
     if (letters.length) {
-        console.log('Getting matches...');
         getMatches(letters, disallowedWords, board).then(function(matches) {
             console.log(matches.length + ' matches found.');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
-                console.log('Looping...');
                 solveLoop(board, matches, disallowedWords, letters, 0);
             } else {
                 removeLastWordAndTryNextMatch(/* TODO */);
@@ -228,21 +225,17 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
         });
     } else {
         console.log('SOLUTION FOUND!');
-        printBoard(board, letters);
     }
 }
 
 function solve(letters, disallowedWords) {
-    console.log('Decompressing dictionary...');
     letters = letters.toLowerCase();
     disallowedWords = _.map(disallowedWords, (disallowedWord) => disallowedWord.toLowerCase());
-    console.log('Dictionary decompressed.');
-    console.log('Generating initial set of word combos from letters (takes a while for a lot of letters)...');
     makeWordsWith(letters).then(function(words) {
         if (disallowedWords) {
             words = _.difference(words, disallowedWords);
         }
-        console.log(words.length + ' words generated...');
+        console.log(words.length + ' initial words generated.');
         if (words.length) {
             words = words.sort(function(a, b) {
                 if (a.length > b.length) {
