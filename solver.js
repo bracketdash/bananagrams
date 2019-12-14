@@ -178,8 +178,12 @@ function makeWordsWith(letters) {
 
 // place a word on the board
 
-function placeWord(oldBoard, word, row, col, dir) {
+function placeWord(oldBoard, match) {
     let board = _.cloneDeep(oldBoard);
+    let word = match.word;
+    let row = match.row;
+    let col = match.col;
+    let dir = match.dir;
     let wordLen = {row:0,col:0};
     wordLen[dir] = word.length;
     if (row < 0 || row + wordLen.col > board.length) {
@@ -229,46 +233,79 @@ function printBoard(board, letters) {
 // generate a solution board given a set of letters
 // optionally provide a set of disallowed words (e.g. your friends won't accept something the solver generates)
 
-function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMatchIndex, solveResolve) {
-    let match = incomingMatches[selectedMatchIndex];
-    if (!match) {
-        console.log('NO SOLUTION YET! :(');
-        printBoard(board, letters);
-        solveResolve({
-            solved: false,
-            board: board,
-            letters: letters
+function solveLoop(solveState) {
+    let currentState = solveState.history[solveState.historyIndex];
+    let currentMatch = currentState.matches[currentState.matchIndex];
+    if (!currentMatch) {
+        console.log('Ran out of matches to try, backing up one more placement...');
+        if (solveState.historyIndex > 0) {
+            solveState.history[solveState.historyIndex-1].matchIndex += 1;
+            solveLoop({
+                disallowedWords: solveState.disallowedWords,
+                history: solveState.history.slice(0,-1),
+                historyIndex: solveState.historyIndex - 1,
+                solveResolve: solveState.solveResolve
+            });
+        } else {
+            console.log('NO SOLUTION FOUND! :(');
+            solveState.solveResolve({
+                solved: false,
+                board: currentState.board,
+                letters: currentState.letters
+            });
+        }
+        return;
+    }
+    console.log('Placing "' + currentMatch.word + '"...');
+    let newBoard = placeWord(currentState.board, currentMatch);
+    if (!isBoardValid(newBoard, solveState.disallowedWords)) {
+        console.log('Could not place word. Trying next one...');
+        currentState.matchIndex = currentState.matchIndex + 1;
+        solveLoop({
+            disallowedWords: solveState.disallowedWords,
+            history: solveState.history,
+            historyIndex: solveState.historyIndex,
+            solveResolve: solveState.solveResolve
         });
         return;
     }
-    console.log('Placing "' + match.word + '"...');
-    let newBoard = placeWord(board, match.word, match.row, match.col, match.dir);
-    if (!isBoardValid(newBoard, disallowedWords)) {
-        console.log('Could not place word. Trying next one...');
-        solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1), solveResolve);
-    }
-    if (newBoard.length > 20) {
-        return;
-    }
-    _.forEach(match.word, function(matchWordLetter) {
-        letters = letters.replace(matchWordLetter, '');
+    let newLetters = currentState.letters;
+    _.forEach(currentMatch.word, function(matchWordLetter) {
+        newLetters = newLetters.replace(matchWordLetter, '');
     });
-    printBoard(newBoard, letters);
-    if (letters.length) {
-        getMatches(letters, disallowedWords, newBoard).then(function(matches) {
+    printBoard(newBoard, newLetters);
+    if (newLetters.length) {
+        getMatches(newLetters, solveState.disallowedWords, newBoard).then(function(matches) {
             console.log(matches.length + ' matches found.');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
-                solveLoop(newBoard, matches, disallowedWords, letters, 0, solveResolve);
+                solveState.history.push({
+                    board: newBoard,
+                    letters: newLetters,
+                    matches: matches,
+                    matchIndex: 0
+                });
+                solveLoop({
+                    disallowedWords: solveState.disallowedWords,
+                    history: solveState.history,
+                    historyIndex: solveState.historyIndex + 1,
+                    solveResolve: solveState.solveResolve
+                });
             } else {
                 console.log('Removing last word added and trying next word...');
-                printBoard(board, (letters + match.word));
-                solveLoop(board, incomingMatches, disallowedWords, (letters + match.word), (selectedMatchIndex + 1), solveResolve);
+                printBoard(currentState.board, currentState.letters);
+                currentState.matchIndex = currentState.matchIndex + 1;
+                solveLoop({
+                    disallowedWords: solveState.disallowedWords,
+                    history: solveState.history,
+                    historyIndex: solveState.historyIndex,
+                    solveResolve: solveState.solveResolve
+                });
             }
         });
     } else {
         console.log('SOLUTION FOUND!');
-        solveResolve({
+        solveState.solveResolve({
             solved: true,
             board: newBoard
         });
@@ -283,7 +320,6 @@ function solve(letters, disallowedWords) {
             if (disallowedWords) {
                 words = _.difference(words, disallowedWords);
             }
-            // TODO: BUG - no mechanism to go back and start the board over with the next word
             console.log(words.length + ' initial words generated.');
             if (words.length) {
                 words = words.sort(function(a, b) {
@@ -295,14 +331,25 @@ function solve(letters, disallowedWords) {
                         return 0;
                     }
                 });
-                solveLoop([[]], _.map(words, function(word) {
+                let matches = _.map(words, function(word) {
                     return {
                         word: word,
                         dir: 'row',
                         row: 0,
                         col: 0
                     };
-                }), disallowedWords, letters, 0, solveResolve);
+                });
+                solveLoop({
+                    disallowedWords,
+                    history: [{
+                        board: [[]],
+                        letters,
+                        matches,
+                        matchIndex: 0
+                    }],
+                    historyIndex: 0,
+                    solveResolve
+                });
             } else {
                 console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
                 solveResolve({
@@ -316,3 +363,6 @@ function solve(letters, disallowedWords) {
 }
 
 module.exports = {solve};
+// TODO:
+// still broken for letters: "someletter"
+// "some" and "letter" are both in the trie
