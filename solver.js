@@ -1,23 +1,14 @@
-// Bananagrams Solver
-// ENTRY POINT: solve(...)
-
-const _ = require('lodash');
-const fs = require('fs');
-const trie = getTrie();
-
-// check if the board contains only valid words
-
 function isBoardValid(board, disallowedWords) {
-    let valid = true;
+    var valid = true;
     crawlBoard(board, function(boardRow) {
-        let words = _.split(_.trim(boardRow.join('')), /\s+/);
+        var words = _.split(_.trim(boardRow.join('')), /\s+/);
         _.forEach(words, function(word) {
             if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
                 valid = false;
             }
         });
     }, function(boardColumn, boardColumnIndex) {
-        let words = _.split(_.trim(boardColumn.join('')), /\s+/);
+        var words = _.split(_.trim(boardColumn.join('')), /\s+/);
         _.forEach(words, function(word) {
             if (word.length > 1 && (!_.has(trie, (word + '_').split('')) || _.indexOf(disallowedWords, word) > -1)) {
                 valid = false;
@@ -27,10 +18,8 @@ function isBoardValid(board, disallowedWords) {
     return valid;
 }
 
-// run functions on each row and column, and when done crawling
-
 function crawlBoard(board, rowCallback, colCallback, doneCallback) {
-    let columns = [];
+    var columns = [];
     _.times(board[0].length, function() {
         columns.push([]);
     });
@@ -48,29 +37,30 @@ function crawlBoard(board, rowCallback, colCallback, doneCallback) {
     });
 }
 
-// get words that can be added to the board with the given letters
-
 function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords) {
     return new Promise(function(resolve) {
-        let notDir = dir === 'row' ? 'col' : 'row';
-        let stripStr = strip.join('');
-        let stripStrTrimmed = _.trim(stripStr);
+        var notDir = dir === 'row' ? 'col' : 'row';
+        var stripStr = strip.join('');
+        var stripStrTrimmed = _.trim(stripStr);
         if (!stripStrTrimmed) {
             return [];
         }
-        let pattern = new RegExp(stripStrTrimmed.replace(/\s/g, '.'));
+        var pattern = new RegExp(stripStrTrimmed.replace(/\s/g, '.'));
         // TODO: BUG - this pattern ignore words that might only attach to one of the edge tiles in the strip
-        let stripMatches = [];
+        var stripMatches = [];
         _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
             if (tileOnBoard !== ' ') {
                 makeWordsWith(letters + tileOnBoard).then(function(wordsWithLetters) {
-                    let words = wordsWithLetters;
+                    var words = wordsWithLetters;
                     if (disallowedWords) {
                         words = _.difference(words, disallowedWords);
                     }
                     _.forEach(words, function(word) {
                         if (pattern.test(word)) {
-                            let stripMatch = {word, dir};
+                            var stripMatch = {
+                                word: word,
+                                dir: dir
+                            };
                             stripMatch[dir] = stripdex;
                             stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
                             stripMatches.push(stripMatch);
@@ -87,10 +77,10 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords) {
 
 function getMatches(letters, disallowedWords, board) {
     return new Promise(function(resolve) {
-        let matches = [];
+        var matches = [];
         crawlBoard(board, function(boardRow, boardRowIndex) {
             getMatchesLoop(boardRow, boardRowIndex, 'row', letters, disallowedWords).then(function(loopResults) {
-                let rowMatches = _.filter(loopResults, function(match) {
+                var rowMatches = _.filter(loopResults, function(match) {
                     if (isMatchValid(match, board)) {
                         return true;
                     }
@@ -102,7 +92,7 @@ function getMatches(letters, disallowedWords, board) {
             });
         }, function(boardColumn, boardColumnIndex) {
             getMatchesLoop(boardColumn, boardColumnIndex, 'col', letters, disallowedWords).then(function(loopResults) {
-                let columnMatches = _.filter(loopResults, function(match) {
+                var columnMatches = _.filter(loopResults, function(match) {
                     if (isMatchValid(match, board)) {
                         return true;
                     }
@@ -119,28 +109,9 @@ function getMatches(letters, disallowedWords, board) {
     });
 }
 
-// load and build the word prefix tree
-
-function getTrie() {
-    let trie = fs.readFileSync('./trie.txt', 'utf8');
-    trie = trie.replace(/([a-z])/g, "\"$1\":{");
-    trie = trie.replace(/([0-9]+)/g, function(num) {
-        let brackets = '';
-        _.times(parseInt(num), function() {
-            brackets += '}';
-        });
-        return brackets;
-    });
-    trie = trie.replace(/_/g, '"_":1');
-    trie = JSON.parse('{' + trie);
-    return trie;
-}
-
-// make sure a match does not overwrite letters on the board
-
 function isMatchValid(match, board) {
-    let index;
-    let strip;
+    var index;
+    var strip;
     if (match.dir === 'row') {
         index = match.row;
         strip = _.clone(board[index]);
@@ -151,12 +122,12 @@ function isMatchValid(match, board) {
             strip.push(row[index]);
         });
     }
-    let ogStrip = _.clone(strip);
+    var ogStrip = _.clone(strip);
     Array.prototype.splice.apply(strip, [0, (index + match.word.length)].concat(match.word.split('')));
     if (index < 0) {
         strip = strip.slice(-index);
     }
-    let valid = true;
+    var valid = true;
     _.forEach(ogStrip, function(square, stripdex) {
         if (square != ' ' && square != strip[stripdex + index]) {
             valid = false;
@@ -165,11 +136,9 @@ function isMatchValid(match, board) {
     return valid;
 }
 
-// gets words that can be made with the given letters
-
 function makeWordsWithLoop(trie, letters, prefix, words, resolve) {
-    let newPrefix = '';
-    let lastLeaf = true;
+    var newPrefix = '';
+    var lastLeaf = true;
     _.forEach(_.uniq(letters), function(letter) {
         if (!!trie[letter]) {
             if (lastLeaf) {
@@ -193,18 +162,16 @@ function makeWordsWith(letters) {
     });
 }
 
-// place a word on the board
-
 function placeWord(oldBoard, match) {
-    let board = _.cloneDeep(oldBoard);
-    let word = match.word;
-    let row = match.row;
-    let col = match.col;
-    let dir = match.dir;
-    let wordLen = {row:0,col:0};
+    var board = _.cloneDeep(oldBoard);
+    var word = match.word;
+    var row = match.row;
+    var col = match.col;
+    var dir = match.dir;
+    var wordLen = {row:0,col:0};
     wordLen[dir] = word.length;
     if (row < 0 || row + wordLen.col > board.length) {
-        let newRow = _.map(Array(board[0].length), () => ' ');
+        var newRow = _.map(Array(board[0].length), () => ' ');
         if (row < 0) {
             _.times(-row, () => board.unshift(_.clone(newRow)));
             row = 0;
@@ -234,39 +201,26 @@ function placeWord(oldBoard, match) {
     return board;
 }
 
-// print the board in the console
-
-function printBoard(board, letters) {
-    _.forEach(board, function(boardRow) {
-        console.log(boardRow.join(' '));
-    });
-    console.log(letters.length ? letters.split('').join(' ') : ' ');
-    console.log(' ');
-}
-
-// generate a solution board given a set of letters
-// optionally provide a set of disallowed words (e.g. your friends won't accept something the solver generates)
-
 function solveLoop(solveState) {
-    let currentState = solveState.history[solveState.historyIndex];
-    let currentMatch = currentState.matches[currentState.matchIndex];
+    var currentState = solveState.history[solveState.historyIndex];
+    var currentMatch = currentState.matches[currentState.matchIndex];
     if (!currentMatch) {
-        console.log('Ran out of matches to try, backing up a placement...');
         if (solveState.historyIndex > 0) {
-            printBoard(
-                currentState.board, currentState.letters,
+            solveState.progressCallback(
                 solveState.history[solveState.historyIndex-1].board,
                 solveState.history[solveState.historyIndex-1].letters
             );
             solveState.history[solveState.historyIndex-1].matchIndex += 1;
-            solveLoop({
-                disallowedWords: solveState.disallowedWords,
-                history: solveState.history.slice(0,-1),
-                historyIndex: solveState.historyIndex - 1,
-                solveResolve: solveState.solveResolve
+            setTimeout(function() {
+                solveLoop({
+                    disallowedWords: solveState.disallowedWords,
+                    history: solveState.history.slice(0,-1),
+                    historyIndex: solveState.historyIndex - 1,
+                    solveResolve: solveState.solveResolve,
+                    progressCallback: solveState.progressCallback
+                });
             });
         } else {
-            console.log('Can\'t back up (no previous state). No solution.');
             solveState.solveResolve({
                 solved: false,
                 board: currentState.board,
@@ -275,27 +229,27 @@ function solveLoop(solveState) {
         }
         return;
     }
-    console.log('Placing "' + currentMatch.word + '"...');
-    let newBoard = placeWord(currentState.board, currentMatch);
+    var newBoard = placeWord(currentState.board, currentMatch);
     if (!isBoardValid(newBoard, solveState.disallowedWords)) {
-        console.log('Could not place word. Trying next one...');
         currentState.matchIndex = currentState.matchIndex + 1;
-        solveLoop({
-            disallowedWords: solveState.disallowedWords,
-            history: solveState.history,
-            historyIndex: solveState.historyIndex,
-            solveResolve: solveState.solveResolve
+        setTimeout(function() {
+            solveLoop({
+                disallowedWords: solveState.disallowedWords,
+                history: solveState.history,
+                historyIndex: solveState.historyIndex,
+                solveResolve: solveState.solveResolve,
+                progressCallback: solveState.progressCallback
+            });
         });
         return;
     }
-    let newLetters = currentState.letters;
+    var newLetters = currentState.letters;
     _.forEach(currentMatch.word, function(matchWordLetter) {
         newLetters = newLetters.replace(matchWordLetter, '');
     });
-    printBoard(currentState.board, currentState.letters, newBoard, newLetters);
+    solveState.progressCallback(newBoard, newLetters);
     if (newLetters.length) {
         getMatches(newLetters, solveState.disallowedWords, newBoard).then(function(matches) {
-            console.log(matches.length + ' matches found.');
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
                 solveState.history.push({
@@ -304,26 +258,30 @@ function solveLoop(solveState) {
                     matches: matches,
                     matchIndex: 0
                 });
-                solveLoop({
-                    disallowedWords: solveState.disallowedWords,
-                    history: solveState.history,
-                    historyIndex: solveState.historyIndex + 1,
-                    solveResolve: solveState.solveResolve
+                setTimeout(function() {
+                    solveLoop({
+                        disallowedWords: solveState.disallowedWords,
+                        history: solveState.history,
+                        historyIndex: solveState.historyIndex + 1,
+                        solveResolve: solveState.solveResolve,
+                        progressCallback: solveState.progressCallback
+                    });
                 });
             } else {
-                console.log('Removing last word added and trying next word...');
-                printBoard(newBoard, newLetters, currentState.board, currentState.letters);
+                solveState.progressCallback(currentState.board, currentState.letters);
                 currentState.matchIndex = currentState.matchIndex + 1;
-                solveLoop({
-                    disallowedWords: solveState.disallowedWords,
-                    history: solveState.history,
-                    historyIndex: solveState.historyIndex,
-                    solveResolve: solveState.solveResolve
+                setTimeout(function() {
+                    solveLoop({
+                        disallowedWords: solveState.disallowedWords,
+                        history: solveState.history,
+                        historyIndex: solveState.historyIndex,
+                        solveResolve: solveState.solveResolve,
+                        progressCallback: solveState.progressCallback
+                    });
                 });
             }
         });
     } else {
-        console.log('SOLUTION FOUND!');
         solveState.solveResolve({
             solved: true,
             board: newBoard
@@ -331,15 +289,17 @@ function solveLoop(solveState) {
     }
 }
 
-function solve(letters, disallowedWords) {
+function solve(letters, disallowedWords, progressCallback) {
     return new Promise(function(solveResolve) {
         letters = letters.toLowerCase();
-        disallowedWords = _.map(disallowedWords, (disallowedWord) => disallowedWord.toLowerCase());
+        disallowedWords = _.map(disallowedWords, function(disallowedWord) {
+            return disallowedWord.toLowerCase();
+        });
         makeWordsWith(letters).then(function(words) {
+            var matches;
             if (disallowedWords) {
                 words = _.difference(words, disallowedWords);
             }
-            console.log(words.length + ' initial words generated.');
             if (words.length) {
                 words = words.sort(function(a, b) {
                     if (a.length > b.length) {
@@ -350,7 +310,7 @@ function solve(letters, disallowedWords) {
                         return 0;
                     }
                 });
-                let matches = _.map(words, function(word) {
+                matches = _.map(words, function(word) {
                     return {
                         word: word,
                         dir: 'row',
@@ -359,18 +319,18 @@ function solve(letters, disallowedWords) {
                     };
                 });
                 solveLoop({
-                    disallowedWords,
+                    disallowedWords: disallowedWords,
                     history: [{
                         board: [[]],
-                        letters,
-                        matches,
+                        letters: letters,
+                        matches: matches,
                         matchIndex: 0
                     }],
                     historyIndex: 0,
-                    solveResolve
+                    solveResolve: solveResolve,
+                    progressCallback: progressCallback
                 });
             } else {
-                console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
                 solveResolve({
                     solved: false,
                     board: [[]],
@@ -381,9 +341,4 @@ function solve(letters, disallowedWords) {
     });
 }
 
-if (module) {
-    module.exports = {solve};
-} else if (window) {
-    window.solver = {solve: solve};
-    // TODO: this won't work until we handle getting the compressed trie differently
-}
+window.solver = {solve: solve};
