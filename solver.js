@@ -27,7 +27,7 @@ function isBoardValid(board, disallowedWords) {
     return valid;
 }
 
-// run functions on each row and column
+// run functions on each row and column, and when done crawling
 
 function crawlBoard(board, rowCallback, colCallback, doneCallback) {
     let columns = [];
@@ -77,21 +77,37 @@ function getMatches(letters, disallowedWords, board) {
                 wordsWithLetters = _.difference(wordsWithLetters, disallowedWords);
             }
             crawlBoard(board, function(boardRow, boardRowIndex) {
-                matches = matches.concat(getMatchesLoop(wordsWithLetters, boardRow, boardRowIndex, 'row'));
+                let rowMatches = _.filter(getMatchesLoop(wordsWithLetters, boardRow, boardRowIndex, 'row'), function(match) {
+                    if (isMatchValid(match, board)) {
+                        return true;
+                    }
+                    return false;
+                });
+                if (rowMatches.length) {
+                    matches = matches.concat(rowMatches);
+                }
             }, function(boardColumn, boardColumnIndex) {
-                matches = matches.concat(getMatchesLoop(wordsWithLetters, boardColumn, boardColumnIndex, 'col'));
+                let columnMatches = _.filter(getMatchesLoop(wordsWithLetters, boardColumn, boardColumnIndex, 'col'), function(match) {
+                    if (isMatchValid(match, board)) {
+                        return true;
+                    }
+                    return false;
+                });
+                if (columnMatches.length) {
+                    matches = matches.concat(columnMatches);
+                }
             }, function() {
-                console.log('matches.length inside getMatches: ' + matches.length);
                 resolve(matches);
             });
         });
     });
 }
 
-// load and build our word prefix tree
+// load and build the word prefix tree
 
 function getTrie() {
     let trie = fs.readFileSync('./trie.txt', 'utf8');
+    // TODO: verify that this includes all the words
     trie = trie.replace(/([a-z])/g,"\"$1\":{");
     trie = trie.replace(/([0-9])/g, function(num) {
         let brackets = '';
@@ -110,6 +126,34 @@ function getTrie() {
     });
     trie = JSON.parse('{' + trie + '"_":1}}}}}}}}');
     return trie;
+}
+
+// make sure a match does not overwrite letters on the board
+function isMatchValid(match, board) {
+    let index;
+    let strip;
+    if (match.dir === 'row') {
+        index = match.row;
+        strip = _.clone(board[index]);
+    } else {
+        index = match.col;
+        strip = [];
+        _.forEach(board, function(row) {
+            strip.push(row[index]);
+        });
+    }
+    let ogStrip = _.clone(strip);
+    Array.prototype.splice.apply(strip, [0, (index + match.word.length)].concat(match.word.split('')));
+    if (index < 0) {
+        strip = strip.slice(-index);
+    }
+    let valid = true;
+    _.forEach(ogStrip, function(square, stripdex) {
+        if (square != ' ' && square != strip[stripdex + index]) {
+            valid = false;
+        }
+    });
+    return valid;
 }
 
 // gets words that can be made with the given letters
@@ -142,7 +186,8 @@ function makeWordsWith(letters) {
 
 // place a word on the board
 
-function placeWord(board, word, row, col, dir) {
+function placeWord(oldBoard, word, row, col, dir) {
+    let board = _.cloneDeep(oldBoard);
     let wordLen = {row:0,col:0};
     wordLen[dir] = word.length;
     if (row < 0 || row + wordLen.col > board.length) {
@@ -206,14 +251,12 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
     }
     console.log('Placing "' + match.word + '"...');
     let newBoard = placeWord(board, match.word, match.row, match.col, match.dir);
-    if(!isBoardValid(newBoard, disallowedWords)) {
-        console.log('Couldn\'t place word. Trying next one...');
-        printBoard(newBoard, letters);
-        // oooh, I get what's happening - run node solver.js to see
-        // we are returning matches from getMatches that would overlap existing words on the baord
-        // need to not produce matches for cells that have words across them already (fix would be in getMatches)...
-        return;
+    if (!isBoardValid(newBoard, disallowedWords)) {
+        console.log('Could not place word. Trying next one...');
         solveLoop(board, incomingMatches, disallowedWords, letters, (selectedMatchIndex + 1), solveResolve);
+    }
+    if (newBoard.length > 20) {
+        return;
     }
     _.forEach(match.word, function(matchWordLetter) {
         letters = letters.replace(matchWordLetter, '');
@@ -227,6 +270,7 @@ function solveLoop(board, incomingMatches, disallowedWords, letters, selectedMat
                 solveLoop(newBoard, matches, disallowedWords, letters, 0, solveResolve);
             } else {
                 console.log('Removing last word added and trying next word...');
+                printBoard(board, (letters + match.word));
                 solveLoop(board, incomingMatches, disallowedWords, (letters + match.word), (selectedMatchIndex + 1), solveResolve);
             }
         });
@@ -278,7 +322,4 @@ function solve(letters, disallowedWords) {
     });
 }
 
-// This set of letters provides a strange solution with gaps - should fix this before starting on UI or board validity function
-console.log(solve('somemorelettersletters'));
-
-//module.exports = {solve};
+module.exports = {solve};
