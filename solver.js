@@ -50,39 +50,47 @@ function crawlBoard(board, rowCallback, colCallback, doneCallback) {
 
 // get words that can be added to the board with the given letters
 
-function getMatchesLoop(words, strip, stripdex, dir) {
-    let notDir = dir === 'row' ? 'col' : 'row';
-    let stripStr = strip.join('');
-    if (!_.trim(stripStr)) {
-        return [];
-    }
-    let pattern = new RegExp(_.trim(stripStr).replace(/\s/g, '.'));
-    let stripMatches = [];
-    _.forEach(words, function(word) {
-        if (pattern.test(word)) {
-            let stripMatch = {word, dir};
-            stripMatch[dir] = stripdex;
-            stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
-            stripMatches.push(stripMatch);
+function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords) {
+    return new Promise(function(resolve) {
+        let notDir = dir === 'row' ? 'col' : 'row';
+        let stripStr = strip.join('');
+        let stripStrTrimmed = _.trim(stripStr);
+        if (!stripStrTrimmed) {
+            return [];
         }
+        let pattern = new RegExp(stripStrTrimmed.replace(/\s/g, '.'));
+        // TODO: BUG - this pattern ignore words that might only attach to one of the edge tiles in the strip
+        let stripMatches = [];
+        _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
+            if (tileOnBoard !== ' ') {
+                makeWordsWith(letters + tileOnBoard).then(function(wordsWithLetters) {
+                    let words = wordsWithLetters;
+                    if (disallowedWords) {
+                        words = _.difference(words, disallowedWords);
+                    }
+                    _.forEach(words, function(word) {
+                        if (pattern.test(word)) {
+                            let stripMatch = {word, dir};
+                            stripMatch[dir] = stripdex;
+                            stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
+                            stripMatches.push(stripMatch);
+                        }
+                    });
+                    if (tileIndex === stripStrTrimmed.length - 1) {
+                        resolve(stripMatches);
+                    }
+                });
+            }
+        });
     });
-    return stripMatches;
 }
 
 function getMatches(letters, disallowedWords, board) {
     return new Promise(function(resolve) {
-        // TODO: BUG - we will need to run makeWordsWith inside the getMatchesLoop
-        // TODO: BUG - because we need to add the letter from each cell
-        // TODO: BUG - update getMatchesLoop to accept letters instead of words
-        // TODO: BUG - we might need to make getMatchesLoop asynchronous
-        // TODO: BUG - if so, we will also need to refactor the code around the calls below
-        makeWordsWith(letters).then(function(wordsWithLetters) {
-            let matches = [];
-            if (disallowedWords) {
-                wordsWithLetters = _.difference(wordsWithLetters, disallowedWords);
-            }
-            crawlBoard(board, function(boardRow, boardRowIndex) {
-                let rowMatches = _.filter(getMatchesLoop(wordsWithLetters, boardRow, boardRowIndex, 'row'), function(match) {
+        let matches = [];
+        crawlBoard(board, function(boardRow, boardRowIndex) {
+            getMatchesLoop(boardRow, boardRowIndex, 'row', letters, disallowedWords).then(function(loopResults) {
+                let rowMatches = _.filter(loopResults, function(match) {
                     if (isMatchValid(match, board)) {
                         return true;
                     }
@@ -91,8 +99,10 @@ function getMatches(letters, disallowedWords, board) {
                 if (rowMatches.length) {
                     matches = matches.concat(rowMatches);
                 }
-            }, function(boardColumn, boardColumnIndex) {
-                let columnMatches = _.filter(getMatchesLoop(wordsWithLetters, boardColumn, boardColumnIndex, 'col'), function(match) {
+            });
+        }, function(boardColumn, boardColumnIndex) {
+            getMatchesLoop(boardColumn, boardColumnIndex, 'col', letters, disallowedWords).then(function(loopResults) {
+                let columnMatches = _.filter(loopResults, function(match) {
                     if (isMatchValid(match, board)) {
                         return true;
                     }
@@ -101,8 +111,9 @@ function getMatches(letters, disallowedWords, board) {
                 if (columnMatches.length) {
                     matches = matches.concat(columnMatches);
                 }
-            }, function() {
-                resolve(matches);
+                if (boardColumnIndex === board[0].length-1) {
+                    resolve(matches);                    
+                }
             });
         });
     });
@@ -126,6 +137,7 @@ function getTrie() {
 }
 
 // make sure a match does not overwrite letters on the board
+
 function isMatchValid(match, board) {
     let index;
     let strip;
@@ -224,36 +236,11 @@ function placeWord(oldBoard, match) {
 
 // print the board in the console
 
-function printBoardLoop(board, letters) {
-    let lines = [];
-    lines.push(' ' + _.repeat('_', board[0].length*2) + '_');
+function printBoard(board, letters) {
     _.forEach(board, function(boardRow) {
-        lines.push('| ' + boardRow.join(' ') + ' |');
+        console.log(boardRow.join(' '));
     });
-    lines.push(' ' + _.repeat('-', board[0].length*2) + '-');
-    lines.push(letters.length ? letters.split('').join(' ') : '(none)');
-    return lines;
-}
-
-function printBoard(beforeBoard, beforeLetters, afterBoard, afterLetters) {
-    let beforeLines = printBoardLoop(beforeBoard, beforeLetters);
-    let afterLines = printBoardLoop(afterBoard, afterLetters);
-    let numLines = beforeLines.length > afterLines.length ? beforeLines.length : afterLines.length;
-    let numColumnsBefore = beforeLines[1].length > beforeLines[beforeLines.length-1].length ? beforeLines[1].length : beforeLines[beforeLines.length-1].length;
-    console.log(' ');
-    _.times(numLines, function(n) {
-        let paddedBeforeLine = '';
-        if (beforeLines[n]) {
-            paddedBeforeLine = _.padEnd(beforeLines[n], (numColumnsBefore + 4));
-        } else {
-            paddedBeforeLine = _.repeat(' ', (numColumnsBefore + 4));
-        }
-        let paddedAfterLine = '';
-        if (afterLines[n]) {
-            paddedAfterLine = afterLines[n];
-        }
-        console.log(paddedBeforeLine + '->   ' + paddedAfterLine);
-    });
+    console.log(letters.length ? letters.split('').join(' ') : ' ');
     console.log(' ');
 }
 
@@ -400,10 +387,3 @@ if (module) {
     window.solver = {solve: solve};
     // TODO: this won't work until we handle getting the compressed trie differently
 }
-
-// TODO:
-// still broken for letters: "someletter" ("some" and "letter" are both in the trie)
-// working on fixing getMatches above, which I believe is causing this issue
-solve('someletter').then(function(answer) {
-    console.log(answer);
-});
