@@ -2,7 +2,7 @@ const express = require('express');
 const solver = require('./solver.js');
 const app = express();
 app.get('/', function(req, res) {
-    res.send('UI coming soon.');
+    res.sendFile(__dirname + '/index.html');
 });
 app.get('/solve', function(req, res) {
     let disallowedWords = false;

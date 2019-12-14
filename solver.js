@@ -291,6 +291,7 @@ function solve(letters, disallowedWords) {
             if (disallowedWords) {
                 words = _.difference(words, disallowedWords);
             }
+            // TODO: BUG - no mechanism to go back and start the board over with the next word
             console.log(words.length + ' initial words generated.');
             if (words.length) {
                 words = words.sort(function(a, b) {
