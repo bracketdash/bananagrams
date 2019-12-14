@@ -244,6 +244,8 @@ function solveLoop(solveState) {
         return;
     }
     var newLetters = currentState.letters;
+    // TODO: BUG - we are taking away all the letters that were in the word here
+    // TODO: BUG - we should only take away letters that were actually added fresh to the board
     _.forEach(currentMatch.word, function(matchWordLetter) {
         newLetters = newLetters.replace(matchWordLetter, '');
     });
