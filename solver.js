@@ -219,14 +219,36 @@ function placeWord(oldBoard, match) {
 
 // print the board in the console
 
-function printBoard(board, letters) {
-    console.log(' ');
-    console.log(' ' + _.repeat('_', board[0].length*2) + '_');
+function printBoardLoop(board, letters) {
+    let lines = [];
+    lines.push(' ' + _.repeat('_', board[0].length*2) + '_');
     _.forEach(board, function(boardRow) {
-        console.log('| ' + boardRow.join(' ') + ' |');
+        lines.push('| ' + boardRow.join(' ') + ' |');
     });
-    console.log(' ' + _.repeat('-', board[0].length*2) + '-');
-    console.log('Tiles left: ' + (letters.length ? letters : '(none)'));
+    lines.push(' ' + _.repeat('-', board[0].length*2) + '-');
+    lines.push(letters.length ? letters.split('').join(' ') : '(none)');
+    return lines;
+}
+
+function printBoard(beforeBoard, beforeLetters, afterBoard, afterLetters) {
+    let beforeLines = printBoardLoop(beforeBoard, beforeLetters);
+    let afterLines = printBoardLoop(afterBoard, afterLetters);
+    let numLines = beforeLines.length > afterLines.length ? beforeLines.length : afterLines.length;
+    let numColumnsBefore = beforeLines[1].length > beforeLines[beforeLines.length-1].length ? beforeLines[1].length : beforeLines[beforeLines.length-1].length;
+    console.log(' ');
+    _.times(numLines, function(n) {
+        let paddedBeforeLine = '';
+        if (beforeLines[n]) {
+            paddedBeforeLine = _.padEnd(beforeLines[n], (numColumnsBefore + 4));
+        } else {
+            paddedBeforeLine = _.repeat(' ', (numColumnsBefore + 4));
+        }
+        let paddedAfterLine = '';
+        if (afterLines[n]) {
+            paddedAfterLine = afterLines[n];
+        }
+        console.log(paddedBeforeLine + '->   ' + paddedAfterLine);
+    });
     console.log(' ');
 }
 
@@ -237,8 +259,13 @@ function solveLoop(solveState) {
     let currentState = solveState.history[solveState.historyIndex];
     let currentMatch = currentState.matches[currentState.matchIndex];
     if (!currentMatch) {
-        console.log('Ran out of matches to try, backing up one more placement...');
+        console.log('Ran out of matches to try, backing up a placement...');
         if (solveState.historyIndex > 0) {
+            printBoard(
+                currentState.board, currentState.letters,
+                solveState.history[solveState.historyIndex-1].board,
+                solveState.history[solveState.historyIndex-1].letters
+            );
             solveState.history[solveState.historyIndex-1].matchIndex += 1;
             solveLoop({
                 disallowedWords: solveState.disallowedWords,
@@ -247,7 +274,7 @@ function solveLoop(solveState) {
                 solveResolve: solveState.solveResolve
             });
         } else {
-            console.log('NO SOLUTION FOUND! :(');
+            console.log('Can\'t back up (no previous state). No solution.');
             solveState.solveResolve({
                 solved: false,
                 board: currentState.board,
@@ -273,7 +300,7 @@ function solveLoop(solveState) {
     _.forEach(currentMatch.word, function(matchWordLetter) {
         newLetters = newLetters.replace(matchWordLetter, '');
     });
-    printBoard(newBoard, newLetters);
+    printBoard(currentState.board, currentState.letters, newBoard, newLetters);
     if (newLetters.length) {
         getMatches(newLetters, solveState.disallowedWords, newBoard).then(function(matches) {
             console.log(matches.length + ' matches found.');
@@ -293,7 +320,7 @@ function solveLoop(solveState) {
                 });
             } else {
                 console.log('Removing last word added and trying next word...');
-                printBoard(currentState.board, currentState.letters);
+                printBoard(newBoard, newLetters, currentState.board, currentState.letters);
                 currentState.matchIndex = currentState.matchIndex + 1;
                 solveLoop({
                     disallowedWords: solveState.disallowedWords,
@@ -362,7 +389,15 @@ function solve(letters, disallowedWords) {
     });
 }
 
-module.exports = {solve};
+if (module) {
+    module.exports = {solve};
+} else if (window) {
+    window.solver = {solve: solve};
+}
+
 // TODO:
 // still broken for letters: "someletter"
-// "some" and "letter" are both in the trie
+// "some" and "letter" are both in the trie, but the function claims no solution
+solve('someletter').then(function(answer) {
+    console.log(answer);
+});
