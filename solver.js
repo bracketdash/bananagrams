@@ -71,6 +71,11 @@ function getMatchesLoop(words, strip, stripdex, dir) {
 
 function getMatches(letters, disallowedWords, board) {
     return new Promise(function(resolve) {
+        // TODO: BUG - we will need to run makeWordsWith inside the getMatchesLoop
+        // TODO: BUG - because we need to add the letter from each cell
+        // TODO: BUG - update getMatchesLoop to accept letters instead of words
+        // TODO: BUG - we might need to make getMatchesLoop asynchronous
+        // TODO: BUG - if so, we will also need to refactor the code around the calls below
         makeWordsWith(letters).then(function(wordsWithLetters) {
             let matches = [];
             if (disallowedWords) {
@@ -381,7 +386,7 @@ function solve(letters, disallowedWords) {
                 console.log('NO SOLUTION! Not enough letters or too many disallowed words.');
                 solveResolve({
                     solved: false,
-                    board: [],
+                    board: [[]],
                     letters: letters
                 });
             }
@@ -393,11 +398,12 @@ if (module) {
     module.exports = {solve};
 } else if (window) {
     window.solver = {solve: solve};
+    // TODO: this won't work until we handle getting the compressed trie differently
 }
 
 // TODO:
-// still broken for letters: "someletter"
-// "some" and "letter" are both in the trie, but the function claims no solution
+// still broken for letters: "someletter" ("some" and "letter" are both in the trie)
+// working on fixing getMatches above, which I believe is causing this issue
 solve('someletter').then(function(answer) {
     console.log(answer);
 });
