@@ -13,4 +13,6 @@ function getTrie() {
     return trie;
 }
 
-var trie = getTrie();
+setTimeout(function() {
+    window.trie = getTrie();
+});

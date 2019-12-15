@@ -17,7 +17,7 @@ var app = new Vue({
     methods: {
         solve: function() {
             var self = this;
-            window.solver.solve(this.letters, [], function(board, letters) {
+            window.solve(this.letters, [], function(board, letters) {
                 self.board = board;
                 self.lettersLeft = letters;
             }).then(function(answer) {

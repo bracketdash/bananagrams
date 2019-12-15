@@ -356,4 +356,4 @@ function solve(letters, disallowedWords, progressCallback) {
     });
 }
 
-window.solver = {solve: solve};
+window.solve = solve;
