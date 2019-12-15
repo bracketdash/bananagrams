@@ -1,42 +1,40 @@
-function getMatches(letters, disallowedWords, board, trie) {
-    return new Promise(function(resolve) {
-        var matches = [];
-        crawlBoard(board, function(boardRow, boardRowIndex) {
-            getMatchesLoop(
-                boardRow, boardRowIndex, 'row',
-                letters, disallowedWords, trie,
-                function(loopResults) {
-                    var rowMatches = _.filter(loopResults, function(match) {
-                        if (isMatchValid(match, board)) {
-                            return true;
-                        }
-                        return false;
-                    });
-                    if (rowMatches.length) {
-                        matches = matches.concat(rowMatches);
+function getMatches(letters, disallowedWords, board, trie, resolve) {
+    var matches = [];
+    crawlBoard(board, function(boardRow, boardRowIndex) {
+        getMatchesLoop(
+            boardRow, boardRowIndex, 'row',
+            letters, disallowedWords, trie,
+            function(loopResults) {
+                var rowMatches = _.filter(loopResults, function(match) {
+                    if (isMatchValid(match, board)) {
+                        return true;
                     }
+                    return false;
+                });
+                if (rowMatches.length) {
+                    matches = matches.concat(rowMatches);
                 }
-            );
-        }, function(boardColumn, boardColumnIndex) {
-            getMatchesLoop(
-                boardColumn, boardColumnIndex, 'col',
-                letters, disallowedWords, trie,
-                function(loopResults) {
-                    var columnMatches = _.filter(loopResults, function(match) {
-                        if (isMatchValid(match, board)) {
-                            return true;
-                        }
-                        return false;
-                    });
-                    if (columnMatches.length) {
-                        matches = matches.concat(columnMatches);
+            }
+        );
+    }, function(boardColumn, boardColumnIndex) {
+        getMatchesLoop(
+            boardColumn, boardColumnIndex, 'col',
+            letters, disallowedWords, trie,
+            function(loopResults) {
+                var columnMatches = _.filter(loopResults, function(match) {
+                    if (isMatchValid(match, board)) {
+                        return true;
                     }
-                    if (boardColumnIndex === board[0].length-1) {
-                        resolve(matches);                    
-                    }
+                    return false;
+                });
+                if (columnMatches.length) {
+                    matches = matches.concat(columnMatches);
                 }
-            );
-        });
+                if (boardColumnIndex === board[0].length-1) {
+                    resolve(matches);                    
+                }
+            }
+        );
     });
 }
 

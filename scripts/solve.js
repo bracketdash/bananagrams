@@ -96,7 +96,7 @@ function solveLoop(solveState) {
     var newLetters = getNewLetters(currentState.letters, currentState.board, newBoard, currentMatch);
     solveState.progressCallback(newBoard, newLetters);
     if (newLetters.length) {
-        getMatches(newLetters, solveState.disallowedWords, newBoard, solveState.trie).then(function(matches) {
+        getMatches(newLetters, solveState.disallowedWords, newBoard, solveState.trie, function(matches) {
             if (matches.length) {
                 matches = _.reverse(_.sortBy(matches, (match) => match.word.length));
                 solveState.history.push({
