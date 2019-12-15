@@ -4,50 +4,46 @@ function solve(letters, disallowedWords, trie, progressCallback) {
         disallowedWords = _.map(disallowedWords, function(disallowedWord) {
             return disallowedWord.toLowerCase();
         });
-        makeWordsWith(letters, trie).then(function(words) {
-            var matches;
-            if (disallowedWords) {
-                words = _.difference(words, disallowedWords);
-            }
-            if (words.length) {
-                words = words.sort(function(a, b) {
-                    if (a.length > b.length) {
-                        return -1;
-                    } else if (a.length < b.length) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-                matches = _.map(words, function(word) {
-                    return {
-                        word: word,
-                        dir: 'row',
-                        row: 0,
-                        col: 0
-                    };
-                });
-                solveLoop({
-                    disallowedWords: disallowedWords,
-                    history: [{
-                        board: [[]],
-                        letters: letters,
-                        matches: matches,
-                        matchIndex: 0
-                    }],
-                    historyIndex: 0,
-                    solveResolve: solveResolve,
-                    trie: trie,
-                    progressCallback: progressCallback
-                });
-            } else {
-                solveResolve({
-                    solved: false,
+        var words = makeWordsWith(letters, trie, disallowedWords);
+        var matches;
+        if (words.length) {
+            words = words.sort(function(a, b) {
+                if (a.length > b.length) {
+                    return -1;
+                } else if (a.length < b.length) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+            matches = _.map(words, function(word) {
+                return {
+                    word: word,
+                    dir: 'row',
+                    row: 0,
+                    col: 0
+                };
+            });
+            solveLoop({
+                disallowedWords: disallowedWords,
+                history: [{
                     board: [[]],
-                    letters: letters
-                });
-            }
-        });
+                    letters: letters,
+                    matches: matches,
+                    matchIndex: 0
+                }],
+                historyIndex: 0,
+                solveResolve: solveResolve,
+                trie: trie,
+                progressCallback: progressCallback
+            });
+        } else {
+            solveResolve({
+                solved: false,
+                board: [[]],
+                letters: letters
+            });
+        }
     });
 }
 

@@ -18,8 +18,13 @@ function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
     }
 }
 
-function makeWordsWith(letters, trie) {
-    return new Promise(function(resolve) {
-        makeWordsWithLoop(trie, letters, '', [], resolve);
+function makeWordsWith(letters, trie, disallowedWords) {
+    var words = [];
+    makeWordsWithLoop(trie, letters, '', [], function(result) {
+        words = result;
     });
+    if (disallowedWords) {
+        words = _.difference(words, disallowedWords);
+    }
+    return words;
 }

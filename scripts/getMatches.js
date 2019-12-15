@@ -59,26 +59,21 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie) {
         var stripMatches = [];
         _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
             if (tileOnBoard !== ' ') {
-                makeWordsWith(letters + tileOnBoard, trie).then(function(wordsWithLetters) {
-                    var words = wordsWithLetters;
-                    if (disallowedWords) {
-                        words = _.difference(words, disallowedWords);
-                    }
-                    _.forEach(words, function(word) {
-                        if (pattern.test(word)) {
-                            var stripMatch = {
-                                word: word,
-                                dir: dir
-                            };
-                            stripMatch[dir] = stripdex;
-                            stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
-                            stripMatches.push(stripMatch);
-                        }
-                    });
-                    if (tileIndex === stripStrTrimmed.length - 1) {
-                        resolve(stripMatches);
+                var words = makeWordsWith(letters + tileOnBoard, trie, disallowedWords);
+                _.forEach(words, function(word) {
+                    if (pattern.test(word)) {
+                        var stripMatch = {
+                            word: word,
+                            dir: dir
+                        };
+                        stripMatch[dir] = stripdex;
+                        stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
+                        stripMatches.push(stripMatch);
                     }
                 });
+                if (tileIndex === stripStrTrimmed.length - 1) {
+                    resolve(stripMatches);
+                }
             }
         });
     });
