@@ -46,7 +46,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords) {
             return [];
         }
         var pattern = new RegExp(stripStrTrimmed.replace(/\s/g, '.'));
-        // TODO: BUG - this pattern ignore words that might only attach to one of the edge tiles in the strip
+        // TODO: BUG - this pattern ignores words that might only attach to one of the edge tiles in the strip
         var stripMatches = [];
         _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
             if (tileOnBoard !== ' ') {
@@ -201,6 +201,23 @@ function placeWord(oldBoard, match) {
     return board;
 }
 
+function getNewLetters(oldBoard, newBoard, currentMatch) {
+    // TODO: use _.difference between the old and new strips
+    // currentState.letters;
+    // _.difference(currentMatch.word, board[currentMatch.dir === 'row' ? null : null][currentMatch.dir === 'row' ? null : null])
+
+    var currentStrip;
+    if (currentMatch.dir === 'row') {
+        currentStrip = newBoard[currentMatch.row];
+    }
+
+    _.forEach(currentMatch.word, function(matchWordLetter) {
+        newLetters = newLetters.replace(matchWordLetter, '');
+    });
+
+    return '';
+}
+
 function solveLoop(solveState) {
     var currentState = solveState.history[solveState.historyIndex];
     var currentMatch = currentState.matches[currentState.matchIndex];
@@ -243,12 +260,7 @@ function solveLoop(solveState) {
         });
         return;
     }
-    var newLetters = currentState.letters;
-    // TODO: BUG - we are taking away all the letters that were in the word here
-    // TODO: BUG - we should only take away letters that were actually added fresh to the board
-    _.forEach(currentMatch.word, function(matchWordLetter) {
-        newLetters = newLetters.replace(matchWordLetter, '');
-    });
+    var newLetters = getNewLetters(currentState.board, newBoard, currentMatch);
     solveState.progressCallback(newBoard, newLetters);
     if (newLetters.length) {
         getMatches(newLetters, solveState.disallowedWords, newBoard).then(function(matches) {
