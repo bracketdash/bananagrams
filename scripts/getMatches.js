@@ -55,8 +55,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie) {
             return [];
         }
         var pattern = new RegExp(stripStrTrimmed.replace(/\s/g, '.'));
-        // TODO: BUG
-        // this pattern ignores words that start after the first tile or end before the last tile in the strip
+        // BUG: this ignores words that start after the first tile or end before the last tile in the strip
         var stripMatches = [];
         _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
             if (tileOnBoard !== ' ') {
