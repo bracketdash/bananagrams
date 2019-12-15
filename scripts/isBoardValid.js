@@ -1,4 +1,4 @@
-function isBoardValid(board, disallowedWords) {
+function isBoardValid(board, disallowedWords, trie) {
     var valid = true;
     crawlBoard(board, function(boardRow) {
         var words = _.split(_.trim(boardRow.join('')), /\s+/);

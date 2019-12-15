@@ -1,4 +1,4 @@
-function solve(letters, disallowedWords, trie, rogressCallback) {
+function solve(letters, disallowedWords, trie, progressCallback) {
     return new Promise(function(solveResolve) {
         letters = letters.toLowerCase();
         disallowedWords = _.map(disallowedWords, function(disallowedWord) {
@@ -81,7 +81,7 @@ function solveLoop(solveState) {
         return;
     }
     var newBoard = placeWord(currentState.board, currentMatch);
-    if (!isBoardValid(newBoard, solveState.disallowedWords)) {
+    if (!isBoardValid(newBoard, solveState.disallowedWords, solveState.trie)) {
         currentState.matchIndex = currentState.matchIndex + 1;
         setTimeout(function() {
             solveLoop({

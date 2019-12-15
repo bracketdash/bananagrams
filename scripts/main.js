@@ -8,31 +8,27 @@ Add support for disallowed words
 
 // See more TODOs in: getMatches, getNewLetters
 
-var app;
-
 setTimeout(function() {
-    // TODO: move this to the mount event of the vue app
-    window.trie = getTrie();
-});
-
-var app = new Vue({
-    el: '#app',
-    data: {
-        letters: '',
-        board: [[]],
-        lettersLeft: '',
-        solved: false
-    },
-    methods: {
-        solve: function() {
-            var self = this;
-            window.solve(this.letters, [], function(board, letters) {
-                self.board = board;
-                self.lettersLeft = letters;
-            }).then(function(answer) {
-                self.board = answer.board;
-                self.lettersLeft = answer.letters;
-            });
+    var trie = getTrie();
+    var app = new Vue({
+        el: '#app',
+        data: {
+            letters: '',
+            board: [[]],
+            lettersLeft: '',
+            solved: false
+        },
+        methods: {
+            solve: function() {
+                var self = this;
+                window.solve(this.letters, [], trie, function(board, letters) {
+                    self.board = board;
+                    self.lettersLeft = letters || '';
+                }).then(function(answer) {
+                    self.board = answer.board;
+                    self.lettersLeft = answer.letters || '';
+                });
+            }
         }
-    }
+    });
 });

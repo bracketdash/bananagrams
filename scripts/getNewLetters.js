@@ -1,14 +1,19 @@
 function getNewLetters(incomingLetters, oldBoard, newBoard, match) {
     let newLetters = incomingLetters;
-    var oldStrip;
+    var newStrip = [];
+    var oldStrip = [];
     if (match.dir === 'row') {
-        oldStrip = newBoard[match.row];
+        newStrip = newBoard[match.row];
+        oldStrip = oldBoard[match.row];
     } else {
-        // TODO: build the column and assign to oldStrip
+        newStrip = _.map(newBoard, function(row) {
+            return row[match.col];
+        });
+        oldStrip = _.map(oldBoard, function(row) {
+            return row[match.col];
+        });
     }
-    // TODO: make newStrip
-    let lettersToBeRemoved = [];
-    // TODO: use _.difference between the old and new strips to find the letters that should be removed
+    let lettersToBeRemoved = _.difference(newStrip, oldStrip);
     _.forEach(lettersToBeRemoved, function(letterToBeRemoved) {
         newLetters = newLetters.replace(letterToBeRemoved, '');
     });
