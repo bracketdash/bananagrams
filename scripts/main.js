@@ -1,6 +1,7 @@
 /*
 TODO:
 - (getMatches.js) BUG: Pattern ignores words that start after the first tile or end before the last tile in the strip
+- (solver.js) BUG: Getting stuck in an infinite loop
 - Add button to stop processing (and autostop if they hit the solve button again)
 - Add support for disallowed words
 */
@@ -13,17 +14,24 @@ var app = new Vue({
         letters: '',
         board: [[]],
         lettersLeft: '',
+        solveBtnText: 'Solve',
         solved: false
     },
     methods: {
         solve: function() {
             var self = this;
+            self.solveBtnText = 'Solving...';
             solve(this.letters, [], trie, function(board, letters) {
                 self.board = board;
                 self.lettersLeft = letters || '';
             }).then(function(answer) {
                 self.board = answer.board;
                 self.lettersLeft = answer.letters || '';
+                if (self.solved) {
+                    self.solveBtnText = 'Solved! :)';
+                } else {
+                    self.solveBtnText = 'Unsolved :(';
+                }
             });
         }
     },

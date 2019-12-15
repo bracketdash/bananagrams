@@ -54,6 +54,7 @@ function solve(letters, disallowedWords, trie, progressCallback) {
 function solveLoop(solveState) {
     var currentState = solveState.history[solveState.historyIndex];
     var currentMatch = currentState.matches[currentState.matchIndex];
+    console.log('solveLoop', solveState.historyIndex, currentState.matchIndex);
     if (!currentMatch) {
         if (solveState.historyIndex > 0) {
             solveState.progressCallback(
@@ -80,6 +81,7 @@ function solveLoop(solveState) {
         }
         return;
     }
+    console.log('Placing: ' + currentMatch.word.toUpperCase());
     var newBoard = placeWord(currentState.board, currentMatch);
     if (!isBoardValid(newBoard, solveState.disallowedWords, solveState.trie)) {
         currentState.matchIndex = currentState.matchIndex + 1;
@@ -107,6 +109,7 @@ function solveLoop(solveState) {
                     matches: matches,
                     matchIndex: 0
                 });
+                // BUG: Getting stuck in an infinite loop here...
                 setTimeout(function() {
                     solveLoop({
                         disallowedWords: solveState.disallowedWords,

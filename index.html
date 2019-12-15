@@ -14,7 +14,7 @@
                     <input type="text" placeholder="Type your tiles here" class="letter-input" v-model="letters" />
                 </div>
                 <div>
-                    <div class="solve-button" v-on:click="solve">Solve</div>
+                    <div class="solve-button" v-on:click="solve">{{solveBtnText}}</div>
                 </div>
             </div>
             <div class="boardbox" v-show="board[0].length > 0" style="display:none">
