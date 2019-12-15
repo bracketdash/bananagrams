@@ -1,0 +1,74 @@
+.container {
+    width:80%;
+    margin:0 auto;
+    padding:30px 0;
+    font-family:Arial, Helvetica, sans-serif;
+}
+h1 {
+    margin:0;
+    text-align:center;
+}
+.controls {
+    display:flex;
+}
+.controls > div {
+    padding:10px;
+}
+.controls > div:first-child {
+    flex-grow:1;
+}
+.letter-input {
+    border-radius:4px;
+    border:1px solid #999;
+    font-size:24px;
+    height:30px;
+    letter-spacing:2px;
+    line-height:40px;
+    padding:5px 5px 5px 10px;
+    text-transform:uppercase;
+    width:100%;
+}
+.solve-button {
+    background-color:#369;
+    border-radius:4px;
+    color:#fff;
+    cursor:pointer;
+    font-weight:bold;
+    height:42px;
+    line-height:42px;
+    padding:0 15px;
+}
+.solve-button:hover {
+    background-color:#69b;
+}
+.boardbox {
+    text-align:center;
+}
+.row:last-child {
+    border-top:2px solid #999;
+    margin-top:15px;
+    padding-top:10px;
+    text-align:center;
+}
+.cell {
+    border-radius:3px;
+    border:1px solid #000;
+    display:inline-block;
+    font-size:24px;
+    font-weight:bold;
+    height:40px;
+    line-height:40px;
+    margin:3px;
+    text-align:center;
+    text-transform:uppercase;
+    vertical-align:text-top;
+    width:40px;
+}
+.cell.empty {
+    border-radius:0;
+    border-color:#ddd;
+}
+.no-tiles-left {
+    font-size:30px;
+    color:#bbb;
+}

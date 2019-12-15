@@ -4,86 +4,9 @@
         <meta charset="utf8">
         <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
         <title>Bananagrams Solver</title>
-        <style>
-            .container {
-                width:80%;
-                margin:0 auto;
-                padding:30px 0;
-                font-family:Arial, Helvetica, sans-serif;
-            }
-            h1 {
-                margin:0;
-                text-align:center;
-            }
-            .controls {
-                display:flex;
-            }
-            .controls > div {
-                padding:10px;
-            }
-            .controls > div:first-child {
-                flex-grow:1;
-            }
-            .letter-input {
-                border-radius:4px;
-                border:1px solid #999;
-                font-size:24px;
-                height:30px;
-                letter-spacing:2px;
-                line-height:40px;
-                padding:5px 5px 5px 10px;
-                text-transform:uppercase;
-                width:100%;
-            }
-            .solve-button {
-                background-color:#369;
-                border-radius:4px;
-                color:#fff;
-                cursor:pointer;
-                font-weight:bold;
-                height:42px;
-                line-height:42px;
-                padding:0 15px;
-            }
-            .solve-button:hover {
-                background-color:#69b;
-            }
-            .boardbox {
-                text-align:center;
-            }
-            .row:last-child {
-                border-top:2px solid #999;
-                margin-top:15px;
-                padding-top:10px;
-                text-align:center;
-            }
-            .cell {
-                border-radius:3px;
-                border:1px solid #000;
-                display:inline-block;
-                font-size:24px;
-                font-weight:bold;
-                height:40px;
-                line-height:40px;
-                margin:3px;
-                text-align:center;
-                text-transform:uppercase;
-                vertical-align:text-top;
-                width:40px;
-            }
-            .cell.empty {
-                border-radius:0;
-                border-color:#ddd;
-            }
-            .no-tiles-left {
-                font-size:30px;
-                color:#bbb;
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <!-- TODO: Add support for Disallowed Words to UI -->
-        <!-- TODO: Only allow letters in the tiles input -->
         <div id="app" class="container">
             <h1>Bananagrams Solver</h1>
             <div class="controls">
@@ -106,10 +29,20 @@
                 </div>
             </div>
         </div>
+        <!-- Vendor Libs -->
         <script src="https://cdn.jsdelivr.net/npm/vue"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
-        <script async src="scripts/trie.js"></script>
-        <script defer src="scripts/solver.js"></script>
-        <script defer src="scripts/controller.js"></script>
+        <!-- Functions -->
+        <script src="scripts/crawlBoard.js"></script>
+        <script src="scripts/getMatches.js"></script>
+        <script src="scripts/getNewLetters.js"></script>
+        <script src="scripts/isBoardValid.js"></script>
+        <script src="scripts/isMatchValid.js"></script>
+        <script src="scripts/makeWordsWith.js"></script>
+        <script src="scripts/placeWord.js"></script>
+        <script src="scripts/solve.js"></script>
+        <script src="scripts/trie.js"></script>
+        <!-- Controller -->
+        <script src="scripts/main.js"></script>
     </body>
 </html>

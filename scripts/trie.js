@@ -12,7 +12,3 @@ function getTrie() {
     trie = JSON.parse('{' + trie);
     return trie;
 }
-
-setTimeout(function() {
-    window.trie = getTrie();
-});

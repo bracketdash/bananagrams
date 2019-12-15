@@ -27,3 +27,8 @@ var app = new Vue({
         }
     }
 });
+
+setTimeout(function() {
+    // TODO: move this to the mount event of the vue app
+    window.trie = getTrie();
+});
