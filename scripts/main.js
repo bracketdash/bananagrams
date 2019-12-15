@@ -6,6 +6,15 @@ Add button to stop processing (and autostop if they hit the solve button again)
 Add support for disallowed words
 */
 
+// See more TODOs in: getMatches, getNewLetters
+
+var app;
+
+setTimeout(function() {
+    // TODO: move this to the mount event of the vue app
+    window.trie = getTrie();
+});
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -26,9 +35,4 @@ var app = new Vue({
             });
         }
     }
-});
-
-setTimeout(function() {
-    // TODO: move this to the mount event of the vue app
-    window.trie = getTrie();
 });

@@ -1,3 +1,51 @@
+function getMatches(letters, disallowedWords, board, trie) {
+    return new Promise(function(resolve) {
+        var matches = [];
+        crawlBoard(board, function(boardRow, boardRowIndex) {
+            getMatchesLoop(
+                boardRow,
+                boardRowIndex,
+                'row',
+                letters,
+                disallowedWords,
+                trie
+            ).then(function(loopResults) {
+                var rowMatches = _.filter(loopResults, function(match) {
+                    if (isMatchValid(match, board)) {
+                        return true;
+                    }
+                    return false;
+                });
+                if (rowMatches.length) {
+                    matches = matches.concat(rowMatches);
+                }
+            });
+        }, function(boardColumn, boardColumnIndex) {
+            getMatchesLoop(
+                boardColumn,
+                boardColumnIndex,
+                'col',
+                letters,
+                disallowedWords,
+                trie
+            ).then(function(loopResults) {
+                var columnMatches = _.filter(loopResults, function(match) {
+                    if (isMatchValid(match, board)) {
+                        return true;
+                    }
+                    return false;
+                });
+                if (columnMatches.length) {
+                    matches = matches.concat(columnMatches);
+                }
+                if (boardColumnIndex === board[0].length-1) {
+                    resolve(matches);                    
+                }
+            });
+        });
+    });
+}
+
 function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie) {
     return new Promise(function(resolve) {
         var notDir = dir === 'row' ? 'col' : 'row';
@@ -7,7 +55,8 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie) {
             return [];
         }
         var pattern = new RegExp(stripStrTrimmed.replace(/\s/g, '.'));
-        // TODO: BUG - this pattern ignores words that might only attach to one of the edge tiles in the strip
+        // TODO: BUG
+        // this pattern ignores words that start after the first tile or end before the last tile in the strip
         var stripMatches = [];
         _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
             if (tileOnBoard !== ' ') {
@@ -32,40 +81,6 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie) {
                     }
                 });
             }
-        });
-    });
-}
-
-function getMatches(letters, disallowedWords, board, trie) {
-    return new Promise(function(resolve) {
-        var matches = [];
-        crawlBoard(board, function(boardRow, boardRowIndex) {
-            getMatchesLoop(boardRow, boardRowIndex, 'row', letters, disallowedWords, trie).then(function(loopResults) {
-                var rowMatches = _.filter(loopResults, function(match) {
-                    if (isMatchValid(match, board)) {
-                        return true;
-                    }
-                    return false;
-                });
-                if (rowMatches.length) {
-                    matches = matches.concat(rowMatches);
-                }
-            });
-        }, function(boardColumn, boardColumnIndex) {
-            getMatchesLoop(boardColumn, boardColumnIndex, 'col', letters, disallowedWords, trie).then(function(loopResults) {
-                var columnMatches = _.filter(loopResults, function(match) {
-                    if (isMatchValid(match, board)) {
-                        return true;
-                    }
-                    return false;
-                });
-                if (columnMatches.length) {
-                    matches = matches.concat(columnMatches);
-                }
-                if (boardColumnIndex === board[0].length-1) {
-                    resolve(matches);                    
-                }
-            });
         });
     });
 }
