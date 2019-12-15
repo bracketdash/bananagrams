@@ -201,21 +201,22 @@ function placeWord(oldBoard, match) {
     return board;
 }
 
-function getNewLetters(oldBoard, newBoard, currentMatch) {
-    // TODO: use _.difference between the old and new strips
-    // currentState.letters;
-    // _.difference(currentMatch.word, board[currentMatch.dir === 'row' ? null : null][currentMatch.dir === 'row' ? null : null])
-
-    var currentStrip;
-    if (currentMatch.dir === 'row') {
-        currentStrip = newBoard[currentMatch.row];
+// TODO: move up to be alphabetical
+function getNewLetters(incomingLetters, oldBoard, newBoard, match) {
+    let newLetters = incomingLetters;
+    var oldStrip;
+    if (match.dir === 'row') {
+        oldStrip = newBoard[match.row];
+    } else {
+        // TODO: build the column and assign to oldStrip
     }
-
-    _.forEach(currentMatch.word, function(matchWordLetter) {
-        newLetters = newLetters.replace(matchWordLetter, '');
+    // TODO: make newStrip
+    let lettersToBeRemoved = [];
+    // TODO: use _.difference between the old and new strips to find the letters that should be removed
+    _.forEach(lettersToBeRemoved, function(letterToBeRemoved) {
+        newLetters = newLetters.replace(letterToBeRemoved, '');
     });
-
-    return '';
+    return newLetters;
 }
 
 function solveLoop(solveState) {
@@ -260,7 +261,7 @@ function solveLoop(solveState) {
         });
         return;
     }
-    var newLetters = getNewLetters(currentState.board, newBoard, currentMatch);
+    var newLetters = getNewLetters(currentState.letters, currentState.board, newBoard, currentMatch);
     solveState.progressCallback(newBoard, newLetters);
     if (newLetters.length) {
         getMatches(newLetters, solveState.disallowedWords, newBoard).then(function(matches) {
