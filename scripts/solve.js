@@ -50,7 +50,6 @@ function solve(letters, disallowedWords, trie, progressCallback) {
 function solveLoop(solveState) {
     var currentState = solveState.history[solveState.historyIndex];
     var currentMatch = currentState.matches[currentState.matchIndex];
-    console.log('solveState', solveState.historyIndex, currentState.matchIndex);
     if (!currentMatch) {
         if (solveState.historyIndex > 0) {
             solveState.progressCallback(

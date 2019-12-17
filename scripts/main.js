@@ -1,9 +1,10 @@
 /*
 TODO:
-- BUGS:
-    - WECUTOUTYOURDAEMONNOTYOURBRAIN
-- Add button to stop processing (and autostop if they hit the solve button again)
-- Add support for disallowed words
+- Fix infinite loop for example letter set: WECUTOUTYOURDAEMONNOTYOURBRAIN
+- (getMatches.js) pattern ignores words that start after the first tile or end before the last tile in the strip
+- Markup & Controller:
+    - Add button to stop processing (and autostop if they hit the solve button again)
+    - Add support for disallowed words
 */
 
 var trie = {};

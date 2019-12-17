@@ -1,20 +1,15 @@
-function isMatchValid(match, board) {
-    var index;
-    var spliceAt;
+function isMatchValid(match, ogStrip) {
     var strip;
-    if (match.dir === 'row') {
-        index = match.row;
-        spliceAt = match.col;
-        strip = _.clone(board[index]);
-    } else {
-        index = match.col;
-        spliceAt = match.row;
-        strip = [];
-        _.forEach(board, function(row) {
-            strip.push(row[index]);
-        });
+    var spliceAt;
+    if (match.word == _.trim(ogStrip.join(''))) {
+        return false;
     }
-    var ogStrip = _.clone(strip);
+    strip = _.clone(ogStrip);
+    if (match.dir === 'row') {
+        spliceAt = match.col;
+    } else {
+        spliceAt = match.row;
+    }
     if (spliceAt < 0) {
         Array.prototype.splice.apply(strip, [0, (spliceAt + match.word.length)].concat(match.word.split('')));
         strip = strip.slice(-spliceAt);
