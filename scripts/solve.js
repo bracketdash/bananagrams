@@ -58,6 +58,10 @@ function solveLoop(solveState) {
             );
             solveState.history[solveState.historyIndex-1].matchIndex += 1;
             setTimeout(function() {
+                if (window.stop) {
+                    window.stop = false;
+                    return;
+                }
                 solveLoop({
                     disallowedWords: solveState.disallowedWords,
                     history: solveState.history.slice(0,-1),
@@ -80,6 +84,10 @@ function solveLoop(solveState) {
     if (!isBoardValid(newBoard, solveState.disallowedWords, solveState.trie)) {
         currentState.matchIndex = currentState.matchIndex + 1;
         setTimeout(function() {
+            if (window.stop) {
+                window.stop = false;
+                return;
+            }
             solveLoop({
                 disallowedWords: solveState.disallowedWords,
                 history: solveState.history,
@@ -104,6 +112,10 @@ function solveLoop(solveState) {
                     matchIndex: 0
                 });
                 setTimeout(function() {
+                    if (window.stop) {
+                        window.stop = false;
+                        return;
+                    }
                     solveLoop({
                         disallowedWords: solveState.disallowedWords,
                         history: solveState.history,
@@ -117,6 +129,10 @@ function solveLoop(solveState) {
                 solveState.progressCallback(currentState.board, currentState.letters);
                 currentState.matchIndex = currentState.matchIndex + 1;
                 setTimeout(function() {
+                    if (window.stop) {
+                        window.stop = false;
+                        return;
+                    }
                     solveLoop({
                         disallowedWords: solveState.disallowedWords,
                         history: solveState.history,

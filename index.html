@@ -7,27 +7,32 @@
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <div id="app" class="container">
-            <h1>Bananagrams Solver</h1>
+        <div id="app">
+            <div class="header">
+                <h1>Bananagrams Solver</h1>
+            </div>
+            <div class="letterbox">
+                <input type="text" placeholder="enter your letters here" v-model="letters" @change="filterLetters" @keyup.enter="solve">
+            </div>
             <div class="controls">
                 <div>
-                    <input type="text" placeholder="Type your tiles here" class="letter-input" v-model="letters" />
+                    <div @click="solve">Solve</div>
                 </div>
                 <div>
-                    <div class="solve-button" v-on:click="solve">{{solveBtnText}}</div>
+                    <div @click="cancel">Cancel</div>
+                </div>
+                <div>
+                    <div @click="reset">Reset</div>
                 </div>
             </div>
-            <div class="boardbox" v-show="board[0].length > 0" style="display:none">
+            <div class="boardbox">
                 <div class="board">
                     <div class="row" v-for="row in board">
                         <div class="cell" v-for="cell in row" :class="cell == ' ' ? 'empty' : ''">{{cell}}</div>
                     </div>
-                    <div class="row letters-left-row">
-                        <div class="cell" v-for="tile in lettersLeft">{{tile}}</div>
-                        <div class="no-tiles-left" v-show="!lettersLeft.length">No Tiles Left</div>
-                    </div>
                 </div>
             </div>
+            <div class="tray">{{tray}}</div>
         </div>
         <!-- Vendor Libs -->
         <script src="https://cdn.jsdelivr.net/npm/vue"></script>
