@@ -51,6 +51,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
     _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
         if (tileOnBoard !== ' ') {
             var words = makeWordsWith(letters + tileOnBoard, trie, disallowedWords);
+            var count = 0;
             _.forEach(words, function(word) {
                 if (pattern.test(word)) {
                     var stripMatch = {
@@ -60,6 +61,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
                     stripMatch[dir] = stripdex;
                     stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
                     stripMatches.push(stripMatch);
+                    count += 1;
                 }
             });
             if (tileIndex === stripStrTrimmed.length - 1) {

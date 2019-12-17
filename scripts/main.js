@@ -1,7 +1,7 @@
 /*
 TODO:
-- (getMatches.js) BUG: Pattern ignores words that start after the first tile or end before the last tile in the strip
-- (solver.js) BUG: Getting stuck in an infinite loop
+- BUGS:
+    - WECUTOUTYOURDAEMONNOTYOURBRAIN
 - Add button to stop processing (and autostop if they hit the solve button again)
 - Add support for disallowed words
 */
