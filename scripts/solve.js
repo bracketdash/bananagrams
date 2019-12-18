@@ -36,11 +36,11 @@ function solve(letters, disallowedWords, trie, callback) {
             callback: callback
         });
     } else {
-        // END
         callback({
             message: 'No possible solution. Wait for a pull.',
             board: [[]],
-            letters: letters
+            letters: letters,
+            end: true
         });
     }
 }
@@ -73,13 +73,13 @@ function solveLoop(solveState) {
                 });
             });
         } else {
-            // END
             callbackMessage = 'No possible solution. Wait for a pull.';
             console.log(callbackMessage);
             solveState.callback({
                 message: callbackMessage,
                 board: currentState.board,
-                letters: currentState.letters
+                letters: currentState.letters,
+                end: true
             });
         }
         return;
@@ -113,7 +113,7 @@ function solveLoop(solveState) {
     if (newLetters.length) {
         getMatches(newLetters, solveState.disallowedWords, newBoard, solveState.trie, function(matches) {
             if (matches.length) {
-                callbackMessage = matches.length + ' matches found! Saving placement and trying the first match...';
+                callbackMessage = matches.length + ' matches found! Saving placement (' + currentMatch.word + ') and trying the first match...';
                 console.log(callbackMessage);
                 solveState.callback({
                     message: callbackMessage,
@@ -169,7 +169,8 @@ function solveLoop(solveState) {
         solveState.callback({
             message: callbackMessage,
             board: newBoard,
-            letters: ''
+            letters: '',
+            end: true
         });
     }
 }
