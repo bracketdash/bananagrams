@@ -1,7 +1,7 @@
 function isMatchValid(match, ogStrip) {
     var strip;
     var spliceAt;
-    if (match.word == _.trim(ogStrip.join(''))) {
+    if (_.trim(ogStrip.join('')).indexOf(match.word) > -1) {
         return false;
     }
     strip = _.clone(ogStrip);

@@ -1,17 +1,12 @@
-/*
-TODO:
-- (getMatches.js) pattern ignores words that start after the first tile or end before the last tile in the strip
--  Add support for disallowed words
-*/
-
+// best to keep this a secret from vue (really big)
 var trie = {};
 
 var app = new Vue({
     el: '#app',
     data: {
-        letters: '',
         board: [[]],
-        solved: false,
+        letters: '',
+        message: '',
         tray: ''
     },
     methods: {
@@ -23,20 +18,18 @@ var app = new Vue({
         },
         reset: function() {
             window.stop = true;
-            this.letters = '';
             this.board = [[]];
-            this.solved = false;
+            this.letters = '';
+            this.message = '';
             this.tray = '';
         },
         solve: function() {
             var self = this;
             window.stop = false;
-            solve(this.letters, [], trie, function(board, letters) {
-                self.board = board;
-                self.tray = letters || '';
-            }).then(function(answer) {
-                self.board = answer.board;
-                self.tray = answer.letters || '';
+            solve(this.letters, [], trie, function(clientState) {
+                self.board = clientState.board;
+                self.message = clientState.message;
+                self.tray = clientState.letters;
             });
         }
     },
