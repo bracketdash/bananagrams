@@ -1,3 +1,7 @@
+// TODO: fix bug -
+// solver seems to only try words that start with the tiles on the board that they
+// would interesect..need to allow words that intersect the board in the middle
+
 function getMatches(letters, disallowedWords, board, trie, resolve) {
     var matches = [];
     crawlBoard(board, function(boardRow, boardRowIndex) {
@@ -6,6 +10,7 @@ function getMatches(letters, disallowedWords, board, trie, resolve) {
             letters, disallowedWords, trie,
             function(loopResults) {
                 var rowMatches = _.filter(loopResults, function(match) {
+                    // could be that isMatchValid is not allowing valid matches through
                     if (isMatchValid(match, boardRow)) {
                         return true;
                     }
@@ -22,6 +27,7 @@ function getMatches(letters, disallowedWords, board, trie, resolve) {
             letters, disallowedWords, trie,
             function(loopResults) {
                 var columnMatches = _.filter(loopResults, function(match) {
+                    // could be that isMatchValid is not allowing valid matches through
                     if (isMatchValid(match, boardColumn)) {
                         return true;
                     }
@@ -45,6 +51,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
     if (!stripStrTrimmed) {
         return [];
     }
+    // could be the pattern still isn't right
     var pattern = new RegExp('.*' + stripStrTrimmed.replace(/\s/g, '.') + '.*').toPartialMatchRegex();
     var stripMatches = [];
     _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
