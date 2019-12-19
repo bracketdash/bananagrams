@@ -1,3 +1,11 @@
+/*
+TODO:
+Only generate words once then narrow each step (keep words in solveState)
+makeWordsWith should just filter, or can be replaced
+Rearrange solveLoop so getMatches happens first and placement happens last
+Test each match thoroughly enough during initial generation so that we don't need isMatchValid and isBoardValid
+*/
+
 function solve(letters, disallowedWords, trie, callback) {
     letters = letters.toLowerCase();
     disallowedWords = _.map(disallowedWords, function(disallowedWord) {
