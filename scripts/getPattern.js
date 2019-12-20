@@ -1,4 +1,4 @@
-function getPatternsLoop(fullPattern, patterns, leftTrim, rightTrim) {
+function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
     var allDone = false;
     var needsLeftTrimIteration = false;
     var moddedPattern = fullPattern;
@@ -32,16 +32,16 @@ function getPatternsLoop(fullPattern, patterns, leftTrim, rightTrim) {
         return patterns;
     }
     if (needsLeftTrimIteration) {
-        return getPatternsLoop(fullPattern, patterns, leftTrim+1, 0);
+        return getPatternLoop(fullPattern, patterns, leftTrim+1, 0);
     } else {
         patterns.push(moddedPattern);
     }
-    return getPatternsLoop(fullPattern, patterns, leftTrim, rightTrim+1);
+    return getPatternLoop(fullPattern, patterns, leftTrim, rightTrim+1);
 }
 
-function getPatterns(stripArr) {
+function getPattern(stripArr) {
     var fullPattern = '.*' + _.trim(stripArr.join('')).replace(/\s+/g, function(match) {
         return '.{' + match.length + '}';
     }) + '.*';
-    return getPatternsLoop(fullPattern, [fullPattern], 0, 1);
+    return new RegExp(getPatternLoop(fullPattern, [fullPattern], 0, 1).join('|'));
 }
