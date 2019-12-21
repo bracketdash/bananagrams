@@ -4,13 +4,7 @@ function getMatches(letters, disallowedWords, board, trie, resolve) {
         getMatchesLoop(
             boardRow, boardRowIndex, 'row',
             letters, disallowedWords, trie,
-            function(loopResults) {
-                var rowMatches = _.filter(loopResults, function(match) {
-                    if (isMatchValid(match, boardRow)) {
-                        return true;
-                    }
-                    return false;
-                });
+            function(rowMatches) {
                 if (rowMatches.length) {
                     matches = matches.concat(rowMatches);
                 }
@@ -20,13 +14,7 @@ function getMatches(letters, disallowedWords, board, trie, resolve) {
         getMatchesLoop(
             boardColumn, boardColumnIndex, 'col',
             letters, disallowedWords, trie,
-            function(loopResults) {
-                var columnMatches = _.filter(loopResults, function(match) {
-                    if (isMatchValid(match, boardColumn)) {
-                        return true;
-                    }
-                    return false;
-                });
+            function(columnMatches) {
                 if (columnMatches.length) {
                     matches = matches.concat(columnMatches);
                 }
@@ -58,6 +46,8 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
                     };
                     stripMatch[dir] = stripdex;
                     stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
+                    // TODO: the notDir assignment is incomplete and broken
+                    // we are looking for where in the strip the word starts...
                     stripMatches.push(stripMatch);
                 }
             });

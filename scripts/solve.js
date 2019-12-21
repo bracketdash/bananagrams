@@ -1,7 +1,6 @@
 /*
 TODO:
 Rearrange solveLoop so getMatches happens first and placement happens last
-Do we need isMatchValid now that we figured out the regex pattern?
 Generate one master word list on puzzle start and narrow the wordlist on each step instead of generating fresh from trie each time
     - Only generate words once then narrow each step (keep words in solveState)
     - makeWordsWith should just filter, or can be replaced
@@ -60,6 +59,7 @@ function solve(letters, disallowedWords, trie, callback) {
 function solveLoop(solveState) {
     var currentState = solveState.history[solveState.historyIndex];
     var currentMatch = currentState.matches[currentState.matchIndex];
+    console.log(currentMatch);
     var callbackMessage = '';
     if (!currentMatch) {
         if (solveState.historyIndex > 0) {

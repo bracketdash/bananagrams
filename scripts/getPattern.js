@@ -3,8 +3,9 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
     var needsLeftTrimIteration = false;
     var moddedPattern = fullPattern;
     _.times(leftTrim, function() {
-        if (/[a-z][^a-z]*[a-z]/.test(moddedPattern)) {
-            moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]/, '').replace(/^\.\{([0-9]*)\}/, function(match, captured) {
+        if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
+            moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, '');
+            moddedPattern = moddedPattern.replace(/^\.\{([0-9]*)\}/, function(match, captured) {
                 var num = parseInt(captured);
                 if (num < 2) {
                     return '';
@@ -16,8 +17,9 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
         }
     });
     _.times(rightTrim, function() {
-        if (/[a-z][^a-z]*[a-z]/.test(moddedPattern)) {
-            moddedPattern = moddedPattern.replace(/[a-z][^a-z]*$/, '').replace(/\.\{([0-9]*)\}$/, function(match, captured) {
+        if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
+            moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, '');
+            moddedPattern = moddedPattern.replace(/\.\{([0-9]*)\}$/, function(match, captured) {
                 var num = parseInt(captured);
                 if (num < 2) {
                     return '';
@@ -28,6 +30,12 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
             needsLeftTrimIteration = true;
         }
     });
+    if (leftTrim > 0) {
+        moddedPattern = '^' + moddedPattern;
+    }
+    if (rightTrim > 0) {
+        moddedPattern = moddedPattern + '$';
+    }
     if (allDone) {
         return patterns;
     }
