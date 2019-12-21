@@ -26,6 +26,8 @@ function getMatches(letters, disallowedWords, board, trie, resolve) {
     });
 }
 
+// NEW BUG - "eye" matching against "eye" with an index of -2, creating "eyeye" (invalid)
+
 function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, resolve) {
     var notDir = dir === 'row' ? 'col' : 'row';
     var stripStr = strip.join('');
@@ -45,9 +47,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
                         dir: dir
                     };
                     stripMatch[dir] = stripdex;
-                    stripMatch[notDir] = stripStr.search(/[a-z]/) - word.search(pattern);
-                    // TODO: the notDir assignment is incomplete and broken
-                    // we are looking for where in the strip the word starts...
+                    stripMatch[notDir] = getIndexOfWordInStripLoop(new RegExp(stripStr.replace(/\s/g, '.')), word.split(''), strip, 'first');
                     stripMatches.push(stripMatch);
                 }
             });
@@ -56,4 +56,32 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
             }
         }
     });
+}
+
+function getIndexOfWordInStripLoop(pattern, word, strip, index) {
+    var spliced = _.clone(strip);
+    if (index === 'first') {
+        index = -word.length+1;
+        _.some(strip, function(tile) {
+            if (tile === ' ') {
+                index += 1;
+            } else {
+                return true;
+            }
+        });
+    }
+    if (index < 0) {
+        Array.prototype.splice.apply(spliced, [0, word.length+index].concat(word));
+    } else {
+        Array.prototype.splice.apply(spliced, [index, word.length].concat(word));
+    }
+    if (index > 20) {
+        console.log('Couldn\'t find "' + word.join('') + '" in "' + strip.join('') + '"');
+        return 0;
+    }
+    if (pattern.test(spliced.join(''))) {
+        return index;
+    } else {
+        return getIndexOfWordInStripLoop(pattern, word, strip, index+1);
+    }
 }
