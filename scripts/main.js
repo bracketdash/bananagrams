@@ -24,11 +24,14 @@ var app = new Vue({
         solve: function() {
             var self = this;
             window.stop = true;
+            self.message = '';
             setTimeout(function() {
                 window.stop = false;
                 solve(self.letters, [], trie, function(clientState) {
                     self.board = clientState.board;
-                    self.message = clientState.message;
+                    if (clientState.end) {
+                        self.message = clientState.message;
+                    }
                     self.tray = clientState.letters;
                 });
             }, 10);

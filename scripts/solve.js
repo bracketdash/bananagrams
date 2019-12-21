@@ -48,31 +48,15 @@ function solve(letters, disallowedWords, trie, callback) {
 function solveLoop(solveState) {
     var currentState = solveState.history[solveState.historyIndex];
     var currentMatch = currentState.matches[currentState.matchIndex];
-    var callbackMessage = '';
     if (!currentMatch) {
         if (solveState.historyIndex > 0) {
-            callbackMessage = 'Out of words to try! Backing up again...';
-            console.log(callbackMessage);
-            solveState.callback({
-                message: callbackMessage,
-                board: solveState.history[solveState.historyIndex-1].board,
-                letters: solveState.history[solveState.historyIndex-1].letters
-            });
             solveState.historyIndex -= 1;
             solveState.history[solveState.historyIndex].matchIndex += 1;
             solveState.history = solveState.history.slice(0,-1);
-            setTimeout(function() {
-                if (window.stop) {
-                    window.stop = false;
-                    return;
-                }
-                solveLoop(solveState);
-            });
+            solveLoop(solveState);
         } else {
-            callbackMessage = 'No possible solution. Wait for a pull.';
-            console.log(callbackMessage);
             solveState.callback({
-                message: callbackMessage,
+                message: 'No possible solution. Wait for a pull.',
                 board: currentState.board,
                 letters: currentState.letters,
                 end: true
@@ -83,30 +67,14 @@ function solveLoop(solveState) {
     var newBoard = placeWord(currentState.board, currentMatch);
     var newLetters = getNewLetters(currentState.letters, currentState.board, newBoard, currentMatch);
     if (!isBoardValid(newBoard, solveState.trie)) {
-        callbackMessage = 'Oops! Invalid board created. Backing up and trying the next word...';
-        console.log(callbackMessage);
-        solveState.callback({
-            message: callbackMessage,
-            board: newBoard,
-            letters: newLetters
-        });
         currentState.matchIndex += 1;
-        setTimeout(function() {
-            if (window.stop) {
-                window.stop = false;
-                return;
-            }
-            solveLoop(solveState);
-        });
+        solveLoop(solveState);
         return;
     }
     if (newLetters.length) {
         getMatches(newLetters, newBoard, solveState.words, function(matches) {
             if (matches.length) {
-                callbackMessage = matches.length + ' matches found! Saving placement (' + currentMatch.word + ') and trying the first match...';
-                console.log(callbackMessage);
                 solveState.callback({
-                    message: callbackMessage,
                     board: newBoard,
                     letters: newLetters
                 });
@@ -125,28 +93,13 @@ function solveLoop(solveState) {
                     solveLoop(solveState);
                 });
             } else {
-                callbackMessage = 'No matches. Backing up and trying the next word...';
-                console.log(callbackMessage);
-                solveState.callback({
-                    message: callbackMessage,
-                    board: currentState.board,
-                    letters: currentState.letters
-                });
                 currentState.matchIndex = currentState.matchIndex + 1;
-                setTimeout(function() {
-                    if (window.stop) {
-                        window.stop = false;
-                        return;
-                    }
-                    solveLoop(solveState);
-                });
+                solveLoop(solveState);
             }
         });
     } else {
-        callbackMessage = 'SOLVED!';
-        console.log(callbackMessage);
         solveState.callback({
-            message: callbackMessage,
+            message: 'SOLVED!',
             board: newBoard,
             letters: '',
             end: true
