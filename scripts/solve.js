@@ -1,9 +1,3 @@
-/*
-TODO:
-Rearrange solveLoop so getMatches happens first and placement happens last
-Make the solveState object just once and pass the same instance around with changed properties
-*/
-
 function solve(letters, disallowedWords, trie, callback) {
     letters = letters.toLowerCase();
     disallowedWords = _.map(disallowedWords, function(disallowedWord) {
@@ -54,7 +48,6 @@ function solve(letters, disallowedWords, trie, callback) {
 function solveLoop(solveState) {
     var currentState = solveState.history[solveState.historyIndex];
     var currentMatch = currentState.matches[currentState.matchIndex];
-    console.log(currentMatch);
     var callbackMessage = '';
     if (!currentMatch) {
         if (solveState.historyIndex > 0) {
@@ -65,19 +58,15 @@ function solveLoop(solveState) {
                 board: solveState.history[solveState.historyIndex-1].board,
                 letters: solveState.history[solveState.historyIndex-1].letters
             });
-            solveState.history[solveState.historyIndex-1].matchIndex += 1;
+            solveState.historyIndex -= 1;
+            solveState.history[solveState.historyIndex].matchIndex += 1;
+            solveState.history = solveState.history.slice(0,-1);
             setTimeout(function() {
                 if (window.stop) {
                     window.stop = false;
                     return;
                 }
-                solveLoop({
-                    history: solveState.history.slice(0,-1),
-                    historyIndex: solveState.historyIndex - 1,
-                    trie: solveState.trie,
-                    words: solveState.words,
-                    callback: solveState.callback
-                });
+                solveLoop(solveState);
             });
         } else {
             callbackMessage = 'No possible solution. Wait for a pull.';
@@ -101,19 +90,13 @@ function solveLoop(solveState) {
             board: newBoard,
             letters: newLetters
         });
-        currentState.matchIndex = currentState.matchIndex + 1;
+        currentState.matchIndex += 1;
         setTimeout(function() {
             if (window.stop) {
                 window.stop = false;
                 return;
             }
-            solveLoop({
-                history: solveState.history,
-                historyIndex: solveState.historyIndex,
-                trie: solveState.trie,
-                words: solveState.words,
-                callback: solveState.callback
-            });
+            solveLoop(solveState);
         });
         return;
     }
@@ -133,18 +116,13 @@ function solveLoop(solveState) {
                     matches: _.reverse(_.sortBy(matches, (match) => match.word.length)),
                     matchIndex: 0
                 });
+                solveState.historyIndex += 1;
                 setTimeout(function() {
                     if (window.stop) {
                         window.stop = false;
                         return;
                     }
-                    solveLoop({
-                        history: solveState.history,
-                        historyIndex: solveState.historyIndex + 1,
-                        trie: solveState.trie,
-                        words: solveState.words,
-                        callback: solveState.callback
-                    });
+                    solveLoop(solveState);
                 });
             } else {
                 callbackMessage = 'No matches. Backing up and trying the next word...';
@@ -160,13 +138,7 @@ function solveLoop(solveState) {
                         window.stop = false;
                         return;
                     }
-                    solveLoop({
-                        history: solveState.history,
-                        historyIndex: solveState.historyIndex,
-                        trie: solveState.trie,
-                        words: solveState.words,
-                        callback: solveState.callback
-                    });
+                    solveLoop(solveState);
                 });
             }
         });
