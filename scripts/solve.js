@@ -1,12 +1,8 @@
 /*
 TODO:
 Rearrange solveLoop so getMatches happens first and placement happens last
-Generate one master word list on puzzle start and narrow the wordlist on each step instead of generating fresh from trie each time
-    - Only generate words once then narrow each step (keep words in solveState)
-    - makeWordsWith should just filter, or can be replaced
-    - means no more passing around trie!
-    - Could also just ajax in the compressed trie the one time and not even save it to a larger scope than inside makeWordsWith
-Make the solveState object just once and pass the same instance around; just change contained properties when needed
+Only generate words once (keep them in the solveState) then narrow each step
+Make the solveState object just once and pass the same instance around with changed properties
 */
 
 function solve(letters, disallowedWords, trie, callback) {

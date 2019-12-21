@@ -26,9 +26,6 @@ function getMatches(letters, disallowedWords, board, trie, resolve) {
     });
 }
 
-// NEW BUG - "eye" matching against "eye" with an index of -2, creating "eyeye" (invalid strip)
-// try to fix this in the regex patterns so we don't have to do a secondary check
-
 function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, resolve) {
     var notDir = dir === 'row' ? 'col' : 'row';
     var stripStr = strip.join('');
