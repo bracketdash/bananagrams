@@ -1,7 +1,6 @@
 /*
 TODO:
 Rearrange solveLoop so getMatches happens first and placement happens last
-Only generate words once (keep them in the solveState) then narrow each step
 Make the solveState object just once and pass the same instance around with changed properties
 */
 
@@ -31,7 +30,6 @@ function solve(letters, disallowedWords, trie, callback) {
             };
         });
         solveLoop({
-            disallowedWords: disallowedWords,
             history: [{
                 board: [[]],
                 letters: letters,
@@ -40,6 +38,7 @@ function solve(letters, disallowedWords, trie, callback) {
             }],
             historyIndex: 0,
             trie: trie,
+            words: words,
             callback: callback
         });
     } else {
@@ -73,10 +72,10 @@ function solveLoop(solveState) {
                     return;
                 }
                 solveLoop({
-                    disallowedWords: solveState.disallowedWords,
                     history: solveState.history.slice(0,-1),
                     historyIndex: solveState.historyIndex - 1,
                     trie: solveState.trie,
+                    words: solveState.words,
                     callback: solveState.callback
                 });
             });
@@ -94,7 +93,7 @@ function solveLoop(solveState) {
     }
     var newBoard = placeWord(currentState.board, currentMatch);
     var newLetters = getNewLetters(currentState.letters, currentState.board, newBoard, currentMatch);
-    if (!isBoardValid(newBoard, solveState.disallowedWords, solveState.trie)) {
+    if (!isBoardValid(newBoard, solveState.trie)) {
         callbackMessage = 'Oops! Invalid board created. Backing up and trying the next word...';
         console.log(callbackMessage);
         solveState.callback({
@@ -109,17 +108,17 @@ function solveLoop(solveState) {
                 return;
             }
             solveLoop({
-                disallowedWords: solveState.disallowedWords,
                 history: solveState.history,
                 historyIndex: solveState.historyIndex,
                 trie: solveState.trie,
+                words: solveState.words,
                 callback: solveState.callback
             });
         });
         return;
     }
     if (newLetters.length) {
-        getMatches(newLetters, solveState.disallowedWords, newBoard, solveState.trie, function(matches) {
+        getMatches(newLetters, newBoard, solveState.words, function(matches) {
             if (matches.length) {
                 callbackMessage = matches.length + ' matches found! Saving placement (' + currentMatch.word + ') and trying the first match...';
                 console.log(callbackMessage);
@@ -140,10 +139,10 @@ function solveLoop(solveState) {
                         return;
                     }
                     solveLoop({
-                        disallowedWords: solveState.disallowedWords,
                         history: solveState.history,
                         historyIndex: solveState.historyIndex + 1,
                         trie: solveState.trie,
+                        words: solveState.words,
                         callback: solveState.callback
                     });
                 });
@@ -162,10 +161,10 @@ function solveLoop(solveState) {
                         return;
                     }
                     solveLoop({
-                        disallowedWords: solveState.disallowedWords,
                         history: solveState.history,
                         historyIndex: solveState.historyIndex,
                         trie: solveState.trie,
+                        words: solveState.words,
                         callback: solveState.callback
                     });
                 });

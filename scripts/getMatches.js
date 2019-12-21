@@ -1,32 +1,24 @@
-function getMatches(letters, disallowedWords, board, trie, resolve) {
+function getMatches(letters, board, wordlist, resolve) {
     var matches = [];
     crawlBoard(board, function(boardRow, boardRowIndex) {
-        getMatchesLoop(
-            boardRow, boardRowIndex, 'row',
-            letters, disallowedWords, trie,
-            function(rowMatches) {
-                if (rowMatches.length) {
-                    matches = matches.concat(rowMatches);
-                }
+        getMatchesLoop(boardRow, boardRowIndex, 'row', letters, wordlist, function(rowMatches) {
+            if (rowMatches.length) {
+                matches = matches.concat(rowMatches);
             }
-        );
+        });
     }, function(boardColumn, boardColumnIndex) {
-        getMatchesLoop(
-            boardColumn, boardColumnIndex, 'col',
-            letters, disallowedWords, trie,
-            function(columnMatches) {
-                if (columnMatches.length) {
-                    matches = matches.concat(columnMatches);
-                }
-                if (boardColumnIndex === board[0].length-1) {
-                    resolve(matches);
-                }
+        getMatchesLoop(boardColumn, boardColumnIndex, 'col', letters, wordlist, function(columnMatches) {
+            if (columnMatches.length) {
+                matches = matches.concat(columnMatches);
             }
-        );
+            if (boardColumnIndex === board[0].length-1) {
+                resolve(matches);
+            }
+        });
     });
 }
 
-function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, resolve) {
+function getMatchesLoop(strip, stripdex, dir, letters, wordlist, resolve) {
     var notDir = dir === 'row' ? 'col' : 'row';
     var stripStr = strip.join('');
     var stripStrTrimmed = _.trim(stripStr);
@@ -37,7 +29,7 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
     var stripMatches = [];
     _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
         if (tileOnBoard !== ' ') {
-            var words = makeWordsWith(letters + tileOnBoard, trie, disallowedWords);
+            var words = narrowWordsBy(wordlist, letters + tileOnBoard);
             _.forEach(words, function(word) {
                 if (pattern.test(word)) {
                     var stripMatch = {
@@ -55,6 +47,19 @@ function getMatchesLoop(strip, stripdex, dir, letters, disallowedWords, trie, re
                 resolve(stripMatches);
             }
         }
+    });
+}
+
+function narrowWordsBy(wordlist, letters) {
+    return _.filter(wordlist, function(word) {
+       var lettersLeft = letters;
+        _.forEach(word.split(''), function(letter) {
+            lettersLeft = lettersLeft.replace(letter, '');
+        });
+        if (letters.length - lettersLeft.length != word.length) {
+            return false;
+        }
+        return true;
     });
 }
 
