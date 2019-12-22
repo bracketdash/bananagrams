@@ -5,7 +5,23 @@ function getMatches(letters, board, wordlist, resolve) {
     }, function(boardColumn, boardColumnIndex) {
         getMatchesLoop(boardColumn, boardColumnIndex, 'col', 'row', letters, wordlist, matches, function() {
             if (boardColumnIndex === board[0].length-1) {
-                // TODO: sort matches in priority of keeping the solution board size smaller
+                matches = _.sortBy(matches, function(match) {
+                    var points = 100;
+                    // reducing points more here prioritizes wider solutions over taller ones
+                    if (match.row > 0 && match.row < board.length) {
+                        points -= 2;
+                        if (match.dir === 'col' && match.row + match.word.length < board.length) {
+                            points -= 3;
+                        }
+                    }
+                    if (match.col > 0 && match.col < board[0].length) {
+                        points -= 1;
+                        if (match.dir === 'row' && match.col + match.word.length < board[0].length) {
+                            points -= 2;
+                        }
+                    }
+                    return points;
+                });
                 resolve(matches);
             }
         });

@@ -12,7 +12,7 @@ function solve(incomingLetters, blacklist, trie, callback) {
                 board: board,
                 letters: letters,
                 matches: _.map(words, function(word) {
-                    return { word: word, dir: 'col', row: 0, col: 0 };
+                    return { word: word, dir: 'row', row: 0, col: 0 };
                 }),
                 matchIndex: 0
             }],
