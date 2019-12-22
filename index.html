@@ -12,17 +12,18 @@
                 <h1>Bananagrams Solver</h1>
             </div>
             <div class="letterbox">
-                <input type="text" placeholder="enter your letters here" v-model="letters" @change="filterLetters" @keyup.enter="solve">
+                <input type="text" placeholder="yourtileshere" v-model="letters" @change="filterLetters" @keyup.enter="solve">
             </div>
             <div class="controls">
                 <div>
+                    <label>Word Blacklist</label>
+                    <small>(Comma-separated)</small>
+                </div>
+                <div>
+                    <input type="text" v-model="blacklist" @keyup.enter="solve" />
+                </div>
+                <div>
                     <div @click="solve">Solve</div>
-                </div>
-                <div>
-                    <div @click="cancel">Cancel/Clear</div>
-                </div>
-                <div>
-                    <div @click="solveAll">Solve..all.</div>
                 </div>
             </div>
             <div class="boardbox">
@@ -37,7 +38,7 @@
         </div>
         <!-- Vendor Libs -->
         <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
         <!-- Functions -->
         <script src="js/getMatches.js"></script>
         <script src="js/getPattern.js"></script>

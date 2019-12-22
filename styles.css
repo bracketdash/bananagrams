@@ -35,20 +35,56 @@ html, body {
 }
 
 .controls {
+    align-items:center;
     background-color:#eee;
     display:flex;
 }
 .controls > div {
-    flex:auto;
     padding:10px;
+}
+.controls > div:nth-child(2) {
+    border-left: 1px solid #ddd;
+    border-right: 2px solid #fff;
+    flex-grow:1;
+    padding-right: 12px;
+}
+.controls > div > label {
+    color:#666;
+    display:block;
+    font-size:14px;
+    text-align:right;
+}
+.controls > div > small {
+    color:#999;
+    display:block;
+    font-size:11px;
+}
+.controls > div > input {
+    border:1px solid #ccc;
+    border-radius:3px;
+    color:#f15555;
+    font-size:16px;
+    height:32px;
+    letter-spacing:0;
+    text-indent:8px;
+    text-transform:uppercase;
+    width:100%;
+}
+.controls > div:last-child {
+    flex:0 0 200px;
 }
 .controls > div > div {
     background-color:#69c;
+    border:1px solid #58b;
     border-radius:3px;
     color:#fff;
     cursor:pointer;
     font-size:14px;
-    padding:10px 0;
+    font-weight:600;
+    height:32px;
+    line-height:32px;
+    margin:0;
+    padding:0;
     text-align:center;
 }
 .controls > div > div:hover {

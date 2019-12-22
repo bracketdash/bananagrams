@@ -72,10 +72,6 @@ function solveLoop(solveState) {
                 });
                 solveState.historyIndex += 1;
                 setTimeout(function() {
-                    if (window.stop) {
-                        window.stop = false;
-                        return;
-                    }
                     solveLoop(solveState);
                 });
             } else {
