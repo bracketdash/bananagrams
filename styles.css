@@ -42,9 +42,8 @@ html, body {
 .controls > div {
     padding:10px;
 }
-.controls > div:nth-child(2) {
-    border-left: 1px solid #ddd;
-    border-right: 2px solid #fff;
+.controls > div:last-child {
+    border-left: 1px solid #fff;
     flex-grow:1;
     padding-right: 12px;
 }
@@ -69,26 +68,6 @@ html, body {
     text-indent:8px;
     text-transform:uppercase;
     width:100%;
-}
-.controls > div:last-child {
-    flex:0 0 200px;
-}
-.controls > div > div {
-    background-color:#69c;
-    border:1px solid #58b;
-    border-radius:3px;
-    color:#fff;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:600;
-    height:32px;
-    line-height:32px;
-    margin:0;
-    padding:0;
-    text-align:center;
-}
-.controls > div > div:hover {
-    background-color:#58b;
 }
 
 .boardbox {

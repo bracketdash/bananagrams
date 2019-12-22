@@ -12,7 +12,7 @@
                 <h1>Bananagrams Solver</h1>
             </div>
             <div class="letterbox">
-                <input type="text" placeholder="yourtileshere" v-model="letters" @change="filterLetters" @keyup.enter="solve">
+                <input type="text" placeholder="yourtileshere" v-model="letters" @keyup="solve">
             </div>
             <div class="controls">
                 <div>
@@ -20,10 +20,7 @@
                     <small>(Comma-separated)</small>
                 </div>
                 <div>
-                    <input type="text" v-model="blacklist" @keyup.enter="solve" />
-                </div>
-                <div>
-                    <div @click="solve">Solve</div>
+                    <input type="text" v-model="blacklist" @keyup="solve">
                 </div>
             </div>
             <div class="boardbox">

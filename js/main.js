@@ -10,19 +10,29 @@ var app = new Vue({
         tray: ''
     },
     methods: {
-        filterLetters: function() {
-            this.letters = this.letters.replace(/[^A-Z]/gi, '');
-        },
         solve: function() {
             var self = this;
-            self.message = '';
-            solve(self.letters, self.blacklist.replace(/[^,A-Z]/gi, '').split(','), trie, function(clientState) {
-                self.board = clientState.board;
-                if (clientState.end) {
-                    self.message = clientState.message;
+            this.letters = this.letters.replace(/[^A-Z]/gi, '');
+            this.blacklist = this.blacklist.replace(/[^,A-Z]/gi, '');
+            this.message = '';
+            solve(
+                self.letters,
+                self.blacklist.split(','),
+                trie,
+                function(clientState) {
+                    if (clientState.end) {
+                        self.message = clientState.message;
+                    } else if (
+                        self.letters != clientState.originalLetters ||
+                        self.blacklist != clientState.blacklist.join(',')
+                    ) {
+                        return false;
+                    }
+                    self.board = clientState.board;
+                    self.tray = clientState.tray;
+                    return true;
                 }
-                self.tray = clientState.letters;
-            });
+            );
         }
     },
     mounted: function() {
