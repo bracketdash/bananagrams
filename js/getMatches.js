@@ -7,11 +7,10 @@ function getMatches(letters, board, wordlist, resolve) {
             if (boardColumnIndex === board[0].length-1) {
                 matches = _.sortBy(matches, function(match) {
                     var points = 100;
-                    // reducing points more here prioritizes wider solutions over taller ones
                     if (match.row > 0 && match.row < board.length) {
-                        points -= 2;
+                        points -= 1;
                         if (match.dir === 'col' && match.row + match.word.length < board.length) {
-                            points -= 3;
+                            points -= 2;
                         }
                     }
                     if (match.col > 0 && match.col < board[0].length) {
