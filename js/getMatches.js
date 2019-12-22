@@ -1,5 +1,6 @@
 function getMatches(letters, board, wordlist, resolve) {
     var matches = [];
+    // TODO: pass the same matches array around to be populated instead of doing so many concats
     crawlBoard(board, function(boardRow, boardRowIndex) {
         getMatchesLoop(boardRow, boardRowIndex, 'row', letters, wordlist, function(rowMatches) {
             if (rowMatches.length) {
