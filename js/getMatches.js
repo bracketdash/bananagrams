@@ -1,33 +1,25 @@
 function getMatches(letters, board, wordlist, resolve) {
     var matches = [];
-    // TODO: pass the same matches array around to be populated instead of doing so many concats
     crawlBoard(board, function(boardRow, boardRowIndex) {
-        getMatchesLoop(boardRow, boardRowIndex, 'row', letters, wordlist, function(rowMatches) {
-            if (rowMatches.length) {
-                matches = matches.concat(rowMatches);
-            }
-        });
+        getMatchesLoop(boardRow, boardRowIndex, 'row', 'col', letters, wordlist, matches);
     }, function(boardColumn, boardColumnIndex) {
-        getMatchesLoop(boardColumn, boardColumnIndex, 'col', letters, wordlist, function(columnMatches) {
-            if (columnMatches.length) {
-                matches = matches.concat(columnMatches);
-            }
+        getMatchesLoop(boardColumn, boardColumnIndex, 'col', 'row', letters, wordlist, matches, function() {
             if (boardColumnIndex === board[0].length-1) {
+                // TODO: sort matches in priority of keeping the solution board size smaller
                 resolve(matches);
             }
         });
     });
 }
 
-function getMatchesLoop(strip, stripdex, dir, letters, wordlist, resolve) {
-    var notDir = dir === 'row' ? 'col' : 'row';
+function getMatchesLoop(strip, stripdex, dir, notDir, letters, wordlist, matches, callback) {
+    var pattern;
     var stripStr = strip.join('');
     var stripStrTrimmed = _.trim(stripStr);
     if (!stripStrTrimmed) {
-        return [];
+        return;
     }
-    var pattern = getPattern(strip);
-    var stripMatches = [];
+    pattern = getPattern(strip);
     _.forEach(stripStrTrimmed.split(''), function(tileOnBoard, tileIndex) {
         if (tileOnBoard !== ' ') {
             var words = narrowWordsBy(wordlist, letters + tileOnBoard);
@@ -40,12 +32,12 @@ function getMatchesLoop(strip, stripdex, dir, letters, wordlist, resolve) {
                     stripMatch[dir] = stripdex;
                     stripMatch[notDir] = getIndexOfWordInStripLoop(new RegExp(stripStr.replace(/\s/g, '.')), word.split(''), strip, 'first');
                     if (stripMatch[notDir] !== false) {
-                        stripMatches.push(stripMatch);
+                        matches.push(stripMatch);
                     }
                 }
             });
-            if (tileIndex === stripStrTrimmed.length - 1) {
-                resolve(stripMatches);
+            if (!!callback && tileIndex === stripStrTrimmed.length - 1) {
+                callback();
             }
         }
     });
