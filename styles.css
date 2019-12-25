@@ -5,6 +5,11 @@ html, body {
     padding:0;
 }
 
+#app {
+    max-width:100%;
+    overflow:hidden;
+}
+
 .header {
     background-color:#369;
     padding:10px 0;
