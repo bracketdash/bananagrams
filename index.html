@@ -1,10 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf8">
-        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
         <title>Bananagrams Solver</title>
-        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
         <div id="app">
@@ -12,7 +12,7 @@
                 <h1>Bananagrams Solver</h1>
             </div>
             <div class="letterbox">
-                <input type="text" placeholder="yourtileshere" v-model="letters" @keyup="solve">
+                <input type="text" placeholder="yourtileshere" v-model="letters" @keyup="solve" />
             </div>
             <div class="controls">
                 <div>
@@ -20,13 +20,15 @@
                     <small>(Comma-separated)</small>
                 </div>
                 <div>
-                    <input type="text" v-model="blacklist" @keyup="solve">
+                    <input type="text" v-model="blacklist" @keyup="solve" />
                 </div>
             </div>
             <div class="boardbox">
                 <div class="board">
                     <div class="row" v-for="row in board">
-                        <div class="cell" v-for="cell in row" :class="cell == ' ' ? 'empty' : ''">{{cell}}</div>
+                        <div class="cell" v-for="cell in row" :class="cell == ' ' ? 'empty' : ''">
+                            {{cell}}
+                        </div>
                     </div>
                 </div>
             </div>
