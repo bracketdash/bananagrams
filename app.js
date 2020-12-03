@@ -1,25 +1,57 @@
 /*
 
-TODO:
-
 - make a new project using create-react-app
 - redesign ui to make status messages prominent until a solution is found
 
-- turn dictionary into a class (separate file)
-- store the word list as a Map() (i.e. `words: new Map([ [1, "word" ] ])`)
-- create a new Map() of (alphabetized tray letters) => Set(indexes that reference words that can be made with the tray letters)
-- create a new Map() of (`${position of letter in word}:${letter}`) => Set(indexes that reference words with the provided letter at the given position)
-- maybe make a version that uses a compressed dictionary that unpacks on load?
+---
+// wordList.js
 
-- turn board into a class (separate file)
-- store board state as a `rows` Map() and a `columns` Map()
-    - (i.e. `rows: new Map([ [1, new Set([`${position of letter in word}:${letter}`])], .. ])`)
-- store state history as a Map() (i.e. `history: new Map([ [1, boardState] ])`)
+import compressedWordList from "./compressedWordList";
+import createWordList from "./createWordList";
+const wordList = createWordList(compressedWordList); // => WordList
+wordList.getPossibleWordsFromTray("trayletters"); // => Set(word indexes)
+wordList.narrowWordsByBoard(Set(word indexes), boardState); // => Set(word indexes)
+wordList.getWordsFromIndexes(Set(word indexes)); // => Set(words)
+// other wordList.methods()
+console.log(wordList); =>
+    WordList({
+        words: Map([ [1 => "word" ], .. ])
+        trays: Map([ [
+            (alphabetized tray letters) =>
+                Set(indexes that reference words that can be made with the tray letters)
+        ], .. ])
+        letters: Map([ [
+            `${position of letter in word}:${letter}` =>
+                Set(indexes that reference words with the provided letter at the given position)
+        ], .. ])
+    });
 
-- use the changes above to optimize the solver for speed; goals:
-    - >80% of solutions in <0.4s
-    - >95% of solutions in <1.0s
-    - For the <5% of solutions that may take >1.0s, update status message to let them know the engine is still processing
+---
+// boardState.js
+
+import createBoardState from "./createBoardState";
+const boardState = createBoardState(); // => BoardState
+boardState.tryAddWord({ row, col, dir, word });
+// other boardState.methods()
+console.log(boardState); =>
+    BoardState({
+        rows: Map([ [ 1 => Set([`${position of tile in row}:${letter}`, .. ]) ], .. ])
+        cols: Map([ [ 1 => Set([`${position of tile in col}:${letter}`, .. ]) ], .. ])
+    })
+
+---
+// solver.js
+
+import { createSolver } from "./createSolver";
+const solver = createSolver(); // => Solver
+solver.getValidNextStates(stateKey); // => Map([ [ stateKey => { tray, boardState } ], .. ])
+solver.solve("trayletters", wordBlacklist);
+// other solver.methods()
+console.log(solver); =>
+    Solver({
+        stateKey: `${index of first word on the board in list of possible words}:${next word}:..`
+        states: Map([ [ stateKey => { tray, boardState } ], .. ])
+    })
 
 */
 
