@@ -9,7 +9,7 @@
   "scripts": {
     "build": "react-scripts build",
     "dev": "react-scripts start",
-    "docs": "cp -r build/static/* docs/static && cp build/asset-manifest.json docs/asset-manifest.json",
+    "docs": "cp -r build/static/* docs/static",
     "push": "git add -A && git commit -m 'update' && git push",
     "start": "react-scripts start"
   },
