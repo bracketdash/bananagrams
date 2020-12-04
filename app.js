@@ -3,6 +3,8 @@
 - make a new project using create-react-app
 - redesign ui to make status messages prominent until a solution is found
 
+group words by length and put them in strings without separators, then compress the strings using lz-string
+
 ---
 // wordList.js
 
