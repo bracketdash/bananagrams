@@ -13,12 +13,14 @@ const App = () => {
   const solver = createSolver();
   
   const updateBlacklistAndSolve = (e) => {
-    setBlacklist(e.target.value);
-    solver.solve(letters, e.target.value);
+    const newBlacklist = e.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
+    setBlacklist(newBlacklist);
+    solver.solve(letters, newBlacklist);
   };
   const updateLettersAndSolve = (e) => {
-    setLetters(e.target.value);
-    solver.solve(e.target.value, blacklist);
+    const newLetters = e.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
+    setLetters(newLetters);
+    solver.solve(newLetters, blacklist);
   };
   
   solver.onUpdate(({ tray, message, board }) => {
