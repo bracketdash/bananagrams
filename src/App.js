@@ -1,3 +1,5 @@
+import createSolver from "./solver";
+
 function App() {
   return (
     <div className="App">
