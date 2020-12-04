@@ -1,3 +1,5 @@
+import { wordsByLength } from "./compressedWords";
+
 class WordList {
   constructor() {
     // TODO
