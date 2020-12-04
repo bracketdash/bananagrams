@@ -1,7 +1,7 @@
 import "./styles.css";
 import React, { useState } from "React";
 import ReactDOM from "react-dom";
-import createSolver from "./solver";
+import { createSolver } from "./solver";
 
 const App = () => {
   const [blacklist, setBlacklist] = useState("");
