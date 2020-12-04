@@ -1,3 +1,6 @@
+import { createBoardState } from "./boardState";
+import { createWordList } from "./wordList";
+
 class Solver {
   constructor() {
     // TODO
@@ -8,4 +11,4 @@ class Solver {
   }
 }
 
-export default () => new Solver();
+export const createSolver = () => new Solver();
