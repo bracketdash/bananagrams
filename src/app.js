@@ -1,7 +1,9 @@
-import { useState } from "React";
+import "./styles.css";
+import React, { useState } from "React";
+import ReactDOM from "react-dom";
 import createSolver from "./solver";
 
-function App() {
+const App = () => {
   const [blacklist, setBlacklist] = useState("");
   const [board, setBoard] = useState([[]]);
   const [letters, setLetters] = useState("");
@@ -57,6 +59,11 @@ function App() {
           <div class="message">{message}</div>
       </div>
   );
-}
+};
 
-export default App;
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById("app")
+);
