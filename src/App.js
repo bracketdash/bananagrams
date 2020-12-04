@@ -1,53 +1,62 @@
+import { useState } from "React";
 import createSolver from "./solver";
 
 function App() {
+  const [blacklist, setBlacklist] = useState("");
+  const [board, setBoard] = useState([[]]);
+  const [letters, setLetters] = useState("");
+  const [message, setMessage] = useState("");
+  const [tray, setTray] = useState("");
+  
+  const solver = createSolver();
+  
+  const updateBlacklistAndSolve = (e) => {
+    setBlacklist(e.target.value);
+    solver.solve(letters, e.target.value);
+  };
+  const updateLettersAndSolve = (e) => {
+    setLetters(e.target.value);
+    solver.solve(e.target.value, blacklist);
+  };
+  
+  solver.onUpdate(({ tray, message, board }) => {
+    setTray(tray);
+    setMessage(message);
+    setBoard(board);
+  });
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div>
+          <div class="header">
+              <h1>Bananagrams Solver</h1>
+          </div>
+          <div class="letterbox">
+              <input type="text" placeholder="yourtileshere" value={letters} onInput={updateLettersAndSolve} />
+          </div>
+          <div class="controls">
+              <div>
+                  <label>Word Blacklist</label>
+                  <small>(Comma-separated)</small>
+              </div>
+              <div>
+                  <input type="text" value={blacklist} onInput={updateBlacklistAndSolve} />
+              </div>
+          </div>
+          <div class="boardbox">
+              <div class="board">
+                  {board.map((row) => (
+                      <div class="row">
+                          {row.map((cell) => (
+                              <div class="cell" class={cell === " " ? "empty" : ""}>{cell}</div>
+                          ))}
+                      </div>
+                  ))}
+              </div>
+          </div>
+          <div class="tray">{tray}</div>
+          <div class="message">{message}</div>
+      </div>
   );
 }
 
 export default App;
-
-/*
-
-HTML from old Vue app:
-
-<div id="app">
-    <div class="header">
-        <h1>Bananagrams Solver</h1>
-    </div>
-    <div class="letterbox">
-        <input type="text" placeholder="yourtileshere" v-model="letters" @keyup="solve" />
-    </div>
-    <div class="controls">
-        <div>
-            <label>Word Blacklist</label>
-            <small>(Comma-separated)</small>
-        </div>
-        <div>
-            <input type="text" v-model="blacklist" @keyup="solve" />
-        </div>
-    </div>
-    <div class="boardbox">
-        <div class="board">
-            <div class="row" v-for="row in board">
-                <div class="cell" v-for="cell in row" :class="cell == ' ' ? 'empty' : ''">
-                    {{cell}}
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="tray">{{tray}}</div>
-    <div class="message">{{message}}</div>
-</div>
-
-*/
