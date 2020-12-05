@@ -1,10 +1,15 @@
 class BoardState {
-  constructor() {
-    // TODO
+  constructor(tray) {
+    this.board = new Map([ [1, new Map([ [1, " "] ])] ]);
+    this.tray = tray;
   }
   
   getBoard() {
-    // TODO
+    const board = [];
+    this.board.forEach((row) => {
+      board.push(Array.from(row.values()));
+    });
+    return board;
   }
   
   getStateAfterPlacement(placement) {
@@ -12,12 +17,12 @@ class BoardState {
   }
   
   getTray() {
-    // TODO
+    return this.tray;
   }
   
   isSolution() {
-    // TODO
+    return !this.tray;
   }
 }
 
-export const createBoardState = () => new BoardState();
+export const createBoardState = (tray) => new BoardState(tray);
