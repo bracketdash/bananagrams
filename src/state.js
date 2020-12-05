@@ -1,5 +1,3 @@
-import { isAWord } from "./dictionary";
-
 class State {
   constructor(tray, board, columns) {
     this.board = board || new Map();
@@ -52,7 +50,7 @@ class State {
     */
   }
   
-  getStateAfterPlacement({ row, col, down, word }) {
+  getStateAfterPlacement({ row, col, down, word, dictionary }) {
     const boardClone = this.board; // TODO: create a deep clone
     let columnsClone = this.columns;
     let trayClone = this.tray;
@@ -72,7 +70,7 @@ class State {
             return;
           }
         } else {
-          // TODO: check the whole row using `isAWord` to make sure we aren't creating any invalid words
+          // TODO: check the whole row using `dictionary.isAWord` to make sure we aren't creating any invalid words
           trayClone = trayClone.replace(letter, "");
         }
         row.set(col, letter);
@@ -91,7 +89,7 @@ class State {
             return;
           }
         } else {
-          // TODO: check the whole column using `isAWord` to make sure we aren't creating any invalid words
+          // TODO: check the whole column using `dictionary.isAWord` to make sure we aren't creating any invalid words
           trayClone = trayClone.replace(letter, "");
         }
         row.set(colPlusIndex, letter);
