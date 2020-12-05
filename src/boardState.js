@@ -2,7 +2,7 @@ import { isAWord } from "./wordList";
 
 class BoardState {
   constructor(tray, board, columns) {
-    this.board = board || new Map([ [1, new Map([ [1, " "] ])] ]);
+    this.board = board || new Map();
     this.columns = columns || 1;
     this.tray = tray;
   }
@@ -57,6 +57,8 @@ class BoardState {
     let columnsClone = this.columns;
     let trayClone = this.tray;
     let error = false;
+    // TODO: handle negative row and col values
+    // TODO: add rows as needed to fit "down" words
     if (down) {
       word.split("").forEach((letter, index) => {
         if (error) {
