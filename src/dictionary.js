@@ -1,6 +1,6 @@
 import { createTrie } from "./trie";
 
-class WordList {
+class Dictionary {
   constructor() {
     this.trie = createTrie();
   }
@@ -19,4 +19,4 @@ class WordList {
   }
 }
 
-export const createWordList = () => new WordList();
+export const createDictionary = () => new Dictionary();
