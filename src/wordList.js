@@ -1,8 +1,8 @@
-import { wordsByLength } from "./compressedWords";
+import { createTrie } from "./trie";
 
 class WordList {
   constructor() {
-    // TODO
+    this.trie = createTrie();
   }
   
   getPossiblePlacements({ tray, rowSegments, colSegments }) {
@@ -10,7 +10,12 @@ class WordList {
   }
   
   isAWord(str) {
-    // TODO
+    const has = function (trieMap, key) {
+      return !!trieMap && (key.length > 1 ? has(trieMap.get(key[0]), key.slice(1)) : trieMap.has(key));
+    };
+    const chars = str.split("");
+    chars.push("_");
+    return has(this.trie.getMap(), chars);
   }
 }
 
