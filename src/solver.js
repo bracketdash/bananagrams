@@ -16,7 +16,10 @@ class Solver {
     });
     const possibleNextStates = new Set();
     possiblePlacements.forEach((possiblePlacement) => {
-      possibleNextStates.add(boardState.getStateAfterPlacement(possiblePlacement));
+      const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement);
+      if (stateAfterPlacement) {
+        possibleNextStates.add(stateAfterPlacement);
+      }
     });
     return possibleNextStates;
   }
