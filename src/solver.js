@@ -16,7 +16,7 @@ class Solver {
     });
     const possibleNextStates = new Set();
     possiblePlacements.forEach((possiblePlacement) => {
-      const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement);
+      const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
       if (stateAfterPlacement) {
         possibleNextStates.add(stateAfterPlacement);
       }
