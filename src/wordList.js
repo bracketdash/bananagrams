@@ -5,7 +5,7 @@ class WordList {
     // TODO
   }
   
-  getPossiblePlacements({ tray, rows, cols }) {
+  getPossiblePlacements({ tray, rowSegments, colSegments }) {
     // TODO
   }
   
