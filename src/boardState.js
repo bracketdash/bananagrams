@@ -8,20 +8,40 @@ class BoardState {
   }
   
   getBoard() {
-    const board = [];
-    this.board.forEach((row) => {
-      // TODO: fill in empty columns with " " and pad right to `this.columns` if necessary
+    const numRows = Math.max(...this.board.keys());
+    let numColumns = 0;
+    return Array(numRows).fill(true).map((cols, rowIndex) => {
+      const row = this.board.get(rowIndex + 1);
+      if (row) {
+        const rowColumns = Math.max(numColumns, ...row.keys());
+        if (rowColumns > numColumns) {
+          numColumns = rowColumns;
+        }
+        const columns = Array(numColumns).fill(" ");
+        row.forEach((col, colIndex) => {
+          columns[colIndex - 1] = col;
+        });
+        return columns;
+      } else {
+        return Array(numColumns).fill(" ");
+      }
     });
-    // TODO: fill in any empty rows with `this.columns` empty columns
-    return board;
   }
   
-  getCols() { // TODO: rename to be more accurate
-    // TODO: see below (but for columns)
+  getColSegments() {
+    /*
+    return something like [{
+      col index,
+      row where `tiles` starts,
+      how many blank rows up (or 0 for no blockers),
+      how many blank rows down (or 0 for no blockers),
+      tiles: "c-t"
+    }, ...]
+    */
   }
   
-  getRows() { // TODO: rename to be more accurate
-    /* TODO
+  getRowSegments() {
+    /*
     return something like [{
       row index,
       col where `tiles` starts,
@@ -29,7 +49,6 @@ class BoardState {
       how many blank cols right (or 0 for no blockers),
       tiles: "c-t"
     }, ...]
-    note - we should return each segment - there can be more than one per row
     */
   }
   
