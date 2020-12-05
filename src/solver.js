@@ -1,15 +1,15 @@
 import { createBoardState } from "./boardState";
-import { createWordList } from "./wordList";
+import { createDictionary } from "./dictionary";
 
 class Solver {
   constructor() {
     this.boardStates = new Map();
+    this.dictionary = createDictionary();
     this.running = false;
-    this.wordList = createWordList();
   }
   
   getPossibleNextStates(boardState) {
-    const possiblePlacements = this.wordList.getPossiblePlacements({
+    const possiblePlacements = this.dictionary.getPossiblePlacements({
       tray: boardState.getTray(),
       rowSegments: boardState.getRowSegments(),
       colSegments: boardState.getColSegments(),
