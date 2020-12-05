@@ -7,7 +7,7 @@ class Solver {
     this.dictionary = createDictionary();
     this.running = false;
   }
-  
+
   getPossibleNextStates(boardState) {
     const possiblePlacements = this.dictionary.getPossiblePlacements({
       tray: boardState.getTray(),
@@ -23,11 +23,11 @@ class Solver {
     });
     return possibleNextStates;
   }
-  
+
   onUpdate(callback) {
     this.updateCallback = callback;
   }
-  
+
   update(message, boardState) {
     const config = { message };
     if (boardState) {
@@ -39,7 +39,7 @@ class Solver {
     }
     this.updateCallback(config);
   }
-  
+
   solve(tray, blacklist) {
     const emptyBoard = createState(tray);
     const possibleNextStates = this.getPossibleNextStates(emptyBoard);
@@ -70,12 +70,12 @@ class Solver {
       this.update("No solutions possible!", emptyBoard);
     }
   }
-  
+
   tryBoardState(running, key) {
     if (this.running !== false && this.running !== running) {
       return;
     }
-    
+
     if (!this.boardStates.has(key)) {
       const splitKey = key.split(":");
       const splitKeyLen = splitKey.length;
@@ -84,12 +84,12 @@ class Solver {
         this.update("No solutions possible!");
         return;
       }
-      splitKey[splitKeyLen-2] = parseInt(splitKey[splitKeyLen-2]) + 1;
-      splitKey[splitKeyLen-1] = 0;
+      splitKey[splitKeyLen - 2] = parseInt(splitKey[splitKeyLen - 2]) + 1;
+      splitKey[splitKeyLen - 1] = 0;
       this.tryBoardState(running, splitKey.join(":"));
       return;
     }
-    
+
     const boardState = this.boardStates.get(key);
     const possibleNextStates = this.getPossibleNextStates(boardState);
     boardState.setPossibleNextStates(possibleNextStates);
@@ -112,7 +112,7 @@ class Solver {
         this.update("Solution found!", solution);
         return;
       }
-      
+
       const splitKey = key.split(":");
       const lastIndex = splitKey.length - 1;
       splitKey[lastIndex] = parseInt(splitKey[lastIndex]) + 1;

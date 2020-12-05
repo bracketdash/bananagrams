@@ -4,28 +4,30 @@ class State {
     this.columns = columns || 1;
     this.tray = tray;
   }
-  
+
   getBoard() {
     const numRows = Math.max(...this.board.keys());
     let numColumns = 0;
-    return Array(numRows).fill(true).map((cols, rowIndex) => {
-      const row = this.board.get(rowIndex + 1);
-      if (row) {
-        const rowColumns = Math.max(numColumns, ...row.keys());
-        if (rowColumns > numColumns) {
-          numColumns = rowColumns;
+    return Array(numRows)
+      .fill(true)
+      .map((_, rowIndex) => {
+        const row = this.board.get(rowIndex + 1);
+        if (row) {
+          const rowColumns = Math.max(numColumns, ...row.keys());
+          if (rowColumns > numColumns) {
+            numColumns = rowColumns;
+          }
+          const columns = Array(numColumns).fill(" ");
+          row.forEach((col, colIndex) => {
+            columns[colIndex - 1] = col;
+          });
+          return columns;
+        } else {
+          return Array(numColumns).fill(" ");
         }
-        const columns = Array(numColumns).fill(" ");
-        row.forEach((col, colIndex) => {
-          columns[colIndex - 1] = col;
-        });
-        return columns;
-      } else {
-        return Array(numColumns).fill(" ");
-      }
-    });
+      });
   }
-  
+
   getColSegments() {
     /*
     return something like [{
@@ -37,7 +39,7 @@ class State {
     }, ...]
     */
   }
-  
+
   getRowSegments() {
     /*
     return something like [{
@@ -49,7 +51,7 @@ class State {
     }, ...]
     */
   }
-  
+
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
     const boardClone = this.board; // TODO: create a deep clone
     let columnsClone = this.columns;
@@ -103,11 +105,11 @@ class State {
     }
     return new State(trayClone, boardClone, columnsClone);
   }
-  
+
   getTray() {
     return this.tray;
   }
-  
+
   isSolution() {
     return !this.tray;
   }
