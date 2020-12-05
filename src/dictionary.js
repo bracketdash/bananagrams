@@ -7,6 +7,14 @@ class Dictionary {
   }
   
   getPossiblePlacements({ tray, rowSegments, colSegments }) {
+    const placements = new Set();
+    const words = this.getWordsFromTray(tray);
+    // TODO: for each segment, match a regex against `words`
+    // TODO: for each matching word, create a "placement" object and add it to `placements`
+    return placements;
+  }
+  
+  getWordsFromTray(tray) {
     // TODO
   }
   
