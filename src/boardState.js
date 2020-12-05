@@ -1,14 +1,18 @@
+import { isAWord } from "./wordList";
+
 class BoardState {
-  constructor(tray) {
-    this.board = new Map([ [1, new Map([ [1, " "] ])] ]);
+  constructor(tray, board, columns) {
+    this.board = board || new Map([ [1, new Map([ [1, " "] ])] ]);
+    this.columns = columns || 1;
     this.tray = tray;
   }
   
   getBoard() {
     const board = [];
     this.board.forEach((row) => {
-      board.push(Array.from(row.values()));
+      // TODO: fill in empty columns with " " and pad right to `this.columns` if necessary
     });
+    // TODO: fill in any empty rows with `this.columns` empty columns
     return board;
   }
   
@@ -29,8 +33,56 @@ class BoardState {
     */
   }
   
-  getStateAfterPlacement(placement) {
-    // TODO
+  getStateAfterPlacement({ row, col, down, word }) {
+    const boardClone = this.board; // TODO: create a deep clone
+    let columnsClone = this.columns;
+    let trayClone = this.tray;
+    let error = false;
+    if (down) {
+      word.split("").forEach((letter, index) => {
+        if (error) {
+          return;
+        }
+        const originalValue = row.get(col);
+        const row = boardClone.get(row + index);
+        if (originalValue) {
+          if (originalValue !== letter) {
+            error = true;
+            return;
+          }
+        } else {
+          // TODO: check the whole row using `isAWord` to make sure we aren't creating any invalid words
+          trayClone = trayClone.replace(letter, "");
+        }
+        row.set(col, letter);
+      });
+    } else {
+      const row = boardClone.get(row);
+      word.split("").forEach((letter, index) => {
+        if (error) {
+          return;
+        }
+        const colPlusIndex = col + index;
+        const originalValue = row.get(colPlusIndex);
+        if (originalValue) {
+          if (originalValue !== letter) {
+            error = true;
+            return;
+          }
+        } else {
+          // TODO: check the whole column using `isAWord` to make sure we aren't creating any invalid words
+          trayClone = trayClone.replace(letter, "");
+        }
+        row.set(colPlusIndex, letter);
+        if (colPlusIndex > columnsClone) {
+          columnsClone = colPlusIndex;
+        }
+      });
+    }
+    if (error) {
+      return false;
+    }
+    return new BoardState(trayClone, boardClone, columnsClone);
   }
   
   getTray() {
