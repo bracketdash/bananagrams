@@ -9,7 +9,7 @@ class Solver {
   }
   
   getPossibleNextStates(boardState) {
-    // TODO
+    // TODO: get an initial set of words based on the tray, then narrow based on the board and tiles
   }
   
   solve(tray, blacklist) {
@@ -18,51 +18,77 @@ class Solver {
     this.boardStates.clear();
     if (possibleNextStates.size) {
       let iteration = 1;
+      let solution = false;
       possibleNextStates.forEach((possibleNextState) => {
+        if (solution) {
+          return;
+        }
+        if (possibleNextState.isSolution()) {
+          solution = possibleNextState;
+          return;
+        }
         this.boardStates.set(iteration.toString(), possibleNextState);
         iteration++;
       });
+      if (solution) {
+        this.running = false;
+        // TODO: solution found
+        return;
+      }
       this.running = Symbol();
-      this.tryBoardState(this.running, "0", 0);
+      this.tryBoardState(this.running, "1");
     } else {
+      this.running = false;
       // TODO: no solution
     }
   }
   
-  tryBoardState(running, key, loop) {
+  tryBoardState(running, key) {
     if (this.running !== false && this.running !== running) {
       return;
     }
-    const boardState = loop ? this.boardStates.get(`${key}:${loop}`) : this.boardStates.get(key);
-    if (!loop) {
-      if (boardState.isSolved()) {
-        // TODO: solved!
+    
+    if (!this.boardStates.has(key)) {
+      const splitKey = key.split(":");
+      const splitKeyLen = splitKey.length;
+      if (splitKeyLen < 2) {
+        this.running = false;
+        // TODO: no solution
+        return;
+      }
+      splitKey[splitKeyLen-2] = parseInt(splitKey[splitKeyLen-2]) + 1;
+      splitKey[splitKeyLen-1] = 0;
+      this.tryBoardState(running, splitKey.join(":"));
+      return;
+    }
+    
+    const boardState = this.boardStates.get(key);
+    const possibleNextStates = this.getPossibleNextStates(boardState);
+    boardState.setPossibleNextStates(possibleNextStates);
+    if (possibleNextStates.size) {
+      let iteration = 1;
+      let solution = false;
+      possibleNextStates.forEach((possibleNextState) => {
+        if (solution) {
+          return;
+        }
+        if (possibleNextState.isSolution()) {
+          solution = possibleNextState;
+          return;
+        }
+        this.boardStates.set(`${key}:${iteration.toString()}`, possibleNextState);
+        iteration++;
+      });
+      if (solution) {
+        this.running = false;
+        // TODO: solution found
         return;
       }
       
-      // TODO: get the possible next states for this state and try the first one
-      
-      const possibleNextStates = this.getPossibleNextStates(boardState);
-      boardState.setPossibleNextStates(possibleNextStates);
-      if (possibleNextStates.size) {
-        let iteration = 1;
-        possibleNextStates.forEach((possibleNextState) => {
-          this.boardStates.set(`${key}:${iteration.toString()}`, possibleNextState);
-          iteration++;
-        });
-        if (this.boardStates.has(`${key}:${loop+1}`)) {
-          this.tryBoardState(running, `${key}:${loop+1}`, 0);
-        }
-        // TODO
-      }
-      
-      // TODO
-      return;
-    } else if (boardState) {
-      // TODO
-    } else {
-      // TODO: we've exhausted the list of possible states from the last state, backtrack and try the next state
-      // TODO: if we get to a place where we are out of root-level states to try, we need to give a no solution
+      const splitKey = key.split(":");
+      const lastIndex = splitKey.length - 1;
+      splitKey[lastIndex] = parseInt(splitKey[lastIndex]) + 1;
+      this.tryBoardState(running, splitKey.join(":"));
     }
   }
 }
