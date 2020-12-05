@@ -5,7 +5,7 @@ class WordList {
     // TODO
   }
   
-  solve() {
+  getPossiblePlacements({ tray, rows, cols }) {
     // TODO
   }
 }
