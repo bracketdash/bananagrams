@@ -3,22 +3,25 @@ import words from "./words.txt";
 
 class Trie {
   constructor() {
-    const trie = {
-      nodes: str.split(';'),
-      syms: [],
-      symCount: 0,
-    }
+    const nodesArr = words.split(";");
     const pattern = new RegExp('([0-9A-Z]+):([0-9A-Z]+)');
-    trie.nodes.forEach((node, i) => {
-      const m = pattern.exec(node);
-      if (!m) {
-        trie.symCount = i;
+    const syms = new Map();
+    let symCount = 0;
+    
+    nodesArr.forEach((node, index) => {
+      const match = pattern.exec(node);
+      if (!match) {
+        symCount = index;
         break;
       }
-      trie.syms[fromAlphaCode(m[1])] = fromAlphaCode(m[2]);
+      syms.set(fromAlphaCode(match[1])], fromAlphaCode(match[2]);
     });
-    trie.nodes = trie.nodes.slice(trie.symCount, trie.nodes.length);
-    this.trie = trie;
+    
+    const nodes = new Map(nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
+      return [index, val];
+    }));
+    
+    this.trie = { nodes, syms, symCount };
   }
 
   getMap() {
