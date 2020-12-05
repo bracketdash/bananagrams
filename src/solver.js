@@ -1,4 +1,4 @@
-import { createBoardState } from "./boardState";
+import { createState } from "./state";
 import { createDictionary } from "./dictionary";
 
 class Solver {
@@ -41,8 +41,8 @@ class Solver {
   }
   
   solve(tray, blacklist) {
-    const emptyBoard = createBoardState(tray);
-    const possibleNextStates = this.getPossibleNextStates(createBoardState(tray));
+    const emptyBoard = createState(tray);
+    const possibleNextStates = this.getPossibleNextStates(emptyBoard);
     this.boardStates.clear();
     if (possibleNextStates.size) {
       let iteration = 1;
