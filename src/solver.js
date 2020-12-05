@@ -9,7 +9,32 @@ class Solver {
   }
   
   getPossibleNextStates(boardState) {
-    // TODO: get an initial set of words based on the tray, then narrow based on the board and tiles
+    const possiblePlacements = this.wordList.getPossiblePlacements({
+      tray: boardState.getTray(),
+      rows: boardState.getRows(),
+      cols: boardState.getCols(),
+    });
+    const possibleNextStates = new Set();
+    possiblePlacements.forEach((possiblePlacement) => {
+      possibleNextStates.add(boardState.getStateAfterPlacement(possiblePlacement));
+    });
+    return possibleNextStates;
+  }
+  
+  onUpdate(callback) {
+    this.updateCallback = callback;
+  }
+  
+  update(message, boardState) {
+    const config = { message };
+    if (boardState) {
+      config.tray = boardState.getTray();
+      config.board = boardState.getBoard();
+    } else {
+      config.tray = "";
+      config.board = [[]];
+    }
+    this.updateCallback(config);
   }
   
   solve(tray, blacklist) {
@@ -32,14 +57,14 @@ class Solver {
       });
       if (solution) {
         this.running = false;
-        // TODO: solution found
+        this.update("Solution found!", solution);
         return;
       }
       this.running = Symbol();
       this.tryBoardState(this.running, "1");
     } else {
       this.running = false;
-      // TODO: no solution
+      this.update("No solutions possible!", emptyBoard);
     }
   }
   
@@ -53,7 +78,7 @@ class Solver {
       const splitKeyLen = splitKey.length;
       if (splitKeyLen < 2) {
         this.running = false;
-        // TODO: no solution
+        this.update("No solutions possible!");
         return;
       }
       splitKey[splitKeyLen-2] = parseInt(splitKey[splitKeyLen-2]) + 1;
@@ -81,7 +106,7 @@ class Solver {
       });
       if (solution) {
         this.running = false;
-        // TODO: solution found
+        this.update("Solution found!", solution);
         return;
       }
       
