@@ -11,8 +11,8 @@ class Solver {
   getPossibleNextStates(boardState) {
     const possiblePlacements = this.wordList.getPossiblePlacements({
       tray: boardState.getTray(),
-      rows: boardState.getRows(),
-      cols: boardState.getCols(),
+      rowSegments: boardState.getRowSegments(),
+      colSegments: boardState.getColSegments(),
     });
     const possibleNextStates = new Set();
     possiblePlacements.forEach((possiblePlacement) => {
