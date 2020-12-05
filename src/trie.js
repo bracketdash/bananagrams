@@ -1,13 +1,11 @@
+import words from "./words.txt";
+
 class Trie {
   constructor() {
-    const compressed = "TODO: compressed trie";
-    // TODO: uncompress `compressed`
-    // to get array of words: Object.keys(efrt.unpack(packd));
-    // would be nice if we can somehow extract the trie itself from words.txt instead of using efrt.unpack
-    // -- one less dependency
-    // -- we can get the trie itself instead of getting the array of words
     this.trie = new Map();
-    // TODO: populate `this.trie`
+    // TODO: reverse engineer `efrt.unpack` to unpack JUST the trie from `words` (instead of unpacking to an array of words)
+    // TODO: we can probably get rid of the leading "true" in words.txt
+    // TODO: instead of unpacking into a normal object-based ({}) trie, populate this.trie
   }
 
   getMap() {
