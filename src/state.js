@@ -50,7 +50,7 @@ class State {
     */
   }
   
-  getStateAfterPlacement({ row, col, down, word, dictionary }) {
+  getStateAfterPlacement({ row, col, down, word }, dictionary) {
     const boardClone = this.board; // TODO: create a deep clone
     let columnsClone = this.columns;
     let trayClone = this.tray;
