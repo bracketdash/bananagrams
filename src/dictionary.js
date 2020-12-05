@@ -6,7 +6,7 @@ import { fromAlphaCode } from "./alpha";
 const indexFromRef = function(trie, ref, index) {
   const dnode = fromAlphaCode(ref);
   if (dnode < trie.symCount) {
-    return trie.syms[dnode];
+    return trie.syms.get(dnode);
   }
   return index + dnode + 1 - trie.symCount;
 }
@@ -14,7 +14,7 @@ const indexFromRef = function(trie, ref, index) {
 const toArray = function(trie) {
   const all = []
   const crawl = (index, pref) => {
-    let node = trie.nodes[index]
+    let node = trie.nodes.get(index)
     if (node[0] === '!') {
       all.push(pref)
       node = node.slice(1) //ok, we tried. remove it.
