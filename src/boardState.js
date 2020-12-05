@@ -3,7 +3,19 @@ class BoardState {
     // TODO
   }
   
-  solve() {
+  getBoard() {
+    // TODO
+  }
+  
+  getStateAfterPlacement(placement) {
+    // TODO
+  }
+  
+  getTray() {
+    // TODO
+  }
+  
+  isSolution() {
     // TODO
   }
 }
