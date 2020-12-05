@@ -1,6 +1,15 @@
 import { createTrie } from "./trie";
+import { fromAlphaCode } from "./alpha";
 
 /* Example of how to read/traverse the trie:
+
+const indexFromRef = function(trie, ref, index) {
+  const dnode = fromAlphaCode(ref);
+  if (dnode < trie.symCount) {
+    return trie.syms[dnode];
+  }
+  return index + dnode + 1 - trie.symCount;
+}
 
 const toArray = function(trie) {
   const all = []
