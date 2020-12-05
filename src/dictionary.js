@@ -11,7 +11,7 @@ class Dictionary {
   }
   
   has(trie, key) {
-    return !!trie && (key.length > 1 ? has(trie.get(key[0]), key.slice(1)) : trie.has(key));
+    return !!trie && (key.length > 1 ? this.has(trie.get(key[0]), key.slice(1)) : trie.has(key));
   }
   
   isAWord(str) {
