@@ -1,6 +1,6 @@
-import { isAWord } from "./wordList";
+import { isAWord } from "./dictionary";
 
-class BoardState {
+class State {
   constructor(tray, board, columns) {
     this.board = board || new Map();
     this.columns = columns || 1;
@@ -103,7 +103,7 @@ class BoardState {
     if (error) {
       return false;
     }
-    return new BoardState(trayClone, boardClone, columnsClone);
+    return new State(trayClone, boardClone, columnsClone);
   }
   
   getTray() {
@@ -115,4 +115,4 @@ class BoardState {
   }
 }
 
-export const createBoardState = (tray) => new BoardState(tray);
+export const createState = (tray) => new State(tray);
