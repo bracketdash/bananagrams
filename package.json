@@ -4,8 +4,8 @@
   "scripts": {
     "build": "react-scripts build",
     "dev": "react-scripts start",
-    "docs": "cp -r build/static/* docs/static",
-    "push": "git add -A && git commit -m 'update' && git push"
+    "docs": "rm -r docs/* && cp -r build/* docs",
+    "push": "git add -A && git commit -m 'update' && git push && git status"
   },
   "dependencies": {
     "react": "^17.0.1",
