@@ -1,6 +1,7 @@
 {
   "name": "bananagrams-helper",
   "version": "0.1.0",
+  "homepage": "./",
   "scripts": {
     "build": "react-scripts build",
     "dev": "react-scripts start",
