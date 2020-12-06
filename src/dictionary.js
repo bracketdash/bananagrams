@@ -24,7 +24,16 @@ class Dictionary {
   }
   
   canBeMadeFromTray(tray, word) {
-    // TODO
+    let can = true;
+    let temp = tray;
+    word.split("").forEach((letter) => {
+      if (temp.includes(letter)) {
+        temp = temp.replace(letter, "");
+      } else {
+        can = false;
+      }
+    });
+    return can;
   }
   
   fromAlphaCode(s) {
