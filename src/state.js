@@ -33,7 +33,14 @@ class State {
   }
 
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
-    const boardClone = this.board; // TODO: create a deep clone
+    const boardClone = new Map();
+    this.board.forEach((rowCols, rowKey) => {
+      const cols = new Map();
+      rowCols.forEach((col, colKey) => {
+        cols.set(colKey, col);
+      });
+      boardClone.set(rowKey, cols);
+    });
     let columnsClone = this.columns;
     let trayClone = this.tray;
     let error = false;
