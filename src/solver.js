@@ -9,11 +9,9 @@ class Solver {
   }
 
   getPossibleNextStates(boardState) {
-    const possiblePlacements = this.dictionary.getPossiblePlacements({
-      tray: boardState.getTray(),
-      rowSegments: boardState.getRowSegments(),
-      colSegments: boardState.getColSegments(),
-    });
+    const tray = boardState.getTray();
+    const segments = boardState.getSegments();
+    const possiblePlacements = this.dictionary.getPossiblePlacements(tray, segments);
     const possibleNextStates = new Set();
     possiblePlacements.forEach((possiblePlacement) => {
       const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
