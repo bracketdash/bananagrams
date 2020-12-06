@@ -32,7 +32,7 @@ const App = () => {
   return (
     <div>
       <div className="header">
-        <h1>Bananagrams Solver</h1>
+        <h1>Bananagrams Helper</h1>
       </div>
       <div className="letterbox">
         <input type="text" placeholder="yourtileshere" value={letters} onInput={updateLettersAndSolve} />
