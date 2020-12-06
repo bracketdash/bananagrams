@@ -65,23 +65,31 @@ class Dictionary {
     return n;
   }
 
-  getPossiblePlacements({ tray, rowSegments, colSegments }) {
+  getPossiblePlacements(tray, segments) {
+    const patternMap = new Map();
     const placements = new Set();
     const words = this.getWordsFromTray(tray);
     
-    const segmentCrawler = (segment, down) => {
-      // TODO: match a regex built from the segment against `words`
-      matches.forEach((word) => {
-        // TODO: for each matching word, find possible placements for it within the segment
-        // placements.add({ row, col, down, word });
-      });
-    };
-    
-    rowSegments.forEach((rowSegment) => {
-      segmentCrawler(rowSegment, 0);
+    segments.forEach((segment) => {
+      const segments = patternMap.get(segment.pattern);
+      if (!segments) {
+        patternMap.set(segment.pattern, new Set([ segment ]));
+      } else {
+        segments.add(segment);
+      }
     });
-    colSegments.forEach((colSegment) => {
-      segmentCrawler(colSegment, 1);
+    
+    words.forEach((word) => {
+      const patterns = patternMap.keys();
+      patterns.forEach((pattern) => {
+        if (pattern.test(word)) {
+          const segments = patternMap.get(pattern);
+          segments.forEach((segment) => {
+            // TODO: find possible placements for it within the segment
+            // TODO: placements.add({ row, col, down, word });
+          });
+        }
+      });
     });
     
     return placements;
