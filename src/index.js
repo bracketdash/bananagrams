@@ -1,5 +1,5 @@
-import "./styles.css";
-import React, { useState } from "React";
+import "./assets/styles.css";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { createSolver } from "./solver";
 
@@ -31,13 +31,13 @@ const App = () => {
 
   return (
     <div>
-      <div class="header">
+      <div className="header">
         <h1>Bananagrams Solver</h1>
       </div>
-      <div class="letterbox">
+      <div className="letterbox">
         <input type="text" placeholder="yourtileshere" value={letters} onInput={updateLettersAndSolve} />
       </div>
-      <div class="controls">
+      <div className="controls">
         <div>
           <label>Word Blacklist</label>
           <small>(Comma-separated)</small>
@@ -46,21 +46,19 @@ const App = () => {
           <input type="text" value={blacklist} onInput={updateBlacklistAndSolve} />
         </div>
       </div>
-      <div class="boardbox">
-        <div class="board">
-          {board.map((row) => (
-            <div class="row">
-              {row.map((cell) => (
-                <div class="cell" class={cell === " " ? "empty" : ""}>
-                  {cell}
-                </div>
+      <div className="boardbox">
+        <div className="board">
+          {board.map((row, rowIndex) => (
+            <div key={rowIndex} className="row">
+              {row.map((cell, cellIndex) => (
+                <div key={cellIndex} className={cell === " " ? "cell empty" : "cell"}>{cell}</div>
               ))}
             </div>
           ))}
         </div>
       </div>
-      <div class="tray">{tray}</div>
-      <div class="message">{message}</div>
+      <div className="tray">{tray}</div>
+      <div className="message">{message}</div>
     </div>
   );
 };

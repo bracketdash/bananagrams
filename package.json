@@ -5,9 +5,7 @@
     "build": "react-scripts build",
     "dev": "react-scripts start",
     "docs": "cp -r build/static/* docs/static",
-    "push": "git add -A && git commit -m 'update' && git push",
-    "reset": "rm -rf node_modules ./build && rm yarn.lock .eslintcache",
-    "trie": "node ./scripts/compress.js"
+    "push": "git add -A && git commit -m 'update' && git push"
   },
   "dependencies": {
     "react": "^17.0.1",

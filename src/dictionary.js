@@ -1,28 +1,30 @@
-import words from "./words.txt";
+import words from "./assets/words.txt";
 
 class Dictionary {
   constructor() {
     const nodesArr = words.split(";");
-    const pattern = new RegExp('([0-9A-Z]+):([0-9A-Z]+)');
+    const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
     const syms = new Map();
     let symCount = 0;
-    
+
     nodesArr.forEach((node, index) => {
       const match = pattern.exec(node);
       if (!match) {
         symCount = index;
-        break;
+        return;
       }
-      syms.set(this.fromAlphaCode(match[1]), this.fromAlphaCode(match[2]);
+      syms.set(this.fromAlphaCode(match[1]), this.fromAlphaCode(match[2]));
     });
-    
-    const nodes = new Map(nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
-      return [index, val];
-    }));
-    
+
+    const nodes = new Map(
+      nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
+        return [index, val];
+      })
+    );
+
     this.trie = { nodes, syms, symCount };
   }
-  
+
   canBeMadeFromTray(tray, word) {
     let can = true;
     let temp = tray;
@@ -35,9 +37,9 @@ class Dictionary {
     });
     return can;
   }
-  
+
   fromAlphaCode(s) {
-    const seq = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const seq = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     if (seq[s] !== undefined) {
       return seq.indexOf(s);
     }
@@ -48,7 +50,7 @@ class Dictionary {
     let range = BASE;
     let pow = 1;
 
-    while(places < s.length) {
+    while (places < s.length) {
       n += range;
       places++;
       range *= BASE;
@@ -69,16 +71,16 @@ class Dictionary {
     const patternMap = new Map();
     const placements = new Set();
     const words = this.getWordsFromTray(tray);
-    
+
     segments.forEach((segment) => {
       const segments = patternMap.get(segment.pattern);
       if (!segments) {
-        patternMap.set(segment.pattern, new Set([ segment ]));
+        patternMap.set(segment.pattern, new Set([segment]));
       } else {
         segments.add(segment);
       }
     });
-    
+
     words.forEach((word) => {
       const patterns = patternMap.keys();
       patterns.forEach((pattern) => {
@@ -91,7 +93,7 @@ class Dictionary {
         }
       });
     });
-    
+
     return placements;
   }
 
@@ -99,7 +101,7 @@ class Dictionary {
     const words = new Set();
     const crawl = (index, pref) => {
       let node = this.trie.nodes.get(index);
-      if (node[0] === '!') {
+      if (node[0] === "!") {
         if (this.canBeMadeFromTray(tray, pref)) {
           words.add(pref);
         }
@@ -113,7 +115,7 @@ class Dictionary {
         }
         const ref = matches[i + 1];
         const have = pref + str;
-        if (ref === ',' || ref === undefined) {
+        if (ref === "," || ref === undefined) {
           if (this.canBeMadeFromTray(tray, have)) {
             words.add(have);
           }
@@ -122,14 +124,14 @@ class Dictionary {
         crawl(this.indexFromRef(ref, index), have);
       }
     };
-    crawl(0, '');
+    crawl(0, "");
     return words;
   }
 
   has(trie, key) {
     return !!trie && (key.length > 1 ? this.has(trie.get(key[0]), key.slice(1)) : trie.has(key));
   }
-  
+
   indexFromRef(ref, index) {
     const dnode = this.fromAlphaCode(ref);
     if (dnode < this.trie.symCount) {

@@ -54,17 +54,17 @@ class State {
     let columnsClone = this.columns;
     let trayClone = this.tray;
     let error = false;
-    
+
     // TODO: handle negative row and col values
     // TODO: add rows as needed to fit "down" words
-    
+
     if (down) {
       word.split("").forEach((letter, index) => {
         if (error) {
           return;
         }
-        const originalValue = row.get(col);
-        const row = boardClone.get(row + index);
+        const tileRow = boardClone.get(row + index);
+        const originalValue = tileRow.get(col);
         if (originalValue) {
           if (originalValue !== letter) {
             error = true;
@@ -72,23 +72,27 @@ class State {
           }
         } else {
           let lastSpaceWasEmpty = false;
-          const rowWords = Array(this.columns).fill(true).map((_, index) => {
-            const cell = row.get(index + 1);
-            if (cell) {
-              if (lastSpaceWasEmpty) {
-                lastSpaceWasEmpty = false;
+          const rowWords = Array(this.columns)
+            .fill(true)
+            .map((_, index) => {
+              const cell = tileRow.get(index + 1);
+              if (cell) {
+                if (lastSpaceWasEmpty) {
+                  lastSpaceWasEmpty = false;
+                }
+                return cell;
               }
-              return cell;
-            }
 
-            let result = " ";
-            if (lastSpaceWasEmpty) {
-              result = "";
-            } else {
-              lastSpaceWasEmpty = true;
-            }
-            return result;
-          }).trim().split(" ");
+              let result = " ";
+              if (lastSpaceWasEmpty) {
+                result = "";
+              } else {
+                lastSpaceWasEmpty = true;
+              }
+              return result;
+            })
+            .trim()
+            .split(" ");
           rowWords.forEach((rowWord) => {
             if (!dictionary.isAWord(rowWord)) {
               error = true;
@@ -99,16 +103,16 @@ class State {
           }
           trayClone = trayClone.replace(letter, "");
         }
-        row.set(col, letter);
+        tileRow.set(col, letter);
       });
     } else {
-      const row = boardClone.get(row);
+      const tileRow = boardClone.get(row);
       word.split("").forEach((letter, index) => {
         if (error) {
           return;
         }
         const colPlusIndex = col + index;
-        const originalValue = row.get(colPlusIndex);
+        const originalValue = tileRow.get(colPlusIndex);
         if (originalValue) {
           if (originalValue !== letter) {
             error = true;
@@ -117,24 +121,28 @@ class State {
         } else {
           const numRows = Math.max(...this.board.keys());
           let lastSpaceWasEmpty = false;
-          const colWords = Array(numRows).fill(true).map((_, index) => {
-            const row = this.board.get(index + 1);
-            const cell = row.get(colPlusIndex);
-            if (cell) {
-              if (lastSpaceWasEmpty) {
-                lastSpaceWasEmpty = false;
+          const colWords = Array(numRows)
+            .fill(true)
+            .map((_, index) => {
+              const tileRow = this.board.get(index + 1);
+              const cell = tileRow.get(colPlusIndex);
+              if (cell) {
+                if (lastSpaceWasEmpty) {
+                  lastSpaceWasEmpty = false;
+                }
+                return cell;
               }
-              return cell;
-            }
 
-            let result = " ";
-            if (lastSpaceWasEmpty) {
-              result = "";
-            } else {
-              lastSpaceWasEmpty = true;
-            }
-            return result;
-          }).trim().split(" ");
+              let result = " ";
+              if (lastSpaceWasEmpty) {
+                result = "";
+              } else {
+                lastSpaceWasEmpty = true;
+              }
+              return result;
+            })
+            .trim()
+            .split(" ");
           colWords.forEach((colWord) => {
             if (!dictionary.isAWord(colWord)) {
               error = true;
@@ -145,7 +153,7 @@ class State {
           }
           trayClone = trayClone.replace(letter, "");
         }
-        row.set(colPlusIndex, letter);
+        tileRow.set(colPlusIndex, letter);
         if (colPlusIndex > columnsClone) {
           columnsClone = colPlusIndex;
         }
