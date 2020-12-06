@@ -3,14 +3,15 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { createSolver } from "./solver";
 
+const solver = createSolver();
+
 const App = () => {
   const [blacklist, setBlacklist] = useState("");
   const [board, setBoard] = useState([[]]);
   const [letters, setLetters] = useState("");
   const [message, setMessage] = useState("");
+  const [ready, setReady] = useState(false);
   const [tray, setTray] = useState("");
-
-  const solver = createSolver();
 
   const updateBlacklistAndSolve = (e) => {
     const newBlacklist = e.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
@@ -22,6 +23,10 @@ const App = () => {
     setLetters(newLetters);
     solver.solve(newLetters, blacklist);
   };
+  
+  solver.onReady(() => {
+    setReady(true);
+  });
 
   solver.onUpdate(({ tray, message, board }) => {
     setTray(tray);
@@ -35,7 +40,7 @@ const App = () => {
         <h1>Bananagrams Helper</h1>
       </div>
       <div className="letterbox">
-        <input type="text" placeholder="yourtileshere" value={letters} onInput={updateLettersAndSolve} />
+        <input type="text" placeholder="yourtileshere" value={letters} onInput={updateLettersAndSolve} disabled={!ready} />
       </div>
       <div className="controls">
         <div>
@@ -43,7 +48,7 @@ const App = () => {
           <small>(Comma-separated)</small>
         </div>
         <div>
-          <input type="text" value={blacklist} onInput={updateBlacklistAndSolve} />
+          <input type="text" value={blacklist} onInput={updateBlacklistAndSolve} disabled={!ready} />
         </div>
       </div>
       <div className="boardbox">

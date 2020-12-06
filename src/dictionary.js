@@ -1,28 +1,35 @@
-import words from "./assets/words.txt";
+import wordsTxt from "./assets/words.txt";
 
 class Dictionary {
   constructor() {
-    const nodesArr = words.split(";");
-    const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
-    const syms = new Map();
-    let symCount = 0;
+    this.trie = {};
+    fetch(wordsTxt.slice(1)).then(async (response) => {
+      const wordsStr = await response.text();
+      const nodesArr = wordsStr.split(";");
+      const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
+      const syms = new Map();
+      let symCount = 0;
 
-    nodesArr.forEach((node, index) => {
-      const match = pattern.exec(node);
-      if (!match) {
-        symCount = index;
-        return;
-      }
-      syms.set(this.fromAlphaCode(match[1]), this.fromAlphaCode(match[2]));
+      nodesArr.some((node, index) => {
+        const m = pattern.exec(node);
+        if (!m) {
+          symCount = index;
+          return true;
+        }
+        syms.set(this.fromAlphaCode(m[1]), this.fromAlphaCode(m[2]));
+        return false;
+      });
+
+      const nodes = new Map(
+        nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
+          return [index, val];
+        })
+      );
+
+      Object.assign(this.trie, { nodes, syms, symCount });
+      
+      this.readyCallback();
     });
-
-    const nodes = new Map(
-      nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
-        return [index, val];
-      })
-    );
-
-    this.trie = { nodes, syms, symCount };
   }
 
   canBeMadeFromTray(tray, word) {
@@ -71,7 +78,7 @@ class Dictionary {
     const patternMap = new Map();
     const placements = new Set();
     const words = this.getWordsFromTray(tray);
-
+    
     segments.forEach((segment) => {
       const segments = patternMap.get(segment.pattern);
       if (!segments) {
@@ -101,6 +108,15 @@ class Dictionary {
     const words = new Set();
     const crawl = (index, pref) => {
       let node = this.trie.nodes.get(index);
+      
+      // TODO: FIX
+      if (!node) {
+        console.log(`!node`);
+        console.log(`index => ${index}`); // => undefined (shouldn't be)
+        console.log(this.trie.nodes);
+        throw new Error("temp for debugging");
+      }
+      
       if (node[0] === "!") {
         if (this.canBeMadeFromTray(tray, pref)) {
           words.add(pref);
@@ -144,6 +160,10 @@ class Dictionary {
     const chars = str.split("");
     chars.push("_");
     return this.has(this.trie, chars);
+  }
+  
+  onReady(callback) {
+    this.readyCallback = callback;
   }
 }
 

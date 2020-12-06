@@ -6,6 +6,10 @@ class Solver {
     this.boardStates = new Map();
     this.dictionary = createDictionary();
     this.running = false;
+    
+    this.dictionary.onReady(() => {
+      this.readyCallback();
+    });
   }
 
   getPossibleNextStates(boardState) {
@@ -21,7 +25,11 @@ class Solver {
     });
     return possibleNextStates;
   }
-
+  
+  onReady(callback) {
+    this.readyCallback = callback;
+  }
+  
   onUpdate(callback) {
     this.updateCallback = callback;
   }
