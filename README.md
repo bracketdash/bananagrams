@@ -8,4 +8,14 @@ cd bananagrams-helper
 yarn
 ```
 
-See [package.json](https://github.com/bracketdash/bananagrams-helper/blob/faster/package.json) for available commands.
+See [./scripts/](./scripts) for available Node scripts.
+
+```
+node ./scripts/:filename
+```
+
+See [./package.json](./package.json) for available Yarn commands.
+
+```
+yarn :command
+```
