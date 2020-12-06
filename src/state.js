@@ -60,7 +60,7 @@ class State {
           }
         } else {
           let lastSpaceWasEmpty = false;
-          const rowWords = Array(this.columns).fill(null).map((_, index) => {
+          const rowWords = Array(this.columns).fill(true).map((_, index) => {
             const cell = row.get(index + 1);
             if (cell) {
               if (lastSpaceWasEmpty) {
@@ -103,8 +103,26 @@ class State {
             return;
           }
         } else {
+          const numRows = Math.max(...this.board.keys());
           let lastSpaceWasEmpty = false;
-          // TODO: produce colWords (see rowWords above)
+          const colWords = Array(numRows).fill(true).map((_, index) => {
+            const row = this.board.get(index + 1);
+            const cell = row.get(colPlusIndex);
+            if (cell) {
+              if (lastSpaceWasEmpty) {
+                lastSpaceWasEmpty = false;
+              }
+              return cell;
+            }
+
+            let result = " ";
+            if (lastSpaceWasEmpty) {
+              result = "";
+            } else {
+              lastSpaceWasEmpty = true;
+            }
+            return result;
+          }).trim().split(" ");
           colWords.forEach((colWord) => {
             if (!dictionary.isAWord(colWord)) {
               error = true;
