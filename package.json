@@ -7,7 +7,6 @@
     "docs": "cp -r build/static/* docs/static",
     "push": "git add -A && git commit -m 'update' && git push",
     "reset": "rm -rf node_modules ./build && rm yarn.lock .eslintcache",
-    "start": "react-scripts start",
     "trie": "node ./scripts/compress.js"
   },
   "dependencies": {
