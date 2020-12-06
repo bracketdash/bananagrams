@@ -1,14 +1,60 @@
 import { createTrie } from "./trie";
-import { fromAlphaCode } from "./alpha";
+import words from "./words.txt";
 
 class Dictionary {
   constructor() {
-    const trie = createTrie();
-    this.trie = trie.getMap();
+    const nodesArr = words.split(";");
+    const pattern = new RegExp('([0-9A-Z]+):([0-9A-Z]+)');
+    const syms = new Map();
+    let symCount = 0;
+    
+    nodesArr.forEach((node, index) => {
+      const match = pattern.exec(node);
+      if (!match) {
+        symCount = index;
+        break;
+      }
+      syms.set(this.fromAlphaCode(match[1]), this.fromAlphaCode(match[2]);
+    });
+    
+    const nodes = new Map(nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
+      return [index, val];
+    }));
+    
+    this.trie = { nodes, syms, symCount };
   }
   
   canBeMadeFromTray(tray, word) {
     // TODO
+  }
+  
+  fromAlphaCode(s) {
+    const seq = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (seq[s] !== undefined) {
+      return seq.indexOf(s);
+    }
+
+    const BASE = 36;
+    let n = 0;
+    let places = 1;
+    let range = BASE;
+    let pow = 1;
+
+    while(places < s.length) {
+      n += range;
+      places++;
+      range *= BASE;
+    }
+
+    for (let i = s.length - 1; i >= 0; i--) {
+      let d = s.charCodeAt(i) - 48;
+      if (d > 10) {
+        d -= 7;
+      }
+      n += d * pow;
+      pow *= BASE;
+    }
+    return n;
   }
 
   getPossiblePlacements({ tray, rowSegments, colSegments }) {
@@ -69,7 +115,7 @@ class Dictionary {
   }
   
   indexFromRef(ref, index) {
-    const dnode = fromAlphaCode(ref);
+    const dnode = this.fromAlphaCode(ref);
     if (dnode < this.trie.symCount) {
       return this.trie.syms.get(dnode);
     }
