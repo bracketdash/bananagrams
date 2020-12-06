@@ -29,7 +29,17 @@ class State {
   }
 
   getSegments() {
-    // TODO: return something like Set([{ row, col, down, pattern }])
+    /* TODO: return something like...
+    Set([{
+      row: the row index of the first tile in `tiles`,
+      col: the column index of the first file in `tiles`,
+      down: whether the segment is part of a row or column (down is true if column),
+      tiles: the tiles in this segment ("-" for whitespace),
+      pre: how much whitespace before the tiles is available,
+      post: how much whitespace after the tiles is available,
+      pattern: a regex pattern to make searching word sets fast
+    }])
+    */
   }
 
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
@@ -44,8 +54,10 @@ class State {
     let columnsClone = this.columns;
     let trayClone = this.tray;
     let error = false;
+    
     // TODO: handle negative row and col values
     // TODO: add rows as needed to fit "down" words
+    
     if (down) {
       word.split("").forEach((letter, index) => {
         if (error) {
