@@ -28,28 +28,8 @@ class State {
       });
   }
 
-  getColSegments() {
-    /*
-    return something like [{
-      col index,
-      row where `tiles` starts,
-      how many blank rows up (or 0 for no blockers),
-      how many blank rows down (or 0 for no blockers),
-      tiles: "c-t"
-    }, ...]
-    */
-  }
-
-  getRowSegments() {
-    /*
-    return something like [{
-      row index,
-      col where `tiles` starts,
-      how many blank cols left (or 0 for no blockers),
-      how many blank cols right (or 0 for no blockers),
-      tiles: "c-t"
-    }, ...]
-    */
+  getSegments() {
+    // TODO: return something like Set([{ row, col, down, pattern }])
   }
 
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
