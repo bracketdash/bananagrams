@@ -59,7 +59,32 @@ class State {
             return;
           }
         } else {
-          // TODO: check the whole row using `dictionary.isAWord` to make sure we aren't creating any invalid words
+          let lastSpaceWasEmpty = false;
+          const rowWords = Array(this.columns).fill(null).map((_, index) => {
+            const cell = row.get(index + 1);
+            if (cell) {
+              if (lastSpaceWasEmpty) {
+                lastSpaceWasEmpty = false;
+              }
+              return cell;
+            }
+
+            let result = " ";
+            if (lastSpaceWasEmpty) {
+              result = "";
+            } else {
+              lastSpaceWasEmpty = true;
+            }
+            return result;
+          }).trim().split(" ");
+          rowWords.forEach((rowWord) => {
+            if (/* TODO: !dictionary.isAWord(rowWord) */) {
+              error = true;
+            }
+          });
+          if (error) {
+            return;
+          }
           trayClone = trayClone.replace(letter, "");
         }
         row.set(col, letter);
@@ -78,7 +103,16 @@ class State {
             return;
           }
         } else {
-          // TODO: check the whole column using `dictionary.isAWord` to make sure we aren't creating any invalid words
+          let lastSpaceWasEmpty = false;
+          // TODO: produce colWords (see rowWords above)
+          colWords.forEach((colWord) => {
+            if (/* TODO: !dictionary.isAWord(colWord) */) {
+              error = true;
+            }
+          });
+          if (error) {
+            return;
+          }
           trayClone = trayClone.replace(letter, "");
         }
         row.set(colPlusIndex, letter);
