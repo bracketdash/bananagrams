@@ -78,7 +78,7 @@ class State {
             return result;
           }).trim().split(" ");
           rowWords.forEach((rowWord) => {
-            if (/* TODO: !dictionary.isAWord(rowWord) */) {
+            if (!dictionary.isAWord(rowWord)) {
               error = true;
             }
           });
@@ -106,7 +106,7 @@ class State {
           let lastSpaceWasEmpty = false;
           // TODO: produce colWords (see rowWords above)
           colWords.forEach((colWord) => {
-            if (/* TODO: !dictionary.isAWord(colWord) */) {
+            if (!dictionary.isAWord(colWord)) {
               error = true;
             }
           });
