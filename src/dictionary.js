@@ -1,4 +1,3 @@
-import { createTrie } from "./trie";
 import words from "./words.txt";
 
 class Dictionary {
