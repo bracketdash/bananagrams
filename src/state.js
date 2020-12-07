@@ -29,10 +29,28 @@ class State {
   }
 
   getSegments() {
-    /* TODO: return something like...
-    Set([{
+    const columns = new Map();
+    const lines = new Set();
+    const segments = new Set();
+    this.board.forEach((rowCols, rowKey) => {
+      lines.add({row: rowKey, col: 0, down: false, tiles: rowCols});
+      rowCols.forEach((col, colKey) => {
+        if (!columns.has(colKey)) {
+          columns.set(colKey, new Map());
+        }
+        columns.get(colKey).set(rowKey, col);
+      });
+    });
+    columns.forEach((colRows, colKey) => {
+      lines.add({row: 0, col: colKey, down: true, tiles: colRows});
+    });
+    lines.forEach((line) => {
+      // TODO: convert each line into one or more segments
+    });
+    /*
+    segments.get(:id) => Set([{
       row: the row index of the first tile in `tiles`,
-      col: the column index of the first file in `tiles`,
+      col: the column index of the first tile in `tiles`,
       down: whether the segment is part of a row or column (down is true if column),
       tiles: the tiles in this segment ("-" for whitespace),
       pre: how much whitespace before the tiles is available,
@@ -40,6 +58,7 @@ class State {
       pattern: a regex pattern to make searching word sets fast
     }])
     */
+   return segments;
   }
 
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
