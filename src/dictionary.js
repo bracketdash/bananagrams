@@ -78,10 +78,11 @@ class Dictionary {
     const placements = new Set();
     this.getWordsFromTray(tray).forEach((word) => {
       segments.forEach((segment) => {
-        if (segment.pattern.test(word)) {
-          // TODO: find possible placements for it within the segment
-          // TODO: placements.add({ row, col, down, word });
+        if (!segment.pattern.test(word)) {
+          return;
         }
+        // TODO: find possible placements for it within the segment
+        // TODO: placements.add({ row, col, down, word });
       });
     });
     return placements;
