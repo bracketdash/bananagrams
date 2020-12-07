@@ -119,6 +119,10 @@ class Dictionary {
       
       if (node[0] === "!") {
         if (this.canBeMadeFromTray(tray, pref)) {
+          // TODO: maybe each time we get word that can be made from the tray,
+          // TODO: we just save the current index and pref somewhere and follow through with that one word
+          // TODO: that way, we may not need to do all the rest of the processing here or elsewhere
+          // TODO: once a path to a valid solution is found
           words.add(pref);
         }
         node = node.slice(1);
