@@ -6,7 +6,7 @@ class State {
   }
 
   getBoard() {
-    const numRows = Math.max(...this.board.keys());
+    const numRows = this.board.size ? Math.max(...this.board.keys()) : 0;
     let numColumns = 0;
     return Array(numRows)
       .fill(true)

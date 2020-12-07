@@ -75,35 +75,15 @@ class Dictionary {
   }
 
   getPossiblePlacements(tray, segments) {
-    const patternMap = new Map();
     const placements = new Set();
-    const words = this.getWordsFromTray(tray);
-    
-    // TODO: boardState.getSegments()
-    throw new Error("segments code not done yet");
-    
-    segments.forEach((segment) => {
-      const segments = patternMap.get(segment.pattern);
-      if (!segments) {
-        patternMap.set(segment.pattern, new Set([segment]));
-      } else {
-        segments.add(segment);
-      }
-    });
-
-    words.forEach((word) => {
-      const patterns = patternMap.keys();
-      patterns.forEach((pattern) => {
-        if (pattern.test(word)) {
-          const segments = patternMap.get(pattern);
-          segments.forEach((segment) => {
-            // TODO: find possible placements for it within the segment
-            // TODO: placements.add({ row, col, down, word });
-          });
+    this.getWordsFromTray(tray).forEach((word) => {
+      segments.forEach((segment) => {
+        if (segment.pattern.test(word)) {
+          // TODO: find possible placements for it within the segment
+          // TODO: placements.add({ row, col, down, word });
         }
       });
     });
-
     return placements;
   }
 
