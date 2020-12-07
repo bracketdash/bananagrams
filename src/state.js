@@ -28,37 +28,102 @@ class State {
       });
   }
 
+  getPatterns(tiles) {
+    const fullPattern = `.*${tiles.replace(/\s+/g, (m) => `.{${m.length}}`)}.*`;
+    const moddedPatternTest = /[a-z]+[^a-z]+[a-z]+/;
+    const loop = (fullPattern, patterns, leftTrim, rightTrim) => {
+      let allDone = false;
+      let needsLeftTrimIteration = false;
+      let moddedPattern = fullPattern;
+      Array(leftTrim)
+        .fill(true)
+        .forEach(() => {
+          if (moddedPatternTest.test(moddedPattern)) {
+            moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
+            moddedPattern = moddedPattern.replace(/^\.\{([0-9]*)\}/, function (_, captured) {
+              const num = parseInt(captured);
+              if (num < 2) {
+                return "";
+              }
+              return ".{0," + (num - 1) + "}";
+            });
+          } else {
+            allDone = true;
+          }
+        });
+      Array(leftTrim)
+        .fill(true)
+        .forEach(() => {
+          if (moddedPatternTest.test(moddedPattern)) {
+            moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
+            moddedPattern = moddedPattern.replace(/\.\{([0-9]*)\}$/, function (_, captured) {
+              const num = parseInt(captured);
+              if (num < 2) {
+                return "";
+              }
+              return ".{0," + (num - 1) + "}";
+            });
+          } else {
+            needsLeftTrimIteration = true;
+          }
+        });
+      if (leftTrim > 0) {
+        moddedPattern = "^" + moddedPattern;
+      }
+      if (rightTrim > 0) {
+        moddedPattern = moddedPattern + "$";
+      }
+      if (allDone) {
+        return patterns;
+      }
+      if (needsLeftTrimIteration) {
+        return loop(fullPattern, patterns, leftTrim + 1, 0);
+      } else {
+        patterns.push(moddedPattern);
+      }
+      return loop(fullPattern, patterns, leftTrim, rightTrim + 1);
+    };
+    return new RegExp(loop(fullPattern, [fullPattern], 0, 1).join("|"));
+  }
+
   getSegments() {
     const columns = new Map();
-    const lines = new Set();
     const segments = new Set();
-    this.board.forEach((rowCols, rowKey) => {
-      lines.add({row: rowKey, col: 0, down: false, tiles: rowCols});
+    this.board.forEach((rowCols, row) => {
       rowCols.forEach((col, colKey) => {
         if (!columns.has(colKey)) {
           columns.set(colKey, new Map());
         }
-        columns.get(colKey).set(rowKey, col);
+        columns.get(colKey).set(row, col);
       });
+      const tiles = Array(Math.max(...rowCols.keys()))
+        .fill(true)
+        .map((_, index) => {
+          if (rowCols.has(index + 1)) {
+            return rowCols.get(index + 1);
+          } else {
+            return " ";
+          }
+        })
+        .join("");
+      const patterns = this.getPatterns(tiles);
+      segments.add({ row, col: 0, down: false, tiles, patterns });
     });
-    columns.forEach((colRows, colKey) => {
-      lines.add({row: 0, col: colKey, down: true, tiles: colRows});
+    columns.forEach((colRows, col) => {
+      const tiles = Array(Math.max(...colRows.keys()))
+        .fill(true)
+        .map((_, index) => {
+          if (colRows.has(index + 1)) {
+            return colRows.get(index + 1);
+          } else {
+            return " ";
+          }
+        })
+        .join("");
+      const patterns = this.getPatterns(tiles);
+      segments.add({ row: 0, col, down: true, tiles, patterns });
     });
-    lines.forEach((line) => {
-      // TODO: convert each line into one or more segments
-    });
-    /*
-    segments.get(:id) => Set([{
-      row: the row index of the first tile in `tiles`,
-      col: the column index of the first tile in `tiles`,
-      down: whether the segment is part of a row or column (down is true if column),
-      tiles: the tiles in this segment ("-" for whitespace),
-      pre: how much whitespace before the tiles is available,
-      post: how much whitespace after the tiles is available,
-      pattern: a regex pattern to make searching word sets fast
-    }])
-    */
-   return segments;
+    return segments;
   }
 
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
