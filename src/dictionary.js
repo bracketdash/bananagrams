@@ -47,7 +47,7 @@ class Dictionary {
 
   fromAlphaCode(s) {
     const seq = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (seq[s] !== undefined) {
+    if (seq.includes(s)) {
       return seq.indexOf(s);
     }
 
@@ -79,6 +79,9 @@ class Dictionary {
     const placements = new Set();
     const words = this.getWordsFromTray(tray);
     
+    // TODO: boardState.getSegments()
+    throw new Error("segments code not done yet");
+    
     segments.forEach((segment) => {
       const segments = patternMap.get(segment.pattern);
       if (!segments) {
@@ -109,20 +112,8 @@ class Dictionary {
     const crawl = (index, pref) => {
       let node = this.trie.nodes.get(index);
       
-      // TODO: FIX
-      if (!node) {
-        console.log(`!node`);
-        console.log(`index => ${index}`); // => undefined (shouldn't be)
-        console.log(this.trie.nodes);
-        throw new Error("temp for debugging");
-      }
-      
       if (node[0] === "!") {
         if (this.canBeMadeFromTray(tray, pref)) {
-          // TODO: maybe each time we get word that can be made from the tray,
-          // TODO: we just save the current index and pref somewhere and follow through with that one word
-          // TODO: that way, we may not need to do all the rest of the processing here or elsewhere
-          // TODO: once a path to a valid solution is found
           words.add(pref);
         }
         node = node.slice(1);
