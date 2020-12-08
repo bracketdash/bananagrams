@@ -83,36 +83,34 @@ class Dictionary {
         }
         const firstPosition = -(word.length - 1);
         const wordLetters = word.split("");
-        Array(word.length * 2 + tiles.length - 4)
-          .fill(true)
-          .forEach((_, index) => {
-            const pos = firstPosition + index;
-            const overlap = new Set();
-            let valid = true;
-            wordLetters.forEach((letter, letterIndex) => {
-              if (tiles[pos + letterIndex] !== " " && tiles[pos + letterIndex] !== letter) {
-                valid = false;
-              }
-            });
-            if (!overlap.size) {
+        [...Array(word.length * 2 + tiles.length - 4).keys()].forEach((index) => {
+          const pos = firstPosition + index;
+          const overlap = new Set();
+          let valid = true;
+          wordLetters.forEach((letter, letterIndex) => {
+            if (tiles[pos + letterIndex] !== " " && tiles[pos + letterIndex] !== letter) {
               valid = false;
             }
-            if (valid) {
-              let rowAdd = 0;
-              let colAdd = 0;
-              if (down) {
-                rowAdd = pos;
-              } else {
-                colAdd = pos;
-              }
-              placements.add({
-                row: row + rowAdd,
-                col: col + colAdd,
-                down,
-                word,
-              });
-            }
           });
+          if (!overlap.size) {
+            valid = false;
+          }
+          if (valid) {
+            let rowAdd = 0;
+            let colAdd = 0;
+            if (down) {
+              rowAdd = pos;
+            } else {
+              colAdd = pos;
+            }
+            placements.add({
+              row: row + rowAdd,
+              col: col + colAdd,
+              down,
+              word,
+            });
+          }
+        });
       });
     });
     return placements;

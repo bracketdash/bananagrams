@@ -8,24 +8,22 @@ class State {
   getBoard() {
     const numRows = this.board.size ? Math.max(...this.board.keys()) : 0;
     let numColumns = 0;
-    return Array(numRows)
-      .fill(true)
-      .map((_, rowIndex) => {
-        const row = this.board.get(rowIndex + 1);
-        if (row) {
-          const rowColumns = Math.max(numColumns, ...row.keys());
-          if (rowColumns > numColumns) {
-            numColumns = rowColumns;
-          }
-          const columns = Array(numColumns).fill(" ");
-          row.forEach((col, colIndex) => {
-            columns[colIndex - 1] = col;
-          });
-          return columns;
-        } else {
-          return Array(numColumns).fill(" ");
+    return [...Array(numRows).keys()].map((_, rowIndex) => {
+      const row = this.board.get(rowIndex + 1);
+      if (row) {
+        const rowColumns = Math.max(numColumns, ...row.keys());
+        if (rowColumns > numColumns) {
+          numColumns = rowColumns;
         }
-      });
+        const columns = Array(numColumns).fill(" ");
+        row.forEach((col, colIndex) => {
+          columns[colIndex - 1] = col;
+        });
+        return columns;
+      } else {
+        return Array(numColumns).fill(" ");
+      }
+    });
   }
 
   getPatterns(tiles) {
@@ -35,38 +33,34 @@ class State {
       let allDone = false;
       let needsLeftTrimIteration = false;
       let moddedPattern = fullPattern;
-      Array(leftTrim)
-        .fill(true)
-        .forEach(() => {
-          if (moddedPatternTest.test(moddedPattern)) {
-            moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
-            moddedPattern = moddedPattern.replace(/^\.\{([0-9]*)\}/, function (_, captured) {
-              const num = parseInt(captured);
-              if (num < 2) {
-                return "";
-              }
-              return ".{0," + (num - 1) + "}";
-            });
-          } else {
-            allDone = true;
-          }
-        });
-      Array(leftTrim)
-        .fill(true)
-        .forEach(() => {
-          if (moddedPatternTest.test(moddedPattern)) {
-            moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
-            moddedPattern = moddedPattern.replace(/\.\{([0-9]*)\}$/, function (_, captured) {
-              const num = parseInt(captured);
-              if (num < 2) {
-                return "";
-              }
-              return ".{0," + (num - 1) + "}";
-            });
-          } else {
-            needsLeftTrimIteration = true;
-          }
-        });
+      [...Array(leftTrim).keys()].forEach(() => {
+        if (moddedPatternTest.test(moddedPattern)) {
+          moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
+          moddedPattern = moddedPattern.replace(/^\.\{([0-9]*)\}/, function (_, captured) {
+            const num = parseInt(captured);
+            if (num < 2) {
+              return "";
+            }
+            return ".{0," + (num - 1) + "}";
+          });
+        } else {
+          allDone = true;
+        }
+      });
+      [...Array(leftTrim).keys()].forEach(() => {
+        if (moddedPatternTest.test(moddedPattern)) {
+          moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
+          moddedPattern = moddedPattern.replace(/\.\{([0-9]*)\}$/, function (_, captured) {
+            const num = parseInt(captured);
+            if (num < 2) {
+              return "";
+            }
+            return ".{0," + (num - 1) + "}";
+          });
+        } else {
+          needsLeftTrimIteration = true;
+        }
+      });
       if (leftTrim > 0) {
         moddedPattern = "^" + moddedPattern;
       }
@@ -96,9 +90,8 @@ class State {
         }
         columns.get(colKey).set(row, col);
       });
-      const tiles = Array(Math.max(...rowCols.keys()))
-        .fill(true)
-        .map((_, index) => {
+      const tiles = [...Array(Math.max(...rowCols.keys())).keys()]
+        .map((index) => {
           if (rowCols.has(index + 1)) {
             return rowCols.get(index + 1);
           } else {
@@ -110,8 +103,7 @@ class State {
       segments.add({ row, col: 0, down: false, tiles, patterns });
     });
     columns.forEach((colRows, col) => {
-      const tiles = Array(Math.max(...colRows.keys()))
-        .fill(true)
+      const tiles = [...Array(Math.max(...colRows.keys())).keys()]
         .map((_, index) => {
           if (colRows.has(index + 1)) {
             return colRows.get(index + 1);
@@ -170,8 +162,7 @@ class State {
           }
         } else {
           let lastSpaceWasEmpty = false;
-          const rowWords = Array(newColumns)
-            .fill(true)
+          const rowWords = [...Array(newColumns).keys()]
             .map((_, index) => {
               const cell = tileRow.get(index + 1);
               if (cell) {
@@ -219,8 +210,7 @@ class State {
         } else {
           const numRows = Math.max(...this.board.keys());
           let lastSpaceWasEmpty = false;
-          const colWords = Array(numRows)
-            .fill(true)
+          const colWords = [...Array(numRows).keys()]
             .map((_, index) => {
               const tileRow = this.board.get(index + 1);
               const cell = tileRow.get(colPlusIndex);
