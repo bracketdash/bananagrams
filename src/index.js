@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { createSolver } from "./solver";
 
+// TODO: replace Array(n).fill(true).forEach((_, index) => {}) with [...Array(n).keys()].forEach((index) => {})
+
 const solver = createSolver();
 
 const App = () => {
