@@ -13,10 +13,11 @@ class Solver {
   }
 
   getPossibleNextStates(boardState) {
+    const possibleNextStates = new Set();
     const tray = boardState.getTray();
     const segments = boardState.getSegments();
     const possiblePlacements = this.dictionary.getPossiblePlacements(tray, segments);
-    const possibleNextStates = new Set();
+    
     possiblePlacements.forEach((possiblePlacement) => {
       const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
       if (stateAfterPlacement) {

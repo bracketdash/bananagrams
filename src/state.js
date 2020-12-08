@@ -179,6 +179,7 @@ class State {
               }
               return result;
             })
+            .join("")
             .trim()
             .split(" ");
           rowWords.forEach((rowWord) => {
@@ -228,6 +229,7 @@ class State {
               }
               return result;
             })
+            .join("")
             .trim()
             .split(" ");
           colWords.forEach((colWord) => {

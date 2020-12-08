@@ -77,6 +77,15 @@ class Dictionary {
   getPossiblePlacements(tray, segments) {
     const placements = new Set();
     this.getWordsFromTray(tray).forEach((word) => {
+      if (!segments.size) {
+        placements.add({
+          row: 0,
+          col: 0,
+          down: true,
+          word,
+        });
+        return;
+      }
       segments.forEach(({ row, col, down, tiles, patterns }) => {
         if (!patterns.test(word)) {
           return;
@@ -148,10 +157,6 @@ class Dictionary {
     return words;
   }
 
-  has(trie, key) {
-    return !!trie && (key.length > 1 ? this.has(trie.get(key[0]), key.slice(1)) : trie.has(key));
-  }
-
   indexFromRef(ref, index) {
     const dnode = this.fromAlphaCode(ref);
     if (dnode < this.trie.symCount) {
@@ -159,11 +164,14 @@ class Dictionary {
     }
     return index + dnode + 1 - this.trie.symCount;
   }
-
+  
   isAWord(str) {
+    // TODO: isAWord() does not work as-is
     const chars = str.split("");
+    // TODO: this is not how to traverse the new trie
+    const loop = (trie, key) => !!trie && (key.length > 1 ? this.has(trie.get(key[0]), key.slice(1)) : trie.has(key));
     chars.push("_");
-    return this.has(this.trie, chars);
+    return loop(this.trie, chars);
   }
 
   onReady(callback) {
