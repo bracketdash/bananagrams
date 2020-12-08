@@ -138,12 +138,11 @@ class State {
       newColumns += colsToAdd;
     }
     this.board.forEach((rowCols, rowKey) => {
-      // TODO: use rowsToAdd, colsToAdd, and newColumns
       const cols = new Map();
       rowCols.forEach((col, colKey) => {
-        cols.set(colKey, col);
+        cols.set(colsToAdd + colKey, col);
       });
-      boardClone.set(rowKey, cols);
+      boardClone.set(rowsToAdd + rowKey, cols);
     });
     if (down) {
       word.split("").forEach((letter, index) => {
