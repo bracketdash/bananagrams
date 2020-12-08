@@ -1,5 +1,5 @@
-import { createState } from "./state";
 import { createDictionary } from "./dictionary";
+import { createState } from "./state";
 
 class Solver {
   constructor() {
