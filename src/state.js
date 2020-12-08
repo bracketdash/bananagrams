@@ -117,7 +117,8 @@ class State {
     });
     return segments;
   }
-
+  
+  // TODO: move `getStateAfterPlacement` to a separate file
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
     const boardClone = new Map();
     let columnsClone = this.columns;
