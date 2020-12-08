@@ -128,27 +128,41 @@ class State {
 
   getStateAfterPlacement({ row, col, down, word }, dictionary) {
     const boardClone = new Map();
+    let columnsClone = this.columns;
+    let trayClone = this.tray;
+    let error = false;
+    let newRow = row;
+    let newCol = col;
+    let newColumns = this.columns;
+    let rowsToAdd = 0;
+    let colsToAdd = 0;
+    if (row < 0) {
+      rowsToAdd = -row;
+      newRow = 0;
+    }
+    if (col < 0) {
+      colsToAdd = -col;
+      newCol = 0;
+      newColumns += colsToAdd;
+    }
     this.board.forEach((rowCols, rowKey) => {
+      // TODO: use rowsToAdd, colsToAdd, and newColumns
       const cols = new Map();
       rowCols.forEach((col, colKey) => {
         cols.set(colKey, col);
       });
       boardClone.set(rowKey, cols);
     });
-    let columnsClone = this.columns;
-    let trayClone = this.tray;
-    let error = false;
-
-    // TODO: handle negative row and col values
-    // TODO: add rows as needed to fit "down" words
-
     if (down) {
       word.split("").forEach((letter, index) => {
         if (error) {
           return;
         }
-        const tileRow = boardClone.get(row + index);
-        const originalValue = tileRow.get(col);
+        if (!boardClone.has(newRow + index)) {
+          boardClone.set(newRow + index, new Map());
+        }
+        const tileRow = boardClone.get(newRow + index);
+        const originalValue = tileRow.get(newCol);
         if (originalValue) {
           if (originalValue !== letter) {
             error = true;
@@ -156,7 +170,7 @@ class State {
           }
         } else {
           let lastSpaceWasEmpty = false;
-          const rowWords = Array(this.columns)
+          const rowWords = Array(newColumns)
             .fill(true)
             .map((_, index) => {
               const cell = tileRow.get(index + 1);
@@ -187,7 +201,7 @@ class State {
           }
           trayClone = trayClone.replace(letter, "");
         }
-        tileRow.set(col, letter);
+        tileRow.set(newCol, letter);
       });
     } else {
       const tileRow = boardClone.get(row);
@@ -195,7 +209,7 @@ class State {
         if (error) {
           return;
         }
-        const colPlusIndex = col + index;
+        const colPlusIndex = newCol + index;
         const originalValue = tileRow.get(colPlusIndex);
         if (originalValue) {
           if (originalValue !== letter) {
