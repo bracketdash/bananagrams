@@ -27,7 +27,7 @@ class Dictionary {
       );
 
       Object.assign(this.trie, { nodes, syms, symCount });
-      
+
       this.readyCallback();
     });
   }
@@ -77,12 +77,42 @@ class Dictionary {
   getPossiblePlacements(tray, segments) {
     const placements = new Set();
     this.getWordsFromTray(tray).forEach((word) => {
-      segments.forEach((segment) => {
-        if (!segment.pattern.test(word)) {
+      segments.forEach(({ row, col, down, tiles, patterns }) => {
+        if (!patterns.test(word)) {
           return;
         }
-        // TODO: find possible placements for it within the segment
-        // TODO: placements.add({ row, col, down, word });
+        const firstPosition = -(word.length - 1);
+        const wordLetters = word.split("");
+        Array(word.length * 2 + tiles.length - 4)
+          .fill(true)
+          .forEach((_, index) => {
+            const pos = firstPosition + index;
+            const overlap = new Set();
+            let valid = true;
+            wordLetters.forEach((letter, letterIndex) => {
+              if (tiles[pos + letterIndex] !== " " && tiles[pos + letterIndex] !== letter) {
+                valid = false;
+              }
+            });
+            if (!overlap.size) {
+              valid = false;
+            }
+            if (valid) {
+              let rowAdd = 0;
+              let colAdd = 0;
+              if (down) {
+                rowAdd = pos;
+              } else {
+                colAdd = pos;
+              }
+              placements.add({
+                row: row + rowAdd,
+                col: col + colAdd,
+                down,
+                word,
+              });
+            }
+          });
       });
     });
     return placements;
@@ -92,7 +122,7 @@ class Dictionary {
     const words = new Set();
     const crawl = (index, pref) => {
       let node = this.trie.nodes.get(index);
-      
+
       if (node[0] === "!") {
         if (this.canBeMadeFromTray(tray, pref)) {
           words.add(pref);
@@ -137,7 +167,7 @@ class Dictionary {
     chars.push("_");
     return this.has(this.trie, chars);
   }
-  
+
   onReady(callback) {
     this.readyCallback = callback;
   }
