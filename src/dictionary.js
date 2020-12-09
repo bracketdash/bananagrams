@@ -9,26 +9,18 @@ class Dictionary {
   }
 
   canBeMadeFromTray(trayLetterCount, word) {
-    // TODO: this will be called the highest number of times during a solve - make sure it's fast
-    let can = true;
-    let temp = tray;
-    word.split("").forEach((letter) => {
-      if (temp.includes(letter)) {
-        temp = temp.replace(letter, "");
-      } else {
-        can = false;
+    const lettersChecked = new Set();
+    return !word.split("").some((letter) => {
+      if (lettersChecked.has(letter)) {
+        return false;
       }
+      const instances = word.match(new RegExp(letter, "g")).length;
+      if (!trayLetterCount.has(letter) || trayLetterCount.get(letter) < instances) {
+        return true;
+      }
+      lettersChecked.add(letter);
+      return false;
     });
-    return can;
-    
-    // TODO: new code below:
-    const wordLetterCount = word.reduce(() => {
-      // TODO: make `wordLetterCount` a map of letters and how many times they occur in the word
-    });
-    // TODO: compare the letter counts for the word to the letter counts for the tray
-    // TODO: if a letter is in the word that is not in the tray, return false;
-    // TODO: if a letter occurrs more times in the word than the tray, return false;
-    // TODO: otherwise, return true;
   }
   
   getPossiblePlacements(tray, blacklist, segments) {
@@ -39,7 +31,7 @@ class Dictionary {
     });
     this.trie.traverse({
       onFullWord: (word) => {
-        if (!this.canBeMadeFromTray(tray, word) || blacklist.has(word)) {
+        if (!this.canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
           return;
         }
         if (!segments.size) {
@@ -92,7 +84,7 @@ class Dictionary {
           });
         });
       },
-      prefixGate: (prefix) => this.canBeMadeFromTray(tray, prefix)
+      prefixGate: (prefix) => this.canBeMadeFromTray(trayLetterCount, prefix)
     });
     return placements;
   }
