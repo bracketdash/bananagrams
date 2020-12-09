@@ -1,5 +1,7 @@
 import wordsTxt from "./assets/words.txt";
 
+// TODO: move all the trie methods into its own file that export a createTrie method
+
 class Dictionary {
   constructor() {
     this.trie = {};
