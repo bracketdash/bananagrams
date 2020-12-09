@@ -25,10 +25,10 @@ class Dictionary {
   
   getPossiblePlacements(tray, blacklist, segments) {
     const placements = new Set();
-    const trayLetterCount = tray.reduce(() => {
-      // TODO: make `trayLetterCount` a map of letters and how many times they occur in the tray
-      // TODO: use `trayLetterCount` in calls of `this.canBeMadeFromTray` below
-    });
+    const trayLetterCount = tray.split("").reduce((counts, letter) => {
+      counts[letter] = counts[letter] ? counts[letter] + 1 : 1;
+      return counts;
+    }, {});
     this.trie.traverse({
       onFullWord: (word) => {
         if (!this.canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
