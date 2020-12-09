@@ -127,32 +127,12 @@ class Dictionary {
 
   getWordsFromTray(tray) {
     const words = new Set();
-    const loop = (index, pref) => {
-      let node = this.trie.nodes.get(index);
-      if (node[0] === "!") {
-        if (this.canBeMadeFromTray(tray, pref)) {
-          words.add(pref);
-        }
-        node = node.slice(1);
+    this.traverse((word) => {
+      if (this.canBeMadeFromTray(tray, word)) {
+        words.add(word);
       }
-      const matches = node.split(/([A-Z0-9,]+)/g);
-      for (let i = 0; i < matches.length; i += 2) {
-        const str = matches[i];
-        if (!str) {
-          continue;
-        }
-        const ref = matches[i + 1];
-        const have = pref + str;
-        if (ref === "," || ref === undefined) {
-          if (this.canBeMadeFromTray(tray, have)) {
-            words.add(have);
-          }
-          continue;
-        }
-        loop(this.indexFromRef(ref, index), have);
-      }
-    };
-    loop(0, "");
+      return true;
+    });
     return words;
   }
 
@@ -166,11 +146,25 @@ class Dictionary {
   
   isAWord(possibleWord) {
     let isAWord = false;
+    this.traverse((word) => {
+      if (word === possibleWord) {
+        isAWord = true;
+        return false;
+      }
+      return true;
+    });
+    return isAWord;
+  }
+
+  onReady(callback) {
+    this.readyCallback = callback;
+  }
+  
+  traverse(onFullWord) {
     const loop = (index, pref) => {
       let node = this.trie.nodes.get(index);
       if (node[0] === "!") {
-        if (pref === possibleWord) {
-          isAWord = true;
+        if (!onFullWord(pref)) {
           return;
         }
         node = node.slice(1);
@@ -184,8 +178,7 @@ class Dictionary {
         const ref = matches[i + 1];
         const have = pref + str;
         if (ref === "," || ref === undefined) {
-          if (have === possibleWord) {
-            isAWord = true;
+          if (!onFullWord(have)) {
             return;
           }
           continue;
@@ -194,11 +187,6 @@ class Dictionary {
       }
     };
     loop(0, "");
-    return isAWord;
-  }
-
-  onReady(callback) {
-    this.readyCallback = callback;
   }
 }
 
