@@ -14,7 +14,7 @@ const App = () => {
   const [tray, setTray] = useState("");
 
   const updateBlacklistAndSolve = (e) => {
-    const newBlacklist = e.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
+    const newBlacklist = e.target.value.replace(/[^A-Z,]/gi, "").toLowerCase();
     setBlacklist(newBlacklist);
     solver.solve(letters, newBlacklist);
   };
