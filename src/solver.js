@@ -6,9 +6,9 @@ class Solver {
     this.boardStates = new Map();
     this.dictionary = createDictionary();
     this.running = false;
-    
     this.dictionary.onReady(() => {
       this.readyCallback();
+      this.update("Ready!");
     });
   }
 
@@ -82,7 +82,6 @@ class Solver {
     if (this.running !== false && this.running !== running) {
       return;
     }
-
     if (!this.boardStates.has(key)) {
       const splitKey = key.split(":");
       const splitKeyLen = splitKey.length;
@@ -96,8 +95,8 @@ class Solver {
       this.tryBoardState(running, splitKey.join(":"));
       return;
     }
-
     const boardState = this.boardStates.get(key);
+    this.update("", boardState);
     const possibleNextStates = this.getPossibleNextStates(boardState);
     boardState.setPossibleNextStates(possibleNextStates);
     if (possibleNextStates.size) {
@@ -119,7 +118,6 @@ class Solver {
         this.update("Solution found!", solution);
         return;
       }
-
       const splitKey = key.split(":");
       const lastIndex = splitKey.length - 1;
       splitKey[lastIndex] = parseInt(splitKey[lastIndex]) + 1;
