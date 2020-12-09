@@ -79,10 +79,11 @@ class Dictionary {
         if (this.canBeMadeFromTray(tray, word) && !blacklist.includes(word)) {
           words.add(word);
         }
-        return true;
       },
-      onPrefix: (prefix) => {
+      prefixGate: (prefix) => {
         // TODO: make sure we aren't crawling branches we don't have to
+        // true to keep traversing that branch
+        // false to stop traversing that branch
       }
     });
     return words;
@@ -94,12 +95,12 @@ class Dictionary {
       onFullWord: (word) => {
         if (word === possibleWord) {
           isAWord = true;
-          return false;
         }
-        return true;
       },
-      onPrefix: (prefix) => {
+      prefixGate: (prefix) => {
         // TODO: make sure we aren't crawling branches we don't have to
+        // true to keep traversing that branch
+        // false to stop traversing that branch
       }
     });
     return isAWord;
