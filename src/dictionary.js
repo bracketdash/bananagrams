@@ -25,6 +25,8 @@ class Dictionary {
           return [index, val];
         })
       );
+      
+      // TODO: convert `nodes` to map of maps? research to see if this would speed up `this.traverse`
 
       Object.assign(this.trie, { nodes, syms, symCount });
 
