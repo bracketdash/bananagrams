@@ -52,7 +52,7 @@ class Dictionary {
           const wordLetters = word.split("");
           [...Array(word.length * 2 + tiles.length - 4).keys()].forEach((index) => {
             const pos = firstPosition + index;
-            const overlap = false;
+            let overlap = false;
             let valid = true;
             wordLetters.forEach((letter, letterIndex) => {
               if (!valid) {

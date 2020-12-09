@@ -1,4 +1,4 @@
-export const performPlacement(state, placement, dictionary) {
+export const performPlacement = (state, placement, dictionary) => {
   const boardClone = new Map();
   let columnsClone = state.columns;
   let trayClone = state.tray;
@@ -13,7 +13,7 @@ export const performPlacement(state, placement, dictionary) {
     newRow = 0;
   }
   if (placement.col < 0) {
-    colsToAdd = -col;
+    colsToAdd = -placement.col;
     newCol = 0;
     newColumns += colsToAdd;
   }
@@ -24,8 +24,8 @@ export const performPlacement(state, placement, dictionary) {
     });
     boardClone.set(rowsToAdd + rowKey, cols);
   });
-  if (down) {
-    word.split("").forEach((letter, index) => {
+  if (placement.down) {
+    placement.word.split("").forEach((letter, index) => {
       if (error) {
         return;
       }
@@ -76,7 +76,7 @@ export const performPlacement(state, placement, dictionary) {
     });
   } else {
     const tileRow = boardClone.get(newRow);
-    word.split("").forEach((letter, index) => {
+    placement.word.split("").forEach((letter, index) => {
       if (error) {
         return;
       }

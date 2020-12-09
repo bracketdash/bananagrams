@@ -65,11 +65,13 @@ class Trie {
           while (i < matches.length) {
             const str = matches[i];
             if (!str) {
+              i += 2;
               continue;
             }
             const ref = matches[i + 1];
             if (ref === "," || ref === undefined) {
               node.matches.add({ str, full: true });
+              i += 2;
               continue;
             }
             const next = syms.has(ref) ? syms.get(ref) : index + fromAlphaCode(ref) + 1 - symCount;
