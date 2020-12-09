@@ -80,11 +80,7 @@ class Dictionary {
           words.add(word);
         }
       },
-      prefixGate: (prefix) => {
-        // TODO: make sure we aren't crawling branches we don't have to
-        // true to keep traversing that branch
-        // false to stop traversing that branch
-      }
+      prefixGate: (prefix) => this.canBeMadeFromTray(tray, prefix)
     });
     return words;
   }
@@ -97,11 +93,7 @@ class Dictionary {
           isAWord = true;
         }
       },
-      prefixGate: (prefix) => {
-        // TODO: make sure we aren't crawling branches we don't have to
-        // true to keep traversing that branch
-        // false to stop traversing that branch
-      }
+      prefixGate: (prefix) => possibleWord.startsWith(prefix)
     });
     return isAWord;
   }
