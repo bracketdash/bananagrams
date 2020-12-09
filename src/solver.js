@@ -49,7 +49,7 @@ class Solver {
 
   solve(tray, blacklist) {
     const emptyBoard = createState(tray);
-    const possibleNextStates = this.getPossibleNextStates(emptyBoard, blacklist);
+    const possibleNextStates = this.getPossibleNextStates(emptyBoard, new Set(blacklist.split(",")));
     this.boardStates.clear();
     if (possibleNextStates.size) {
       let iteration = 1;
