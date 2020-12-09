@@ -8,7 +8,7 @@ class Dictionary {
     });
   }
 
-  canBeMadeFromTray(tray, word) {
+  canBeMadeFromTray(trayLetterCount, word) {
     // TODO: this will be called the highest number of times during a solve - make sure it's fast
     let can = true;
     let temp = tray;
@@ -20,10 +20,23 @@ class Dictionary {
       }
     });
     return can;
+    
+    // TODO: new code below:
+    const wordLetterCount = word.reduce(() => {
+      // TODO: make `wordLetterCount` a map of letters and how many times they occur in the word
+    });
+    // TODO: compare the letter counts for the word to the letter counts for the tray
+    // TODO: if a letter is in the word that is not in the tray, return false;
+    // TODO: if a letter occurrs more times in the word than the tray, return false;
+    // TODO: otherwise, return true;
   }
   
   getPossiblePlacements(tray, blacklist, segments) {
     const placements = new Set();
+    const trayLetterCount = tray.reduce(() => {
+      // TODO: make `trayLetterCount` a map of letters and how many times they occur in the tray
+      // TODO: use `trayLetterCount` in calls of `this.canBeMadeFromTray` below
+    });
     this.trie.traverse({
       onFullWord: (word) => {
         if (!this.canBeMadeFromTray(tray, word) || blacklist.has(word)) {
