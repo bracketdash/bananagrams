@@ -1,25 +1,26 @@
 import { createTrie } from "./trie";
 
+const canBeMadeFromTray = (trayLetterCount, word) => {
+  let remainder = word;
+  while (remainder.length > 0) {
+    const letter = remainder[0];
+    let instances = 0;
+    remainder = remainder.replaceAll(letter, () => {
+      instances++;
+      return "";
+    });
+    if (!trayLetterCount.has(letter) || trayLetterCount.get(letter) < instances) {
+      return false;
+    }
+  }
+  return true;
+};
+
 class Dictionary {
   constructor() {
     this.trie = createTrie();
     this.trie.downloadAndBuild().then(() => {
       this.readyCallback();
-    });
-  }
-
-  canBeMadeFromTray(trayLetterCount, word) {
-    const lettersChecked = new Set();
-    return !word.split("").some((letter) => {
-      if (lettersChecked.has(letter)) {
-        return false;
-      }
-      const instances = word.match(new RegExp(letter, "g")).length;
-      if (!trayLetterCount.has(letter) || trayLetterCount.get(letter) < instances) {
-        return true;
-      }
-      lettersChecked.add(letter);
-      return false;
     });
   }
   
@@ -31,7 +32,7 @@ class Dictionary {
     }, new Map());
     this.trie.traverse({
       onFullWord: (word) => {
-        if (!this.canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
+        if (!canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
           return;
         }
         if (!segments.size) {
@@ -84,7 +85,7 @@ class Dictionary {
           });
         });
       },
-      prefixGate: (prefix) => this.canBeMadeFromTray(trayLetterCount, prefix)
+      prefixGate: (prefix) => canBeMadeFromTray(trayLetterCount, prefix)
     });
     return placements;
   }
