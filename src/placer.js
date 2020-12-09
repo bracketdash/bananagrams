@@ -29,10 +29,11 @@ export const performPlacement = (state, placement, dictionary) => {
       if (error) {
         return;
       }
-      if (!boardClone.has(newRow + index)) {
-        boardClone.set(newRow + index, new Map());
+      const newRowPlusIndex = newRow + index;
+      if (!boardClone.has(newRowPlusIndex)) {
+        boardClone.set(newRowPlusIndex, new Map());
       }
-      const tileRow = boardClone.get(newRow + index);
+      const tileRow = boardClone.get(newRowPlusIndex);
       const originalValue = tileRow.get(newCol);
       if (originalValue) {
         if (originalValue !== letter) {
@@ -40,17 +41,17 @@ export const performPlacement = (state, placement, dictionary) => {
           return;
         }
       } else {
+        tileRow.set(newCol, letter);
         let lastSpaceWasEmpty = false;
         const rowWords = [...Array(newColumns).keys()]
-          .map((_, index) => {
-            const cell = tileRow.get(index + 1);
+          .map((index) => {
+            const cell = tileRow.get(index);
             if (cell) {
               if (lastSpaceWasEmpty) {
                 lastSpaceWasEmpty = false;
               }
               return cell;
             }
-
             let result = " ";
             if (lastSpaceWasEmpty) {
               result = "";
@@ -63,7 +64,7 @@ export const performPlacement = (state, placement, dictionary) => {
           .trim()
           .split(" ");
         rowWords.forEach((rowWord) => {
-          if (!dictionary.isAWord(rowWord)) {
+          if (rowWord.length > 1 && !dictionary.isAWord(rowWord)) {
             error = true;
           }
         });
@@ -72,7 +73,6 @@ export const performPlacement = (state, placement, dictionary) => {
         }
         trayClone = trayClone.replace(letter, "");
       }
-      tileRow.set(newCol, letter);
     });
   } else {
     const tileRow = boardClone.get(newRow);

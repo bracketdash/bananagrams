@@ -17,7 +17,7 @@ class Solver {
     const tray = boardState.getTray();
     const segments = boardState.getSegments();
     const possiblePlacements = this.dictionary.getPossiblePlacements(tray, blacklist, segments);
-    
+
     possiblePlacements.forEach((possiblePlacement) => {
       const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
       if (stateAfterPlacement) {
@@ -26,25 +26,13 @@ class Solver {
     });
     return possibleNextStates;
   }
-  
+
   onReady(callback) {
     this.readyCallback = callback;
   }
-  
+
   onUpdate(callback) {
     this.updateCallback = callback;
-  }
-
-  update(message, boardState) {
-    const config = { message };
-    if (boardState) {
-      config.tray = boardState.getTray();
-      config.board = boardState.getBoard();
-    } else {
-      config.tray = "";
-      config.board = [[]];
-    }
-    this.updateCallback(config);
   }
 
   solve(tray, blacklist) {
@@ -126,6 +114,18 @@ class Solver {
         this.tryBoardState(running, splitKey.join(":"));
       });
     }
+  }
+
+  update(message, boardState) {
+    const config = { message };
+    if (boardState) {
+      config.tray = boardState.getTray();
+      config.board = boardState.getBoard();
+    } else {
+      config.tray = "";
+      config.board = [[" "]];
+    }
+    this.updateCallback(config);
   }
 }
 

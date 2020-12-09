@@ -8,23 +8,23 @@ class State {
   }
 
   getBoard() {
-    const numRows = this.board.size ? Math.max(...this.board.keys()) : 0;
-    let numColumns = 0;
-    return [...Array(numRows).keys()].map((_, rowIndex) => {
-      const row = this.board.get(rowIndex + 1);
-      if (row) {
-        const rowColumns = Math.max(numColumns, ...row.keys());
-        if (rowColumns > numColumns) {
-          numColumns = rowColumns;
-        }
-        const columns = Array(numColumns).fill(" ");
-        row.forEach((col, colIndex) => {
-          columns[colIndex - 1] = col;
-        });
-        return columns;
-      } else {
-        return Array(numColumns).fill(" ");
+    const numRows = this.board.size ? Math.max(...this.board.keys()) + 1 : 1;
+    let numColumns = 1;
+    this.board.forEach((rowCols) => {
+      const rowNumCols = Math.max(...rowCols.keys()) + 1;
+      if (rowNumCols > numColumns) {
+        numColumns = rowNumCols;
       }
+    });
+    return [...Array(numRows).keys()].map((rowIndex) => {
+      const row = this.board.get(rowIndex);
+      const columns = Array(numColumns).fill(" ");
+      if (row) {
+        row.forEach((col, colIndex) => {
+          columns[colIndex] = col;
+        });
+      }
+      return columns;
     });
   }
 

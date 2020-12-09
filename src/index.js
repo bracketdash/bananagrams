@@ -7,7 +7,7 @@ const solver = createSolver();
 
 const App = () => {
   const [blacklist, setBlacklist] = useState("");
-  const [board, setBoard] = useState([[]]);
+  const [board, setBoard] = useState([[" "]]);
   const [letters, setLetters] = useState("");
   const [message, setMessage] = useState("Loading...");
   const [ready, setReady] = useState(false);
