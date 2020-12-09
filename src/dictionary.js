@@ -127,9 +127,8 @@ class Dictionary {
 
   getWordsFromTray(tray) {
     const words = new Set();
-    const crawl = (index, pref) => {
+    const loop = (index, pref) => {
       let node = this.trie.nodes.get(index);
-
       if (node[0] === "!") {
         if (this.canBeMadeFromTray(tray, pref)) {
           words.add(pref);
@@ -150,10 +149,10 @@ class Dictionary {
           }
           continue;
         }
-        crawl(this.indexFromRef(ref, index), have);
+        loop(this.indexFromRef(ref, index), have);
       }
     };
-    crawl(0, "");
+    loop(0, "");
     return words;
   }
 
@@ -165,13 +164,37 @@ class Dictionary {
     return index + dnode + 1 - this.trie.symCount;
   }
   
-  isAWord(str) {
-    // TODO: isAWord() does not work as-is
-    const chars = str.split("");
-    // TODO: this is not how to traverse the new trie
-    const loop = (trie, key) => !!trie && (key.length > 1 ? this.has(trie.get(key[0]), key.slice(1)) : trie.has(key));
-    chars.push("_");
-    return loop(this.trie, chars);
+  isAWord(possibleWord) {
+    let isAWord = false;
+    const loop = (index, pref) => {
+      let node = this.trie.nodes.get(index);
+      if (node[0] === "!") {
+        if (pref === possibleWord) {
+          isAWord = true;
+          return;
+        }
+        node = node.slice(1);
+      }
+      const matches = node.split(/([A-Z0-9,]+)/g);
+      for (let i = 0; i < matches.length; i += 2) {
+        const str = matches[i];
+        if (!str) {
+          continue;
+        }
+        const ref = matches[i + 1];
+        const have = pref + str;
+        if (ref === "," || ref === undefined) {
+          if (have === possibleWord) {
+            isAWord = true;
+            return;
+          }
+          continue;
+        }
+        loop(this.indexFromRef(ref, index), have);
+      }
+    };
+    loop(0, "");
+    return isAWord;
   }
 
   onReady(callback) {
