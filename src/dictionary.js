@@ -9,6 +9,7 @@ class Dictionary {
   }
 
   canBeMadeFromTray(tray, word) {
+    // TODO: this will be called the highest number of times during a solve - make sure it's fast
     let can = true;
     let temp = tray;
     word.split("").forEach((letter) => {
