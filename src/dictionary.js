@@ -74,9 +74,9 @@ class Dictionary {
     return n;
   }
 
-  getPossiblePlacements(tray, segments) {
+  getPossiblePlacements(tray, blacklist, segments) {
     const placements = new Set();
-    this.getWordsFromTray(tray).forEach((word) => {
+    this.getWordsFromTray(tray, blacklist).forEach((word) => {
       if (!segments.size) {
         placements.add({
           row: 0,
@@ -125,10 +125,10 @@ class Dictionary {
     return placements;
   }
 
-  getWordsFromTray(tray) {
+  getWordsFromTray(tray, blacklist) {
     const words = new Set();
     this.traverse((word) => {
-      if (this.canBeMadeFromTray(tray, word)) {
+      if (this.canBeMadeFromTray(tray, word) && !blacklist.includes(word)) {
         words.add(word);
       }
       return true;
