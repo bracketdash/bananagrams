@@ -25,7 +25,7 @@ class Dictionary {
     const placements = new Set();
     this.trie.traverse({
       onFullWord: (word) => {
-        if (!this.canBeMadeFromTray(tray, word) || blacklist.includes(word)) {
+        if (!this.canBeMadeFromTray(tray, word) || blacklist.has(word)) {
           return;
         }
         if (!segments.size) {
