@@ -123,7 +123,9 @@ class Solver {
       const splitKey = key.split(":");
       const lastIndex = splitKey.length - 1;
       splitKey[lastIndex] = parseInt(splitKey[lastIndex]) + 1;
-      this.tryBoardState(running, splitKey.join(":"));
+      setTimeout(() => {
+        this.tryBoardState(running, splitKey.join(":"));
+      });
     }
   }
 }
