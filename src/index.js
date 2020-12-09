@@ -9,7 +9,7 @@ const App = () => {
   const [blacklist, setBlacklist] = useState("");
   const [board, setBoard] = useState([[]]);
   const [letters, setLetters] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState("Loading...");
   const [ready, setReady] = useState(false);
   const [tray, setTray] = useState("");
 
