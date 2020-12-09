@@ -52,43 +52,31 @@ class Trie {
           syms.set(m[1], fromAlphaCode(m[2]));
           return false;
         });
-        nodesArr.slice(symCount).forEach((node, index) => {
-          this.nodes.set(index, node);
-          // TODO: node => { full: true, matches: new Set([{ str, full, next }, ..]) }
-          /*
-          Old loop:
-          
-          const loop = (index, pref) => {
-            if (pref && !prefixGate(pref)) {
-              return;
-            }
-            let node = this.nodes.get(index);
-            if (node[0] === "!") {
-              onFullWord(pref);
-              node = node.slice(1);
-            }
-            const matches = node.split(/([A-Z0-9,]+)/g);
-            let i = 0;
-            while (i < matches.length) {
-              const str = matches[i];
-              if (!str) {
-                continue;
-              }
-              const ref = matches[i + 1];
-              const have = pref + str;
-              if (ref === "," || ref === undefined) {
-                onFullWord(have);
-                continue;
-              }
-              if (this.syms.has(ref)) {
-                loop(this.syms.get(ref), have);
-              } else {
-                loop((index + fromAlphaCode(ref) + 1 - this.symCount), have);
-              }
-              i += 2;
-            }
+        nodesArr.slice(symCount).forEach((nodeStr, index) => {
+          const node = {
+            matches: new Set(),
           };
-          */
+          if (nodeStr[0] === "!") {
+            node.full = true;
+            nodeStr = nodeStr.slice(1);
+          }
+          const matches = nodeStr.split(/([A-Z0-9,]+)/g);
+          let i = 0;
+          while (i < matches.length) {
+            const str = matches[i];
+            if (!str) {
+              continue;
+            }
+            const ref = matches[i + 1];
+            if (ref === "," || ref === undefined) {
+              node.matches.add({ str, full: true });
+              continue;
+            }
+            const next = syms.has(ref) ? syms.get(ref) : index + fromAlphaCode(ref) + 1 - symCount;
+            node.matches.add({ str, next });
+            i += 2;
+          }
+          this.nodes.set(index, node);
         });
         resolve();
       });
