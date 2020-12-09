@@ -69,21 +69,21 @@ class Trie {
         node = node.slice(1);
       }
       const matches = node.split(/([A-Z0-9,]+)/g);
-      for (let i = 0; i < matches.length; i += 2) {
+      let i = 0;
+      while (i < matches.length) {
         const str = matches[i];
         if (!str) {
-          return;
+          continue;
         }
         const ref = matches[i + 1];
         const have = pref + str;
         if (ref === "," || ref === undefined) {
-          if (!onFullWord(have)) {
-            return;
-          }
-          return;
+          onFullWord(have);
+          continue;
         }
         const dnode = this.fromAlphaCode(ref);
         loop((dnode < this.symCount ? this.syms.get(dnode) : index + dnode + 1 - this.symCount), have);
+        i += 2;
       }
     };
     loop(0, "");
