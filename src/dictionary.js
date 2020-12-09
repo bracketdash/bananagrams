@@ -1,35 +1,9 @@
-import wordsTxt from "./assets/words.txt";
-
-// TODO: move all the trie methods into its own file that export a createTrie method
+import { createTrie } from "./trie";
 
 class Dictionary {
   constructor() {
-    this.trie = {};
-    fetch(wordsTxt.slice(1)).then(async (response) => {
-      const wordsStr = await response.text();
-      const nodesArr = wordsStr.split(";");
-      const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
-      const syms = new Map();
-      let symCount = 0;
-
-      nodesArr.some((node, index) => {
-        const m = pattern.exec(node);
-        if (!m) {
-          symCount = index;
-          return true;
-        }
-        syms.set(this.fromAlphaCode(m[1]), this.fromAlphaCode(m[2]));
-        return false;
-      });
-
-      const nodes = new Map(
-        nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
-          return [index, val];
-        })
-      );
-      
-      Object.assign(this.trie, { nodes, syms, symCount });
-
+    this.trie = createTrie();
+    this.trie.downloadAndBuild().then(() => {
       this.readyCallback();
     });
   }
@@ -46,36 +20,7 @@ class Dictionary {
     });
     return can;
   }
-
-  fromAlphaCode(s) {
-    const seq = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (seq.includes(s)) {
-      return seq.indexOf(s);
-    }
-
-    const BASE = 36;
-    let n = 0;
-    let places = 1;
-    let range = BASE;
-    let pow = 1;
-
-    while (places < s.length) {
-      n += range;
-      places++;
-      range *= BASE;
-    }
-
-    for (let i = s.length - 1; i >= 0; i--) {
-      let d = s.charCodeAt(i) - 48;
-      if (d > 10) {
-        d -= 7;
-      }
-      n += d * pow;
-      pow *= BASE;
-    }
-    return n;
-  }
-
+  
   getPossiblePlacements(tray, blacklist, segments) {
     const placements = new Set();
     this.getWordsFromTray(tray, blacklist).forEach((word) => {
@@ -129,7 +74,7 @@ class Dictionary {
 
   getWordsFromTray(tray, blacklist) {
     const words = new Set();
-    this.traverse({
+    this.trie.traverse({
       onFullWord: (word) => {
         if (this.canBeMadeFromTray(tray, word) && !blacklist.includes(word)) {
           words.add(word);
@@ -142,18 +87,10 @@ class Dictionary {
     });
     return words;
   }
-
-  indexFromRef(ref, index) {
-    const dnode = this.fromAlphaCode(ref);
-    if (dnode < this.trie.symCount) {
-      return this.trie.syms.get(dnode);
-    }
-    return index + dnode + 1 - this.trie.symCount;
-  }
   
   isAWord(possibleWord) {
     let isAWord = false;
-    this.traverse({
+    this.trie.traverse({
       onFullWord: (word) => {
         if (word === possibleWord) {
           isAWord = true;
@@ -170,38 +107,6 @@ class Dictionary {
 
   onReady(callback) {
     this.readyCallback = callback;
-  }
-  
-  traverse({ onPrefix, onFullWord }) {
-    const loop = (index, pref) => {
-      if (pref && !onPrefix(pref)) {
-        return;
-      }
-      let node = this.trie.nodes.get(index);
-      if (node[0] === "!") {
-        if (!onFullWord(pref)) {
-          return;
-        }
-        node = node.slice(1);
-      }
-      const matches = node.split(/([A-Z0-9,]+)/g);
-      for (let i = 0; i < matches.length; i += 2) {
-        const str = matches[i];
-        if (!str) {
-          return;
-        }
-        const ref = matches[i + 1];
-        const have = pref + str;
-        if (ref === "," || ref === undefined) {
-          if (!onFullWord(have)) {
-            return;
-          }
-          return;
-        }
-        loop(this.indexFromRef(ref, index), have);
-      }
-    };
-    loop(0, "");
   }
 }
 
