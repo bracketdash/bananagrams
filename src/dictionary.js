@@ -45,31 +45,36 @@ class Dictionary {
           const wordLetters = word.split("");
           [...Array(word.length * 2 + tiles.length - 4).keys()].forEach((index) => {
             const pos = firstPosition + index;
-            const overlap = new Set();
+            const overlap = false;
             let valid = true;
             wordLetters.forEach((letter, letterIndex) => {
-              if (tiles[pos + letterIndex] !== " " && tiles[pos + letterIndex] !== letter) {
-                valid = false;
+              if (!valid) {
+                return;
+              }
+              if (tiles[pos + letterIndex] !== " ") {
+                if (tiles[pos + letterIndex] !== letter) {
+                  valid = false;
+                } else if (!overlap) {
+                  overlap = true;
+                }
               }
             });
-            if (!overlap.size) {
-              valid = false;
+            if (!valid || !overlap) {
+              return;
             }
-            if (valid) {
-              let rowAdd = 0;
-              let colAdd = 0;
-              if (down) {
-                rowAdd = pos;
-              } else {
-                colAdd = pos;
-              }
-              placements.add({
-                row: row + rowAdd,
-                col: col + colAdd,
-                down,
-                word,
-              });
+            let rowAdd = 0;
+            let colAdd = 0;
+            if (down) {
+              rowAdd = pos;
+            } else {
+              colAdd = pos;
             }
+            placements.add({
+              row: row + rowAdd,
+              col: col + colAdd,
+              down,
+              word,
+            });
           });
         });
       },
