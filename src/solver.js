@@ -12,11 +12,11 @@ class Solver {
     });
   }
 
-  getPossibleNextStates(boardState) {
+  getPossibleNextStates(boardState, blacklist) {
     const possibleNextStates = new Set();
     const tray = boardState.getTray();
     const segments = boardState.getSegments();
-    const possiblePlacements = this.dictionary.getPossiblePlacements(tray, segments);
+    const possiblePlacements = this.dictionary.getPossiblePlacements(tray, blacklist, segments);
     
     possiblePlacements.forEach((possiblePlacement) => {
       const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
@@ -49,7 +49,7 @@ class Solver {
 
   solve(tray, blacklist) {
     const emptyBoard = createState(tray);
-    const possibleNextStates = this.getPossibleNextStates(emptyBoard);
+    const possibleNextStates = this.getPossibleNextStates(emptyBoard, blacklist);
     this.boardStates.clear();
     if (possibleNextStates.size) {
       let iteration = 1;
