@@ -26,9 +26,9 @@ class Dictionary {
   getPossiblePlacements(tray, blacklist, segments) {
     const placements = new Set();
     const trayLetterCount = tray.split("").reduce((counts, letter) => {
-      counts[letter] = counts[letter] ? counts[letter] + 1 : 1;
+      counts.set(letter, counts.has(letter) ? counts.get(letter) + 1 : 1);
       return counts;
-    }, {});
+    }, new Map());
     this.trie.traverse({
       onFullWord: (word) => {
         if (!this.canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
