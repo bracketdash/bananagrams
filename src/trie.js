@@ -5,6 +5,11 @@ class Trie {
     this.nodes = new Map();
     this.syms = new Map();
     this.symCount = 0;
+    this.alphaMap = new Map();
+    const firstAlphas = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    firstAlphas.forEach((char, index) => {
+      this.alphaMap.set(char, index);
+    });
   }
   
   downloadAndBuild() {
@@ -19,7 +24,7 @@ class Trie {
             this.symCount = index;
             return true;
           }
-          this.syms.set(this.fromAlphaCode(m[1]), this.fromAlphaCode(m[2]));
+          this.syms.set(m[1], this.fromAlphaCode(m[2]));
           return false;
         });
         nodesArr.slice(this.symCount, nodesArr.length).forEach((val, index) => {
@@ -31,9 +36,8 @@ class Trie {
   }
 
   fromAlphaCode(s) {
-    const seq = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (seq.includes(s)) {
-      return seq.indexOf(s);
+    if (this.alphaMap.has(s)) {
+      return this.alphaMap.get(s);
     }
     const BASE = 36;
     let n = 0;
@@ -53,6 +57,7 @@ class Trie {
       n += d * pow;
       pow *= BASE;
     }
+    this.alphaMap.set(s, n);
     return n;
   }
   
@@ -79,8 +84,11 @@ class Trie {
           onFullWord(have);
           continue;
         }
-        const dnode = this.fromAlphaCode(ref);
-        loop((dnode < this.symCount ? this.syms.get(dnode) : index + dnode + 1 - this.symCount), have);
+        if (this.syms.has(ref)) {
+          loop(this.syms.get(ref), have);
+        } else {
+          loop((index + this.fromAlphaCode(ref) + 1 - this.symCount), have);
+        }
         i += 2;
       }
     };
