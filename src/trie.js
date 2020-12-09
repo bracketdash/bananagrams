@@ -15,6 +15,9 @@ class Trie {
   downloadAndBuild() {
     return new Promise((resolve, _) => {
       fetch(wordsTxt.slice(1)).then(async (response) => {
+        
+        // TODO: preprocess nodes more here
+        
         const wordsStr = await response.text();
         const nodesArr = wordsStr.split(";");
         const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
@@ -62,6 +65,29 @@ class Trie {
   }
   
   traverse({ onFullWord, prefixGate }) {
+    // TODO: new loop below
+    const newloop = (index, pref) => {
+      if (pref && !prefixGate(pref)) {
+        return;
+      }
+      let node = this.nodes.get(index);
+      if (node.has("!")) {
+        onFullWord(pref);
+      }
+      node.matchPairs.forEach(({ str, full, nextIndex }) => {
+        if (!str) {
+          return;
+        }
+        const have = pref + str;
+        if (full) {
+          onFullWord(have);
+          return;
+        }
+        loop(nextIndex, have);
+      });
+    };
+    
+    // TODO: old loop below
     const loop = (index, pref) => {
       if (pref && !prefixGate(pref)) {
         return;
