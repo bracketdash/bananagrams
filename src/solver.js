@@ -48,8 +48,9 @@ class Solver {
   }
 
   solve(tray, blacklist) {
+    const blacklistSet = new Set(blacklist.split(",").map((w) => w.trim()));
     const emptyBoard = createState(tray);
-    const possibleNextStates = this.getPossibleNextStates(emptyBoard, new Set(blacklist.split(",")));
+    const possibleNextStates = this.getPossibleNextStates(emptyBoard, blacklistSet);
     this.boardStates.clear();
     if (possibleNextStates.size) {
       let iteration = 1;
@@ -71,14 +72,14 @@ class Solver {
         return;
       }
       this.running = Symbol();
-      this.tryBoardState(this.running, "1");
+      this.tryBoardState(this.running, "1", blacklistSet);
     } else {
       this.running = false;
       this.update("No solutions possible!", emptyBoard);
     }
   }
 
-  tryBoardState(running, key) {
+  tryBoardState(running, key, blacklist) {
     if (this.running !== false && this.running !== running) {
       return;
     }
@@ -97,7 +98,7 @@ class Solver {
     }
     const boardState = this.boardStates.get(key);
     this.update("", boardState);
-    const possibleNextStates = this.getPossibleNextStates(boardState);
+    const possibleNextStates = this.getPossibleNextStates(boardState, blacklist);
     boardState.setPossibleNextStates(possibleNextStates);
     if (possibleNextStates.size) {
       let iteration = 1;
