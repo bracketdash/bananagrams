@@ -26,8 +26,6 @@ class Dictionary {
         })
       );
       
-      // TODO: convert `nodes` to map of maps? research to see if this would speed up `this.traverse`
-
       Object.assign(this.trie, { nodes, syms, symCount });
 
       this.readyCallback();
@@ -129,11 +127,16 @@ class Dictionary {
 
   getWordsFromTray(tray, blacklist) {
     const words = new Set();
-    this.traverse((word) => {
-      if (this.canBeMadeFromTray(tray, word) && !blacklist.includes(word)) {
-        words.add(word);
+    this.traverse({
+      onFullWord: (word) => {
+        if (this.canBeMadeFromTray(tray, word) && !blacklist.includes(word)) {
+          words.add(word);
+        }
+        return true;
+      },
+      onPrefix: (prefix) => {
+        // TODO: make sure we aren't crawling branches we don't have to
       }
-      return true;
     });
     return words;
   }
@@ -148,12 +151,17 @@ class Dictionary {
   
   isAWord(possibleWord) {
     let isAWord = false;
-    this.traverse((word) => {
-      if (word === possibleWord) {
-        isAWord = true;
-        return false;
+    this.traverse({
+      onFullWord: (word) => {
+        if (word === possibleWord) {
+          isAWord = true;
+          return false;
+        }
+        return true;
+      },
+      onPrefix: (prefix) => {
+        // TODO: make sure we aren't crawling branches we don't have to
       }
-      return true;
     });
     return isAWord;
   }
@@ -162,8 +170,11 @@ class Dictionary {
     this.readyCallback = callback;
   }
   
-  traverse(onFullWord) {
+  traverse({ onPrefix, onFullWord }) {
     const loop = (index, pref) => {
+      if (pref && !onPrefix(pref)) {
+        return;
+      }
       let node = this.trie.nodes.get(index);
       if (node[0] === "!") {
         if (!onFullWord(pref)) {
@@ -175,7 +186,7 @@ class Dictionary {
       for (let i = 0; i < matches.length; i += 2) {
         const str = matches[i];
         if (!str) {
-          continue;
+          return;
         }
         const ref = matches[i + 1];
         const have = pref + str;
@@ -183,7 +194,7 @@ class Dictionary {
           if (!onFullWord(have)) {
             return;
           }
-          continue;
+          return;
         }
         loop(this.indexFromRef(ref, index), have);
       }
