@@ -56,16 +56,14 @@ class Trie {
     return n;
   }
   
-  traverse({ onPrefix, onFullWord }) {
+  traverse({ onFullWord, prefixGate }) {
     const loop = (index, pref) => {
-      if (pref && !onPrefix(pref)) {
+      if (pref && !prefixGate(pref)) {
         return;
       }
       let node = this.nodes.get(index);
       if (node[0] === "!") {
-        if (!onFullWord(pref)) {
-          return;
-        }
+        onFullWord(pref);
         node = node.slice(1);
       }
       const matches = node.split(/([A-Z0-9,]+)/g);
