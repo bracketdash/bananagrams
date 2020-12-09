@@ -1,48 +1,33 @@
 import wordsTxt from "./assets/words.txt";
 
-class Dictionary {
+class Trie {
   constructor() {
-    this.trie = {};
-    fetch(wordsTxt.slice(1)).then(async (response) => {
-      const wordsStr = await response.text();
-      const nodesArr = wordsStr.split(";");
-      const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
-      const syms = new Map();
-      let symCount = 0;
-
-      nodesArr.some((node, index) => {
-        const m = pattern.exec(node);
-        if (!m) {
-          symCount = index;
-          return true;
-        }
-        syms.set(this.fromAlphaCode(m[1]), this.fromAlphaCode(m[2]));
-        return false;
-      });
-
-      const nodes = new Map(
-        nodesArr.slice(symCount, nodesArr.length).map((val, index) => {
-          return [index, val];
-        })
-      );
-      
-      Object.assign(this.trie, { nodes, syms, symCount });
-
-      this.readyCallback();
-    });
+    this.nodes = new Map();
+    this.syms = new Map();
+    this.symCount = 0;
   }
-
-  canBeMadeFromTray(tray, word) {
-    let can = true;
-    let temp = tray;
-    word.split("").forEach((letter) => {
-      if (temp.includes(letter)) {
-        temp = temp.replace(letter, "");
-      } else {
-        can = false;
-      }
+  
+  downloadAndBuild() {
+    return new Promise((resolve, _) => {
+      fetch(wordsTxt.slice(1)).then(async (response) => {
+        const wordsStr = await response.text();
+        const nodesArr = wordsStr.split(";");
+        const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
+        nodesArr.some((node, index) => {
+          const m = pattern.exec(node);
+          if (!m) {
+            this.symCount = index;
+            return true;
+          }
+          this.syms.set(this.fromAlphaCode(m[1]), this.fromAlphaCode(m[2]));
+          return false;
+        });
+        nodesArr.slice(this.symCount, nodesArr.length).forEach((val, index) => {
+          this.nodes.set(index, val);
+        });
+        resolve();
+      });
     });
-    return can;
   }
 
   fromAlphaCode(s) {
@@ -73,101 +58,13 @@ class Dictionary {
     }
     return n;
   }
-
-  getPossiblePlacements(tray, blacklist, segments) {
-    const placements = new Set();
-    this.getWordsFromTray(tray, blacklist).forEach((word) => {
-      if (!segments.size) {
-        placements.add({
-          row: 0,
-          col: 0,
-          down: true,
-          word,
-        });
-        return;
-      }
-      segments.forEach(({ row, col, down, tiles, patterns }) => {
-        if (!patterns.test(word)) {
-          return;
-        }
-        const firstPosition = -(word.length - 1);
-        const wordLetters = word.split("");
-        [...Array(word.length * 2 + tiles.length - 4).keys()].forEach((index) => {
-          const pos = firstPosition + index;
-          const overlap = new Set();
-          let valid = true;
-          wordLetters.forEach((letter, letterIndex) => {
-            if (tiles[pos + letterIndex] !== " " && tiles[pos + letterIndex] !== letter) {
-              valid = false;
-            }
-          });
-          if (!overlap.size) {
-            valid = false;
-          }
-          if (valid) {
-            let rowAdd = 0;
-            let colAdd = 0;
-            if (down) {
-              rowAdd = pos;
-            } else {
-              colAdd = pos;
-            }
-            placements.add({
-              row: row + rowAdd,
-              col: col + colAdd,
-              down,
-              word,
-            });
-          }
-        });
-      });
-    });
-    return placements;
-  }
-
-  getWordsFromTray(tray, blacklist) {
-    const words = new Set();
-    this.traverse({
-      onFullWord: (word) => {
-        if (this.canBeMadeFromTray(tray, word) && !blacklist.includes(word)) {
-          words.add(word);
-        }
-        return true;
-      },
-      onPrefix: (prefix) => {
-        // TODO: make sure we aren't crawling branches we don't have to
-      }
-    });
-    return words;
-  }
-
+  
   indexFromRef(ref, index) {
     const dnode = this.fromAlphaCode(ref);
-    if (dnode < this.trie.symCount) {
-      return this.trie.syms.get(dnode);
+    if (dnode < this.symCount) {
+      return this.syms.get(dnode);
     }
-    return index + dnode + 1 - this.trie.symCount;
-  }
-  
-  isAWord(possibleWord) {
-    let isAWord = false;
-    this.traverse({
-      onFullWord: (word) => {
-        if (word === possibleWord) {
-          isAWord = true;
-          return false;
-        }
-        return true;
-      },
-      onPrefix: (prefix) => {
-        // TODO: make sure we aren't crawling branches we don't have to
-      }
-    });
-    return isAWord;
-  }
-
-  onReady(callback) {
-    this.readyCallback = callback;
+    return index + dnode + 1 - this.symCount;
   }
   
   traverse({ onPrefix, onFullWord }) {
@@ -175,7 +72,7 @@ class Dictionary {
       if (pref && !onPrefix(pref)) {
         return;
       }
-      let node = this.trie.nodes.get(index);
+      let node = this.nodes.get(index);
       if (node[0] === "!") {
         if (!onFullWord(pref)) {
           return;
@@ -203,4 +100,4 @@ class Dictionary {
   }
 }
 
-export const createDictionary = () => new Dictionary();
+export const createTrie = () => new Trie();
