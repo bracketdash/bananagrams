@@ -3,22 +3,28 @@ import { createState } from "./state";
 
 /*
 
+STARTING A NEW BRANCH - `fast2` - Dec 10 2020 3:46pm
+
+Switch to TypeScript for this lil guy - we can have interfaces instead of full classes for some of these
+
 Slight refactor...
 
-Solver()
-  Creator: (root)
-  Methods:
-    onReady(readyFn)
-    onUpdate(updateFn)
-    solve(tray, blacklist)
+index.js:
+const solver = new Solver();
+inside App():
+  solver.onUpdate(updateFn);
+  on user interaction:
+    solver.solve(tray, blacklist);
 
-Trie()
-  Creator: Solver (constructor)
-  Methods:
-    init() => Promise (ready)
-    crawl(index, pref, matchIndex) => String (word)
+Solver.constructor:
+this.trie = new Trie();
+this.trie.init() => Promise (ready: Boolean) -- downloads and builds the trie
+this.trie.step(
+  index, pref, matchIndex, // position info
+  function(str: String, isFullWord: Boolean, nextPosition: Position): Boolean
+);
 
-Solve(solver, tray, blacklist)
+Solve(solver: Solver, tray: String, blacklist: String)
   Creator: Solver.solve
   Methods:
     start() => Number (solveStart)
@@ -63,8 +69,6 @@ Placement
 WordList
   Creator: Solve (internal)
   Methods:
-    TODO
-  Props:
     TODO
 
 */
