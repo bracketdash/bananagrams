@@ -33,12 +33,14 @@ class Dictionary {
     this.trie.traverse({
       onFullWord: (word) => {
         /* TODO
-         * There is a flaw in `canBeMadeFromTray`
-         * It needs to allow for letters that are on the board
-         * We need to rearrange this part of the process so that we get word combos for each segment
-         * And even then, we need to account for words that may only "attach" to a subset of the tiles in a segment
-         * We can repurpose the current `canBeMadeFromTray` to be a generic `canBeMadeFrom(letterCounts, word)`
-         * And now that I'm thinking of it, we should cache that function the same way we do `fromAlphaCode` in trie.js
+         * Can't just use `canBeMadeFromTray` here; It'd need to allow for letters words would intersect on the board
+         * Need to rearrange things so we get words for each segment instead of for the tray
+         * We also need to account for words that may only intersect a subset of the tiles in a row/column
+         * Maybe repurpose the current `canBeMadeFromTray` to be a generic `canBeMadeFrom(letterCounts, word)`
+         * If that's the best route, cache that function the same way we do `fromAlphaCode` in trie.js
+         * Should also break segments up, one pattern per segment
+         *  > Simplifies logic and allows us to prevent more unnecessary processing
+         * Should revisit our async/await/promise chains as well..
          */
         if (!canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
           console.log(`REJECTED: ${word}`);
