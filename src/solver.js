@@ -5,61 +5,78 @@ import { createState } from "./state";
 
 Slight refactor...
 
-Files:
-- index.js
-- utilities.js
-- (1 for each class below)
-- assets/*
-
-CLASSES
-
 Solver
-  Instantiated in: (root)
-  Public methods:
-    solve
-    onReady
-    onUpdate
-  Props on this: TODO
+  Creator: (root)
+  Methods:
+    onReady(fn)
+    onUpdate(fn)
+    solve(tray, blacklist)
+  Props:
+    trie (Trie)
+
 Trie
-  Instantiated in: Solver.constructor()
-  Public methods:
-    init() => Promise()
-    getNextWord(index, pref) => word
-  Props on this: TODO
+  Creator: Solver (constructor)
+  Methods:
+    init() => Promise (ready)
+    getNextWord(index, pref) => String (word)
+  Props:
+    TODO
+
 Solve
-  (a solve instance, will return a solve instance ID we can assign to `this.running`, or rename to `this.solveId`)
-  Instantiated in: Solver.solve()
-  Public methods:
-    init() => solveId
-  Props on this: TODO
+  Creator: Solver.solve
+  Methods:
+    init() => String (solveId)
+  Props:
+    TODO
+
 Tray
-  Instantiated in: Solve.constructor()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: Solve.constructor()
+  Methods:
+    TODO
+  Props:
+    TODO
+
 Blacklist
-  Instantiated in: Solve.constructor()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: Solve.constructor()
+  Methods:
+    TODO
+  Props:
+    TODO
+
 Segment
-  Instantiated in: Solve.solve()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: Solve.solve()
+  Methods:
+    TODO
+  Props:
+    TODO
+
 State
-  Instantiated in: Solve.solve()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: Solve.solve()
+  Methods:
+    TODO
+  Props:
+    TODO
+
 Board
-  Instantiated in: State.constructor()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: State.constructor()
+  Methods:
+    TODO
+  Props:
+    TODO
+
 Placement
-  Instantiated in: Solve.solve()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: Solve.solve()
+  Methods:
+    TODO
+  Props:
+    TODO
+
 WordList
-  Instantiated in: Solve.solve()
-  Public methods: TODO
-  Props on this: TODO
+  Creator: Solve.solve()
+  Methods:
+    TODO
+  Props:
+    TODO
 
 */
 
