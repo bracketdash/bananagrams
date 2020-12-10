@@ -5,74 +5,63 @@ import { createState } from "./state";
 
 Slight refactor...
 
-Solver
+Solver()
   Creator: (root)
   Methods:
-    onReady(fn)
-    onUpdate(fn)
+    onReady(readyFn)
+    onUpdate(updateFn)
     solve(tray, blacklist)
-  Props:
-    trie (Trie)
 
-Trie
+Trie()
   Creator: Solver (constructor)
   Methods:
     init() => Promise (ready)
-    getNextWord(index, pref) => String (word)
-  Props:
-    TODO
+    crawl(index, pref, matchIndex) => String (word)
 
-Solve
+Solve(solver, tray, blacklist)
   Creator: Solver.solve
   Methods:
-    init() => String (solveId)
-  Props:
-    TODO
+    start() => Number (solveStart)
+    getBlacklist() => Blacklist (blacklist)
+    getTray() => Tray (tray)
 
-Tray
-  Creator: Solve.constructor()
+Tray(tray)
+  Creator: Solve (constructor)
   Methods:
-    TODO
-  Props:
-    TODO
+    getAsArray() => String[] (trayAsArray)
+    getAsString() => String (trayAsString)
+    getLetterCounts() => Map (trayLetterCounts)
+    getNext(tilesToRemove) => Tray (nextTray)
 
-Blacklist
-  Creator: Solve.constructor()
+Blacklist(blacklist)
+  Creator: Solve (constructor)
   Methods:
-    TODO
-  Props:
-    TODO
+    allowsWord(word) => Boolean (blacklistAllowsWord)
 
-Segment
-  Creator: Solve.solve()
+State(solve[, config])
+  Creator: Solve (internal)
   Methods:
-    TODO
-  Props:
-    TODO
-
-State
-  Creator: Solve.solve()
-  Methods:
-    TODO
-  Props:
-    TODO
-
+    getBoard() => Board (board)
+    getNext(placement) => State (nextState)
+    
 Board
-  Creator: State.constructor()
+  Creator: State (constructor)
   Methods:
-    TODO
-  Props:
-    TODO
+    get() => Board (board)
+    getNext(placement) => Board (nextBoard)
+
+Segment(board[, config])
+  Creator: Board.getNextSegment()
+  Methods:
+    getNext() => Segment (nextSegment)
 
 Placement
-  Creator: Solve.solve()
+  Creator: Solve (internal)
   Methods:
-    TODO
-  Props:
-    TODO
+    getNext() => Placement (nextPlacement)
 
 WordList
-  Creator: Solve.solve()
+  Creator: Solve (internal)
   Methods:
     TODO
   Props:
