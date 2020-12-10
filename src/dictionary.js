@@ -1,5 +1,14 @@
 import { createTrie } from "./trie";
 
+/*
+TODO
+Can't just use `canBeMadeFromTray` how we're using it now
+We need to allow for letters words would intersect on the board
+Rearrange things so we get words for each segment instead of for the tray
+Maybe repurpose the current `canBeMadeFromTray` to be a generic `canBeMadeFrom`
+If that's the best route, cache that function the same way we do `fromAlphaCode` in trie.js
+*/
+
 const canBeMadeFromTray = (trayLetterCount, word) => {
   let remainder = word;
   while (remainder.length > 0) {
@@ -25,28 +34,18 @@ class Dictionary {
   }
   
   getPossiblePlacements(tray, blacklist, segments) {
+    // TODO: convert to a function that provides one possible placement at a time
     const placements = new Set();
     const trayLetterCount = tray.split("").reduce((counts, letter) => {
       counts.set(letter, counts.has(letter) ? counts.get(letter) + 1 : 1);
       return counts;
     }, new Map());
+    // TODO: update this so we can get one word at a time
     this.trie.traverse({
       onFullWord: (word) => {
-        /* TODO
-         * Can't just use `canBeMadeFromTray` here; It'd need to allow for letters words would intersect on the board
-         * Need to rearrange things so we get words for each segment instead of for the tray
-         * We also need to account for words that may only intersect a subset of the tiles in a row/column
-         * Maybe repurpose the current `canBeMadeFromTray` to be a generic `canBeMadeFrom(letterCounts, word)`
-         * If that's the best route, cache that function the same way we do `fromAlphaCode` in trie.js
-         * Should also break segments up, one pattern per segment
-         *  > Simplifies logic and allows us to prevent more unnecessary processing
-         * Should revisit our async/await/promise chains as well..
-         */
         if (!canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
-          console.log(`REJECTED: ${word}`);
           return;
         }
-        console.log(`ACCEPTED: ${word}`);
         if (!segments.size) {
           placements.add({
             row: 0,

@@ -89,6 +89,7 @@ class State {
   async getSegments() {
     const columns = new Map();
     const segments = new Set();
+    // TODO: break segments up, one pattern per segment
     await Promise.all([...this.board].map(async ([row, rowCols]) => {
       rowCols.forEach((col, colKey) => {
         if (!columns.has(colKey)) {
