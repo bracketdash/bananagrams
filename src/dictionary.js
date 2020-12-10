@@ -37,6 +37,8 @@ class Dictionary {
          * It needs to allow for letters that are on the board
          * We need to rearrange this part of the process so that we get word combos for each segment
          * And even then, we need to account for words that may only "attach" to a subset of the tiles in a segment
+         * We can repurpose the current `canBeMadeFromTray` to be a generic `canBeMadeFrom(letterCounts, word)`
+         * And now that I'm thinking of it, we should cache that function the same way we do `fromAlphaCode` in trie.js
          */
         if (!canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
           console.log(`REJECTED: ${word}`);
