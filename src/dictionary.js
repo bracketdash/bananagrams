@@ -32,9 +32,17 @@ class Dictionary {
     }, new Map());
     this.trie.traverse({
       onFullWord: (word) => {
+        /* TODO
+         * There is a flaw in `canBeMadeFromTray`
+         * It needs to allow for letters that are on the board
+         * We need to rearrange this part of the process so that we get word combos for each segment
+         * And even then, we need to account for words that may only "attach" to a subset of the tiles in a segment
+         */
         if (!canBeMadeFromTray(trayLetterCount, word) || blacklist.has(word)) {
+          console.log(`REJECTED: ${word}`);
           return;
         }
+        console.log(`ACCEPTED: ${word}`);
         if (!segments.size) {
           placements.add({
             row: 0,

@@ -17,7 +17,6 @@ class Solver {
     const tray = boardState.getTray();
     const segments = await boardState.getSegments();
     const possiblePlacements = this.dictionary.getPossiblePlacements(tray, blacklist, segments);
-
     possiblePlacements.forEach((possiblePlacement) => {
       const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
       if (stateAfterPlacement) {
@@ -89,7 +88,6 @@ class Solver {
     const boardState = this.boardStates.get(key);
     this.update("", boardState);
     const possibleNextStates = await this.getPossibleNextStates(boardState, blacklist);
-    boardState.setPossibleNextStates(possibleNextStates);
     if (possibleNextStates.size) {
       let iteration = 1;
       let solution = false;

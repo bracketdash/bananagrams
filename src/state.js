@@ -96,10 +96,10 @@ class State {
         }
         columns.get(colKey).set(row, col);
       });
-      const tiles = [...Array(Math.max(...rowCols.keys())).keys()]
+      const tiles = [...Array(Math.max(...rowCols.keys()) + 1).keys()]
         .map((index) => {
-          if (rowCols.has(index + 1)) {
-            return rowCols.get(index + 1);
+          if (rowCols.has(index)) {
+            return rowCols.get(index);
           } else {
             return " ";
           }
@@ -111,10 +111,10 @@ class State {
       }
     }));
     await Promise.all([...columns].map(async ([col, colRows]) => {
-      const tiles = [...Array(Math.max(...colRows.keys())).keys()]
+      const tiles = [...Array(Math.max(...colRows.keys()) + 1).keys()]
         .map((_, index) => {
-          if (colRows.has(index + 1)) {
-            return colRows.get(index + 1);
+          if (colRows.has(index)) {
+            return colRows.get(index);
           } else {
             return " ";
           }
