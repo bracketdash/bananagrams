@@ -12,10 +12,10 @@ class Solver {
     });
   }
 
-  getPossibleNextStates(boardState, blacklist) {
+  async getPossibleNextStates(boardState, blacklist) {
     const possibleNextStates = new Set();
     const tray = boardState.getTray();
-    const segments = boardState.getSegments();
+    const segments = await boardState.getSegments();
     const possiblePlacements = this.dictionary.getPossiblePlacements(tray, blacklist, segments);
 
     possiblePlacements.forEach((possiblePlacement) => {
@@ -35,10 +35,10 @@ class Solver {
     this.updateCallback = callback;
   }
 
-  solve(tray, blacklist) {
+  async solve(tray, blacklist) {
     const blacklistSet = new Set(blacklist.split(",").map((w) => w.trim()));
     const emptyBoard = createState(tray);
-    const possibleNextStates = this.getPossibleNextStates(emptyBoard, blacklistSet);
+    const possibleNextStates = await this.getPossibleNextStates(emptyBoard, blacklistSet);
     this.boardStates.clear();
     if (possibleNextStates.size) {
       let iteration = 1;
@@ -67,7 +67,7 @@ class Solver {
     }
   }
 
-  tryBoardState(running, key, blacklist) {
+  async tryBoardState(running, key, blacklist) {
     if (this.running !== false && this.running !== running) {
       return;
     }
@@ -81,12 +81,14 @@ class Solver {
       }
       splitKey[splitKeyLen - 2] = parseInt(splitKey[splitKeyLen - 2]) + 1;
       splitKey[splitKeyLen - 1] = 0;
-      this.tryBoardState(running, splitKey.join(":"));
+      setTimeout(() => {
+        this.tryBoardState(running, splitKey.join(":"));
+      });
       return;
     }
     const boardState = this.boardStates.get(key);
     this.update("", boardState);
-    const possibleNextStates = this.getPossibleNextStates(boardState, blacklist);
+    const possibleNextStates = await this.getPossibleNextStates(boardState, blacklist);
     boardState.setPossibleNextStates(possibleNextStates);
     if (possibleNextStates.size) {
       let iteration = 1;

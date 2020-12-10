@@ -29,6 +29,7 @@ class State {
   }
 
   getPatterns(tiles) {
+    // TODO: this is creating a stack overflow - need to fix
     const fullPattern = `.*${tiles.replace(/\s+/g, (m) => `.{${m.length}}`)}.*`;
     const moddedPatternTest = /[a-z]+[^a-z]+[a-z]+/;
     const loop = (fullPattern, patterns, leftTrim, rightTrim) => {
@@ -79,13 +80,17 @@ class State {
       }
       return loop(fullPattern, patterns, leftTrim, rightTrim + 1);
     };
-    return new RegExp(loop(fullPattern, [fullPattern], 0, 1).join("|"));
+    return new Promise(async (resolve) => {
+      setTimeout(() => {
+        resolve(new RegExp(loop(fullPattern, [fullPattern], 0, 1).join("|")));
+      });
+    });
   }
 
-  getSegments() {
+  async getSegments() {
     const columns = new Map();
     const segments = new Set();
-    this.board.forEach((rowCols, row) => {
+    await Promise.all([...this.board].map(async ([row, rowCols]) => {
       rowCols.forEach((col, colKey) => {
         if (!columns.has(colKey)) {
           columns.set(colKey, new Map());
@@ -101,10 +106,12 @@ class State {
           }
         })
         .join("");
-      const patterns = this.getPatterns(tiles);
-      segments.add({ row, col: 0, down: false, tiles, patterns });
-    });
-    columns.forEach((colRows, col) => {
+      if (tiles) {
+        const patterns = await this.getPatterns(tiles);
+        segments.add({ row, col: 0, down: false, tiles, patterns });
+      }
+    }));
+    await Promise.all([...columns].map(async ([col, colRows]) => {
       const tiles = [...Array(Math.max(...colRows.keys())).keys()]
         .map((_, index) => {
           if (colRows.has(index + 1)) {
@@ -114,9 +121,11 @@ class State {
           }
         })
         .join("");
-      const patterns = this.getPatterns(tiles);
-      segments.add({ row: 0, col, down: true, tiles, patterns });
-    });
+      if (tiles) {
+        const patterns = await this.getPatterns(tiles);
+        segments.add({ row: 0, col, down: true, tiles, patterns });
+      }
+    }));
     return segments;
   }
   
