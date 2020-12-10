@@ -1,7 +1,67 @@
 import { createDictionary } from "./dictionary";
 import { createState } from "./state";
 
-// TODO: Revisit our async/await/promise chains app-wide
+/*
+
+Slight refactor...
+
+Files:
+- index.js
+- utilities.js
+- (1 for each class below)
+- assets/*
+
+CLASSES
+
+Solver
+  Instantiated in: (root)
+  Public methods:
+    solve
+    onReady
+    onUpdate
+  Props on this: TODO
+Trie
+  Instantiated in: Solver.constructor()
+  Public methods:
+    init() => Promise()
+    getNextWord(index, pref) => word
+  Props on this: TODO
+Solve
+  (a solve instance, will return a solve instance ID we can assign to `this.running`, or rename to `this.solveId`)
+  Instantiated in: Solver.solve()
+  Public methods:
+    init() => solveId
+  Props on this: TODO
+Tray
+  Instantiated in: Solve.constructor()
+  Public methods: TODO
+  Props on this: TODO
+Blacklist
+  Instantiated in: Solve.constructor()
+  Public methods: TODO
+  Props on this: TODO
+Segment
+  Instantiated in: Solve.solve()
+  Public methods: TODO
+  Props on this: TODO
+State
+  Instantiated in: Solve.solve()
+  Public methods: TODO
+  Props on this: TODO
+Board
+  Instantiated in: State.constructor()
+  Public methods: TODO
+  Props on this: TODO
+Placement
+  Instantiated in: Solve.solve()
+  Public methods: TODO
+  Props on this: TODO
+WordList
+  Instantiated in: Solve.solve()
+  Public methods: TODO
+  Props on this: TODO
+
+*/
 
 class Solver {
   constructor() {
@@ -18,7 +78,6 @@ class Solver {
     const possibleNextStates = new Set();
     const tray = boardState.getTray();
     const segments = await boardState.getSegments();
-    // TODO: only get the next possible placement instead of all of them at once
     const possiblePlacements = this.dictionary.getPossiblePlacements(tray, blacklist, segments);
     possiblePlacements.forEach((possiblePlacement) => {
       const stateAfterPlacement = boardState.getStateAfterPlacement(possiblePlacement, this.dictionary);
@@ -40,9 +99,6 @@ class Solver {
   async solve(tray, blacklist) {
     const blacklistSet = new Set(blacklist.split(",").map((w) => w.trim()));
     const emptyBoard = createState(tray);
-    // TODO: only get the next state instead of all of them at once
-    // TODO: avoid using an await here so we can make solve() a regular function
-    // TODO: try to make solve() smaller and move most of the logic into `tryBoardState`
     const possibleNextStates = await this.getPossibleNextStates(emptyBoard, blacklistSet);
     this.boardStates.clear();
     if (possibleNextStates.size) {

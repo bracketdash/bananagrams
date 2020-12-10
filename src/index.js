@@ -12,7 +12,6 @@ const App = () => {
   const [message, setMessage] = useState("Loading...");
   const [ready, setReady] = useState(false);
   const [tray, setTray] = useState("");
-
   const updateBlacklistAndSolve = (e) => {
     const newBlacklist = e.target.value.replace(/[^A-Z,]/gi, "").toLowerCase();
     setBlacklist(newBlacklist);
@@ -23,17 +22,14 @@ const App = () => {
     setLetters(newLetters);
     solver.solve(newLetters, blacklist);
   };
-  
   solver.onReady(() => {
     setReady(true);
   });
-
   solver.onUpdate(({ tray, message, board }) => {
     setTray(tray);
     setMessage(message);
     setBoard(board);
   });
-
   return (
     <div>
       <div className="header">
@@ -56,7 +52,9 @@ const App = () => {
           {board.map((row, rowIndex) => (
             <div key={rowIndex} className="row">
               {row.map((cell, cellIndex) => (
-                <div key={cellIndex} className={cell === " " ? "cell empty" : "cell"}>{cell}</div>
+                <div key={cellIndex} className={cell === " " ? "cell empty" : "cell"}>
+                  {cell}
+                </div>
               ))}
             </div>
           ))}
