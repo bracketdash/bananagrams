@@ -29,7 +29,6 @@ class State {
   }
 
   getPatterns(tiles) {
-    // TODO: this is creating a stack overflow - need to fix
     const fullPattern = `.*${tiles.replace(/\s+/g, (m) => `.{${m.length}}`)}.*`;
     const moddedPatternTest = /[a-z]+[^a-z]+[a-z]+/;
     const loop = (fullPattern, patterns, leftTrim, rightTrim) => {
@@ -50,7 +49,7 @@ class State {
           allDone = true;
         }
       });
-      [...Array(leftTrim).keys()].forEach(() => {
+      [...Array(rightTrim).keys()].forEach(() => {
         if (moddedPatternTest.test(moddedPattern)) {
           moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
           moddedPattern = moddedPattern.replace(/\.\{([0-9]*)\}$/, function (_, captured) {
