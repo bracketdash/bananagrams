@@ -3,11 +3,7 @@ import { createState } from "./state";
 
 /*
 
-STARTING A NEW BRANCH - `fast2` - Dec 10 2020 3:46pm
-
 Switch to TypeScript for this lil guy - we can have interfaces instead of full classes for some of these
-
-Slight refactor...
 
 index.js:
 const solver = new Solver();
@@ -66,7 +62,7 @@ Placement
   Methods:
     getNext() => Placement (nextPlacement)
 
-WordList
+Word
   Creator: Solve (internal)
   Methods:
     TODO
