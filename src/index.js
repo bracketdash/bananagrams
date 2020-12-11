@@ -16,12 +16,12 @@ const App = () => {
   const updateBlacklistStr = (event) => {
     const newBlacklistStr = event.target.value.replace(/[^A-Z,]/gi, "").toLowerCase();
     setBlacklistStr(newBlacklistStr);
-    solver.solve(trayStr, newBlacklistStr);
+    solver.solve({ blacklistStr: newBlacklistStr, trayStr });
   };
   const updateTrayStr = (event) => {
     const newTrayStr = event.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
     setTrayStr(newTrayStr);
-    solver.solve(newTrayStr, blacklistStr);
+    solver.solve({ blacklistStr, trayStr: newTrayStr });
   };
   solver.onUpdate((update) =>
     update.keys().forEach((key) =>
