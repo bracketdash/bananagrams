@@ -1,9 +1,9 @@
 class Blacklist {
-  constructor(str) {
-    this.words = new Set(str.split(/\s*,\s*/));
+  constructor(blacklistStr) {
+    this.words = new Set(blacklistStr.split(/\s*,\s*/));
   }
   allows(word) {
     return this.words.has(word);
   }
 }
-export const createBlacklist = (str) => new Blacklist(str);
+export const createBlacklist = (blacklistStr) => new Blacklist(blacklistStr);
