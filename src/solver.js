@@ -3,26 +3,44 @@ import { createSolve } from "./solve";
 import { createTray } from "./tray";
 import { createTrie } from "./trie";
 
-/*
-this.trie = new Trie();
-this.trie.init() => Promise (ready: Boolean) -- downloads and builds the trie
-this.trie.step(
-  index, pref, matchIndex, // position info
-  function(str: String, isFullWord: Boolean, nextPosition: Position): Boolean
-);
-*/
-
 class Solver {
   constructor() {
-    // TODO
+    this.solveStart = 0;
+    this.trie = createTrie();
+    this.trie.init().then(() => {
+      this.updateFn({ ready: true });
+    });
   }
-  onUpdate(callback) {
-    this.updateCallback = callback;
+  handleRawUpdate({ board, message, tray }) {
+    const update = {};
+    if (board) {
+      update.boardArr = board.getArray();
+    }
+    if (message) {
+      update.message = message;
+    }
+    if (tray) {
+      update.remainingTray = tray.getString();
+    }
+    this.updateFn(update);
   }
-  solve(tray, blacklist) {
-    // TODO
+  onUpdate(updateFn) {
+    this.updateFn = updateFn;
   }
-  // TODO
+  solve({ blacklistStr, trayStr }) {
+    const blacklist = createBlacklist(blacklistStr);
+    const tray = createTray(trayStr);
+    const trie = this.trie;
+    const solve = createSolve({ blacklist, tray, trie });
+    this.solveStart = solve.start();
+    solve.onUpdate((rawUpdate, start) => {
+      if (start !== this.solveStart) {
+        return false;
+      }
+      this.handleRawUpdate(rawUpdate);
+      return true;
+    });
+  }
 }
 
 export const createSolver = () => new Solver();
