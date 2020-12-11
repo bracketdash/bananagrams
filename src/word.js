@@ -39,6 +39,10 @@ class Word {
       // TODO: filter based on step.pref (tray + segment letters) -- canBeMadeWith()
       if (step.word && this.blacklist.allows(step.word)) {
         result = step;
+      } else {
+        index = step.index;
+        matchIndex = step.matchIndex;
+        pref = step.pref;
       }
       // TODO: return false if we get to the end of the trie
     }
