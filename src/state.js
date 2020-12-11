@@ -54,6 +54,9 @@ class State {
       tray: this.tray.getNext(placement.getPlacedTiles()),
     });
   }
+  getPlacement() {
+    return this.placement;
+  }
   getPrev() {
     return this.previous;
   }
