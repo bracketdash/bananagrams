@@ -2,13 +2,10 @@ import { createSegment } from "./segment";
 import { createWord } from "./word";
 
 class Placement {
-  constructor({ blacklist, board, segment, tray, trie, word }) {
-    this.blacklist = blacklist;
-    this.board = board;
+  constructor({ segment, word }) {
     this.segment = segment;
-    this.tray = tray;
-    this.trie = trie;
     this.word = word;
+    // TODO
   }
   getNext() {
     // TODO: create the next placement for the current word and segment
@@ -19,26 +16,19 @@ class Placement {
   getPlacedTiles() {
     // TODO: return an array of letters that would be added to the board
   }
-  init() {
-    const { blacklist, board, tray, trie } = this;
-    const segment = createSegment({ board });
-    if (!segment) {
-      return false;
-    }
-    const word = createWord({ blacklist, segment, tray, trie });
-    if (!word) {
-      return false;
-    }
-    this.segment = segment;
-    this.word = word;
-    // TODO: create the first placement
-  }
+  // TODO: methods to support Board.getNext()
 }
 
-export const createPlacement = (config) => {
-  const placement = new Placement(config);
-  if (!placement.init()) {
+export const createPlacement = ({ blacklist, board, tray, trie }) => {
+  const segment = createSegment({ board });
+  if (!segment) {
     return false;
-  } 
-  return placement;
+  }
+  const word = createWord({ blacklist, segment, tray, trie });
+  if (!word) {
+    return false;
+  }
+  this.segment = segment;
+  this.word = word;
+  return new Placement({ segment, word });
 };
