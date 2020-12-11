@@ -28,10 +28,11 @@ class Solver {
     this.updateFn = updateFn;
   }
   solve({ blacklistStr, trayStr }) {
-    const blacklist = createBlacklist(blacklistStr);
-    const tray = createTray(trayStr);
-    const trie = this.trie;
-    const solve = createSolve({ blacklist, tray, trie });
+    const solve = createSolve({
+      blacklist: createBlacklist(blacklistStr),
+      tray: createTray(trayStr),
+      trie: this.trie,
+    });
     this.solveStart = solve.start();
     solve.onUpdate((rawUpdate, start) => {
       if (start !== this.solveStart) {
