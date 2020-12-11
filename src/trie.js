@@ -84,29 +84,26 @@ class Trie {
     });
   }
   step({ index, matches, matchIndex, pref }) {
-    const config = {
-      index,
-      matchIndex: (matchIndex || -1) + 1,
-      pref: pref || "",
-    };
-    if (matches) {
-      config.matches = matches;
-      if (!matches || matchIndex > matches.length - 1) {
-        // TODO
-      }
-      const { str, full, next } = matches[matchIndex];
-      config.index = next;
-      config.pref += str;
-      config.word = full ? pref : false;
-    } else {
-      const { full, matches } = this.nodes.get(index || 0);
+    const config = { index, pref };
+    if (typeof matchIndex !== "undefined") {
+      const { str, full, next } = matches[matchIndex || 0];
+      Object.assign(config, {
+        index: next,
+        matches,
+        pref: pref + str,
+      });
       if (full) {
+        config.word = config.pref;
+      }
+    } else {
+      const node = this.nodes.get(index || 0);
+      if (node.full) {
         config.word = pref;
       }
-      if (matches.length) {
-        config.matches = matches;
+      if (node.matches) {
+        config.matches = node.matches;
       }
-      // TODO
+      // TODO: config.matchIndex
     }
     return config;
   }
