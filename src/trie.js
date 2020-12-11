@@ -83,7 +83,7 @@ class Trie {
       });
     });
   }
-  step(config) {
+  step({ index, pref, prefixGate, onFullWord }) {
     // TODO: rewrite
     if (pref && !prefixGate(pref)) {
       return;
@@ -98,7 +98,7 @@ class Trie {
         onFullWord(have);
         return;
       }
-      loop(next, have);
+      this.step({ index: next, pref: have, prefixGate, onFullWord, onNewPosition });
     });
   }
 }
