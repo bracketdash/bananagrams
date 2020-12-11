@@ -1,14 +1,7 @@
-/*
-State(solve[, config])
-  Creator: Solve (internal)
-  Methods:
-    getBoard() => Board (board)
-    getNext(placement) => State (nextState)
-*/
-
 class State {
-  constructor(config) {
-    // TODO
+  constructor({ board, tray }) {
+    this.board = board;
+    this.tray = tray;
   }
   getNext() {
     // TODO
