@@ -1,14 +1,13 @@
-/*
-Board
-  Creator: State (constructor)
-  Methods:
-    get() => Board (board)
-    getNext(placement) => Board (nextBoard)
-*/
-
 class Board {
-  constructor(config) {
-    // TODO
+  constructor(rows) {
+    this.rows = new Map();
+    rows.forEach((cells, row) => {
+      const cloneCells = new Map();
+      cells.forEach((cell, col) => {
+        cloneCells.set(col, cell);
+      });
+      this.rows.set(row, cloneCells);
+    });
   }
   getNext() {
     // TODO
