@@ -1,4 +1,4 @@
-class State {
+class Segment {
   constructor(config) {
     // TODO
   }
@@ -7,4 +7,4 @@ class State {
   }
   // TODO
 }
-export const createState = (str) => new State(config);
+export const createSegment = (config) => new Segment(config);
