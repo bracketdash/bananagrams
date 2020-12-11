@@ -33,7 +33,6 @@ class Solver {
       tray: createTray(trayStr),
       trie: this.trie,
     });
-    this.solveStart = solve.start();
     solve.onUpdate((rawUpdate, start) => {
       if (start !== this.solveStart) {
         return false;
@@ -41,6 +40,7 @@ class Solver {
       this.handleRawUpdate(rawUpdate);
       return true;
     });
+    this.solveStart = solve.start();
   }
 }
 
