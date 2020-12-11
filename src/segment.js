@@ -1,5 +1,5 @@
 class Segment {
-  constructor(config) {
+  constructor({ board /* , index/bookmark */ }) {
     // TODO
   }
   getNext() {
@@ -7,4 +7,5 @@ class Segment {
   }
   // TODO
 }
+
 export const createSegment = (config) => new Segment(config);
