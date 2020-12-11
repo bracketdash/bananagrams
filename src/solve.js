@@ -1,6 +1,10 @@
 import { createBoard } from "./board";
 import { createState } from "./state";
 
+// Solve is instantiated in: solver.js (Solver.solve)
+// Solve.onUpdate and Solve.start are called in: solver.js (Solver.solve)
+// It crawls through all the possible states and manages updates to the UI
+
 class Solve {
   constructor({ blacklist, tray, trie }) {
     this.blacklist = blacklist;
