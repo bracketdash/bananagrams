@@ -6,43 +6,33 @@ import { createSolver } from "./solver";
 const solver = createSolver();
 
 const App = () => {
-  const [blacklist, setBlacklist] = useState("");
-  const [board, setBoard] = useState([[" "]]);
-  const [letters, setLetters] = useState("");
+  const [blacklistStr, setBlacklistStr] = useState("");
+  const [boardArr, setBoardArr] = useState([[" "]]);
   const [message, setMessage] = useState("Loading...");
   const [ready, setReady] = useState(false);
-  const [tray, setTray] = useState("");
-  const updateBlacklistAndSolve = (e) => {
-    const newBlacklist = e.target.value.replace(/[^A-Z,]/gi, "").toLowerCase();
-    setBlacklist(newBlacklist);
-    solver.solve(letters, newBlacklist);
+  const [remainingTray, setRemainingTray] = useState("");
+  const [trayStr, setTrayStr] = useState("");
+  const setters = { setBoardArr, setMessage, setReady, setRemainingTray };
+  const updateBlacklistStr = (event) => {
+    const newBlacklistStr = event.target.value.replace(/[^A-Z,]/gi, "").toLowerCase();
+    setBlacklistStr(newBlacklistStr);
+    solver.solve(trayStr, newBlacklistStr);
   };
-  const updateLettersAndSolve = (e) => {
-    const newLetters = e.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
-    setLetters(newLetters);
-    solver.solve(newLetters, blacklist);
+  const updateTrayStr = (event) => {
+    const newTrayStr = event.target.value.replace(/[^A-Z]/gi, "").toLowerCase();
+    setTrayStr(newTrayStr);
+    solver.solve(newTrayStr, blacklistStr);
   };
-  solver.onUpdate(({ board, message, ready, tray }) => {
-    if (board) {
-      setBoard(board);
-    }
-    if (message) {
-      setMessage(message);
-    }
-    if (ready) {
-      setReady(ready);
-    }
-    if (tray) {
-      setTray(tray);
-    }
-  });
+  solver.onUpdate((update) =>
+    update.keys().forEach((key) =>
+      setters[`set${key.slice(0,1).toUpperCase()}${key.slice(1)}`](update[key]);
   return (
     <div>
       <div className="header">
         <h1>Bananagrams Helper</h1>
       </div>
       <div className="letterbox">
-        <input type="text" placeholder="yourtileshere" value={letters} onInput={updateLettersAndSolve} disabled={!ready} />
+        <input type="text" placeholder="yourtileshere" value={trayStr} onInput={updateTrayStr} disabled={!ready} />
       </div>
       <div className="controls">
         <div>
@@ -50,7 +40,7 @@ const App = () => {
           <small>(Comma-separated)</small>
         </div>
         <div>
-          <input type="text" value={blacklist} onInput={updateBlacklistAndSolve} disabled={!ready} />
+          <input type="text" value={blacklistStr} onInput={updateBlacklistStr} disabled={!ready} />
         </div>
       </div>
       <div className="boardbox">
@@ -66,7 +56,7 @@ const App = () => {
           ))}
         </div>
       </div>
-      <div className="tray">{tray}</div>
+      <div className="tray">{remainingTray}</div>
       <div className="message">{message}</div>
     </div>
   );
