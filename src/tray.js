@@ -1,13 +1,19 @@
+// TODO: Revisit after all uses are written
+
 class Tray {
   constructor(str) {
-    this.asString = str;
-    this.asArray = str.split("");
-    this.asCounts = new Map();
-    // TODO
+    this.str = str;
   }
   getNext(tilesToRemove) {
-    return new Tray(/* TODO */);
+    let newTrayStr = this.str;
+    tilesToRemove.forEach((tileToRemove) => {
+      newTrayStr = newTrayStr.replace(tileToRemove, "");
+    });
+    return new Tray(newTrayStr);
   }
-  // TODO
+  isEmpty() {
+    return !this.str;
+  }
 }
+
 export const createTray = (str) => new Tray(str);
