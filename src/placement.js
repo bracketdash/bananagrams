@@ -4,42 +4,38 @@ import { createWord } from "./word";
 class Placement {
   constructor(config) {
     config.keys().forEach((key) => {
+      // TODO: calculate if missing: row, col, down, placedTiles, total
       this[key] = config[key];
     });
-    // TODO: calculate this.row, this.col, this.down, this.placedTiles
   }
   getDelta() {
     const { col, down, row, word } = this;
     return { col, down, row, word };
   }
   getNext() {
-    let nextPlacement = false;
-    // TODO: create the *next* placement using `this.word` and `this.segment`
-    if (nextPlacement) {
-      return nextPlacement;
+    const { blacklist, board, total, tray, trie } = this;
+    const index = this.index ? this.index + 1 : 1;
+    if (index < total) {
+      return new Placement({ blacklist, board, index, segment: this.segment, total, tray, trie, word: this.word });
     }
     let word = this.word.getNext();
-    if (!word) {
-      return false;
+    if (word) {
+      return new Placement({ blacklist, board, segment: this.segment, tray, trie, word });
     }
-    // TODO: create the first placement using `word` and `this.segment`
-    if (nextPlacement) {
-      return nextPlacement;
-    }
-    const segment = this.segment.getNext();
+    let segment = this.segment.getNext();
     if (!segment) {
       return false;
     }
-    const { blacklist, tray, trie } = this;
     word = createWord({ blacklist, segment, tray, trie });
-    if (!word) {
-      return false;
+    while (!word) {
+      segment = segment.getNext();
+      if (segment) {
+        word = createWord({ blacklist, segment, tray, trie });
+      } else {
+        return false;
+      }
     }
-    // TODO: create the first placement using `word` and `segment`
-    if (nextPlacement) {
-      return nextPlacement;
-    }
-    return false;
+    return new Placement({ blacklist, board, segment, tray, trie, word });
   }
   getPlacedTiles() {
     return this.placedTiles;
