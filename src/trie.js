@@ -1,20 +1,11 @@
 import wordsTxt from "./assets/words.txt";
 
-/*
-this.trie = new Trie();
-this.trie.init() => Promise (ready: Boolean) -- downloads and builds the trie
-this.trie.step(
-  index, pref, matchIndex, // position info
-  function(str: String, isFullWord: Boolean, nextPosition: Position): Boolean
-);
-*/
-
 class Trie {
   constructor() {
     this.nodes = new Map();
   }
   init() {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve) => {
       const alphaMap = new Map();
       const firstAlphas = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
       firstAlphas.forEach((char, index) => {
@@ -92,7 +83,7 @@ class Trie {
       });
     });
   }
-  getNext(config) {
+  step(config) {
     // TODO: rewrite
     if (pref && !prefixGate(pref)) {
       return;
