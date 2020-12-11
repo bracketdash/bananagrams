@@ -5,6 +5,7 @@ import { createTrie } from "./trie";
 
 // Solver is insantiated in: index.js (root)
 // Solver.onUpdate and Solver.solve are called in: index.js (App)
+// All other methods are only used in this file
 // It manages which solve is happening, making sure to stop old solves if a new one is started
 // It also passes along updates from the solve to the UI
 
