@@ -3,6 +3,7 @@ import { createState } from "./state";
 
 // Solve is instantiated in: solver.js (Solver.solve)
 // Solve.onUpdate and Solve.start are called in: solver.js (Solver.solve)
+// All other methods are only used in this file
 // It crawls through all the possible states and manages updates to the UI
 
 class Solve {
