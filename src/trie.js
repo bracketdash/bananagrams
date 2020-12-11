@@ -91,7 +91,16 @@ class Trie {
       pref: pref || "",
       word: full ? pref : false,
     };
+    // TODO: we need to keep track of the branches of the trie
+    // TODO: the current `config` is a valid branching point
+    // TODO: the versions of `config` for each match are also valid branching points
+    // TODO: we are only doing: "(index,pref)(2):matchIndex(5)" => "(index,pref)(2):matchIndex(6)"
+    // TODO: need to do: "(index,pref)(2):matchIndex(5)" => "(index,pref)(3):matchIndex(0)"
+    // TODO: remember, trie needs to remain stateless
     if (typeof matchIndex !== "undefined") {
+      if (!matches || matchIndex > matches.length - 1) {
+        // TODO: see notes above
+      }
       const { str, full, next } = matches[matchIndex];
       config.index = next;
       config.pref += str;
