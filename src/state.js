@@ -4,7 +4,7 @@ import { createPlacement } from "./placement";
 // The following methods are called in solve.js (Solve.solve): getAdvanced, getNext, getPrev, isSolved
 // The following methods are called in solve.js (Solve.update): getBoard, getTray
 // All other methods are only used in this file
-// It represents a possible state of the solve and provides state traversal functionality
+// It represents a state of the solve and provides state traversal functionality
 
 class State {
   constructor({ blacklist, board, parent, placement, tray, trie }) {
