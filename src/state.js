@@ -14,7 +14,7 @@ class State {
     // TODO
   }
   getBoard() {
-    // TODO
+    return this.board;
   }
   getNext() {
     // TODO
@@ -23,7 +23,7 @@ class State {
     // TODO
   }
   getTray() {
-    // TODO
+    return this.tray;
   }
   isSolved() {
     return this.tray.isEmpty();
