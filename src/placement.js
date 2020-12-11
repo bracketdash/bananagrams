@@ -2,21 +2,48 @@ import { createSegment } from "./segment";
 import { createWord } from "./word";
 
 class Placement {
-  constructor({ segment, word }) {
-    this.segment = segment;
-    this.word = word;
-    // TODO
+  constructor(config) {
+    config.keys().forEach((key) => {
+      this[key] = config[key];
+    });
+    // TODO: calculate this.row, this.col, this.down, this.placedTiles
+  }
+  getDelta() {
+    const { col, down, row, word } = this;
+    return { col, down, row, word };
   }
   getNext() {
-    // TODO: create the next placement for the current word and segment
-    // TODO: if no placement can be made, try making the first placement for the next word for the current segment
-    // TODO: if no placement can be made, try making the first placement for the first word for the next segment
-    // TODO: if we're also out of segments, return false;
+    let nextPlacement = false;
+    // TODO: create the *next* placement using `this.word` and `this.segment`
+    if (nextPlacement) {
+      return nextPlacement;
+    }
+    let word = this.word.getNext();
+    if (!word) {
+      return false;
+    }
+    // TODO: create the first placement using `word` and `this.segment`
+    if (nextPlacement) {
+      return nextPlacement;
+    }
+    const segment = this.segment.getNext();
+    if (!segment) {
+      return false;
+    }
+    const { blacklist, tray, trie } = this;
+    word = createWord({ blacklist, segment, tray, trie });
+    if (!word) {
+      return false;
+    }
+    // TODO: create the first placement using `word` and `segment`
+    if (nextPlacement) {
+      return nextPlacement;
+    }
+    return false;
   }
   getPlacedTiles() {
-    // TODO: return an array of letters that would be added to the board
+    return this.placedTiles;
   }
-  // TODO: methods to support Board.getNext()
 }
 
 export const createPlacement = ({ blacklist, board, tray, trie }) => {
@@ -30,5 +57,5 @@ export const createPlacement = ({ blacklist, board, tray, trie }) => {
   }
   this.segment = segment;
   this.word = word;
-  return new Placement({ segment, word });
+  return new Placement({ blacklist, board, segment, tray, trie, word });
 };
