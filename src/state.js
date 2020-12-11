@@ -7,4 +7,4 @@ class State {
   }
   // TODO
 }
-export const createState = (str) => new State(config);
+export const createState = (config) => new State(config);
