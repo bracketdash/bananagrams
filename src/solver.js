@@ -1,16 +1,11 @@
-import { createDictionary } from "./dictionary";
-import { createState } from "./state";
+import { createBlacklist } from "./blacklist";
+import { createSolve } from "./solve";
+import { createTray } from "./tray";
+import { createTrie } from "./trie";
 
 /*
 
-Switch to TypeScript for this lil guy - we can have interfaces instead of full classes for some of these
-
-index.js:
-const solver = new Solver();
-inside App():
-  solver.onUpdate(updateFn);
-  on user interaction:
-    solver.solve(tray, blacklist);
+TODO: Switch to TypeScript - we can have interfaces instead of full classes for some of these
 
 Solver.constructor:
 this.trie = new Trie();
