@@ -11,6 +11,9 @@ class Tray {
     });
     return new Tray(newTrayStr);
   }
+  getString() {
+    return this.str;
+  }
   isEmpty() {
     return !this.str;
   }
