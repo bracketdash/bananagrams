@@ -25,4 +25,5 @@ yarn :command
 - `board.js` apply the placement
 - `placement.js` calculate if missing: row, col, down, placedTiles, total
 - `segment.js` - not started
-- `word.js` getNextValidWord() - not started
+- `word.js` filter based on step.pref
+- `word.js` eturn false if we get to the end of the trie

@@ -29,9 +29,20 @@ class Word {
     });
   }
   getNextValidWord() {
-    // TODO: this.trie.step() until we get a full word that meets the criteria
-    // TODO: first step is: this.trie.step({}) // => { index, matchIndex, pref, word }
-    // TODO: (word will be `false` if this step did not produce a full word)
+    let index = this.index;
+    let matchIndex = this.matchIndex;
+    let pref = this.pref;
+    let result = false;
+    let step;
+    while (!result) {
+      step = this.trie.step({ index, matchIndex, pref });
+      // TODO: filter based on step.pref (tray + segment letters) -- canBeMadeWith()
+      if (step.word && this.blacklist.allows(step.word)) {
+        result = step;
+      }
+      // TODO: return false if we get to the end of the trie
+    }
+    return result;
   }
   getString() {
     return this.word;

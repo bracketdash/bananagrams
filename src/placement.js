@@ -5,6 +5,8 @@ class Placement {
   constructor(config) {
     config.keys().forEach((key) => {
       // TODO: calculate if missing: row, col, down, placedTiles, total
+      // TODO: we might need to do the this.init() thing here too
+      // TODO: we will need to return `false` from createPlacement if a valid placement can't be made
       this[key] = config[key];
     });
   }
