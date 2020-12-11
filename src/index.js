@@ -1,7 +1,7 @@
 import "./assets/styles.css";
+import { createSolver } from "./solver";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { createSolver } from "./solver";
 
 const solver = createSolver();
 
@@ -23,9 +23,7 @@ const App = () => {
     setTrayStr(newTrayStr);
     solver.solve({ blacklistStr, trayStr: newTrayStr });
   };
-  solver.onUpdate((update) =>
-    update.keys().forEach((key) =>
-      setters[`set${key.slice(0,1).toUpperCase()}${key.slice(1)}`](update[key]);
+  solver.onUpdate((update) => update.keys().forEach((key) => setters[`set${key.slice(0, 1).toUpperCase()}${key.slice(1)}`](update[key])));
   return (
     <div>
       <div className="header">
@@ -45,7 +43,7 @@ const App = () => {
       </div>
       <div className="boardbox">
         <div className="board">
-          {board.map((row, rowIndex) => (
+          {boardArr.map((row, rowIndex) => (
             <div key={rowIndex} className="row">
               {row.map((cell, cellIndex) => (
                 <div key={cellIndex} className={cell === " " ? "cell empty" : "cell"}>

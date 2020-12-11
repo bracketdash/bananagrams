@@ -10,12 +10,12 @@ class State {
     this.trie = trie;
   }
   getAdvanced() {
-    const { blacklist, board, tray, trie } = this;
-    const placement = createPlacement({ blacklist, board, tray, trie });
+    const { blacklist, tray, trie } = this;
+    const placement = createPlacement({ blacklist, board: this.board, tray, trie });
     if (!placement) {
       return false;
     }
-    const board = board.getNext(placement);
+    const board = this.board.getNext(placement);
     if (!board) {
       return false;
     }

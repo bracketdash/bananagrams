@@ -2,7 +2,7 @@ class Board {
   constructor({ numCols, numRows, rows }) {
     this.numCols = numCols || 1;
     this.numRows = numRows || 1;
-    this.rows = rows || new Map([ [0, new Map([ [0, " "] ])] ]);
+    this.rows = rows || new Map([[0, new Map([[0, " "]])]]);
   }
   getArray() {
     return [...Array(this.numRows).keys()].map((rowIndex) => {
@@ -17,8 +17,9 @@ class Board {
     });
   }
   getNext(placement) {
-    let numColumns = 1;
+    const rows = new Map();
     // TODO: apply the placement
+    let numCols = 1;
     const numRows = Math.max(...rows.keys()) + 1;
     return new Board({ numCols, numRows, rows });
   }

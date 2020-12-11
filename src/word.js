@@ -1,5 +1,9 @@
 class Word {
-  constructor({ blacklist, segment, tray, trie /* , index/bookmark */ }) {
+  constructor({ blacklist, segment, tray, trie }) {
+    this.blacklist = blacklist;
+    this.segment = segment;
+    this.tray = tray;
+    this.trie = trie;
     // TODO
   }
   getNext() {
@@ -8,7 +12,6 @@ class Word {
   getString() {
     // TODO
   }
-  // TODO
 }
 
 export const createWord = (config) => new Word(config);

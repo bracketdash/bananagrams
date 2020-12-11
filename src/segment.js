@@ -1,11 +1,10 @@
 class Segment {
-  constructor({ board /* , index/bookmark */ }) {
-    // TODO
+  constructor({ board }) {
+    this.board = board;
   }
   getNext() {
     // TODO
   }
-  // TODO
 }
 
 export const createSegment = (config) => new Segment(config);

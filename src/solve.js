@@ -12,12 +12,14 @@ class Solve {
   }
   start() {
     this.start = new Date().getTime();
-    this.step(createState({
-      blacklist: this.blacklist,
-      board: createBoard({}),
-      tray: this.tray,
-      tray: this.trie,
-    }));
+    this.step(
+      createState({
+        blacklist: this.blacklist,
+        board: createBoard({}),
+        tray: this.tray,
+        trie: this.trie,
+      })
+    );
     return this.start;
   }
   step(state) {
@@ -29,7 +31,7 @@ class Solve {
       if (!this.tryNextStep(state.getNext(), "Trying next state...")) {
         let prevState = state.getPrev();
         while (prevState) {
-          if (this.tryNextStep(prevState.getNext(), "Trying previous next state...") {
+          if (this.tryNextStep(prevState.getNext(), "Trying previous next state...")) {
             return;
           }
           prevState = prevState.getPrev();
@@ -42,18 +44,21 @@ class Solve {
     if (!maybeNextState) {
       return false;
     }
-    const nextStepTimeout = setTimeout(() => this.step(nextState));
-    if (!this.update(nextState, message)) {
+    const nextStepTimeout = setTimeout(() => this.step(maybeNextState));
+    if (!this.update(maybeNextState, message)) {
       clearTimeout(nextStepTimeout);
     }
     return true;
   }
   update(state, message) {
-    return this.updateFn({
-      board: state.getBoard(),
-      message,
-      tray: state.getTray(),
-    }, this.start);
+    return this.updateFn(
+      {
+        board: state.getBoard(),
+        message,
+        tray: state.getTray(),
+      },
+      this.start
+    );
   }
 }
 

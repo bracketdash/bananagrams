@@ -6,4 +6,5 @@ class Blacklist {
     return !this.words.has(word);
   }
 }
+
 export const createBlacklist = (blacklistStr) => new Blacklist(blacklistStr);

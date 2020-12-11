@@ -83,23 +83,24 @@ class Trie {
       });
     });
   }
-  step({ index, pref, prefixGate, onFullWord }) {
-    // TODO: rewrite
-    if (pref && !prefixGate(pref)) {
-      return;
-    }
+  step({ index, matchIndex, pref, prefixGate, onFullWord }) {
+    // TODO: refactor
     const { full, matches } = this.nodes.get(index);
-    if (full) {
-      onFullWord(pref);
-    }
-    matches.forEach(({ str, full, next }) => {
+    if (matchIndex === -1) {
+      if (full) {
+        onFullWord(pref, { index, matchIndex: 0, pref, prefixGate, onFullWord });
+      } else {
+        prefixGate(pref, { index, matchIndex: 0, pref, prefixGate, onFullWord });
+      }
+    } else {
+      const { str, full, next } = matches[matchIndex];
       const have = pref + str;
       if (full) {
-        onFullWord(have);
-        return;
+        onFullWord(have, { index: next, matchIndex: matchIndex + 1, pref: have, prefixGate, onFullWord });
+      } else {
+        prefixGate(have, { index: next, matchIndex: matchIndex + 1, pref: have, prefixGate, onFullWord });
       }
-      this.step({ index: next, pref: have, prefixGate, onFullWord, onNewPosition });
-    });
+    }
   }
 }
 
