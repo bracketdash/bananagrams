@@ -46,8 +46,10 @@ class Solve {
     if (!maybeNextState) {
       return false;
     }
-    setTimeout(() => this.step(nextState));
-    this.update(nextState, message);
+    const nextStepTimeout = setTimeout(() => this.step(nextState));
+    if (!this.update(nextState, message)) {
+      clearTimeout(nextStepTimeout);
+    }
     return true;
   }
   update(state, message) {
