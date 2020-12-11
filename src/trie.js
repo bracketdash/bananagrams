@@ -83,28 +83,30 @@ class Trie {
       });
     });
   }
-  step({ index, matchIndex, pref }) {
-    const { full, matches } = this.nodes.get(index || 0);
+  step({ index, matches, matchIndex, pref }) {
     const config = {
       index,
       matchIndex: (matchIndex || -1) + 1,
       pref: pref || "",
-      word: full ? pref : false,
     };
-    // TODO: we need to keep track of the branches of the trie
-    // TODO: the current `config` is a valid branching point
-    // TODO: the versions of `config` for each match are also valid branching points
-    // TODO: we are only doing: "(index,pref)(2):matchIndex(5)" => "(index,pref)(2):matchIndex(6)"
-    // TODO: need to do: "(index,pref)(2):matchIndex(5)" => "(index,pref)(3):matchIndex(0)"
-    // TODO: remember, trie needs to remain stateless
-    if (typeof matchIndex !== "undefined") {
+    if (matches) {
+      config.matches = matches;
       if (!matches || matchIndex > matches.length - 1) {
-        // TODO: see notes above
+        // TODO
       }
       const { str, full, next } = matches[matchIndex];
       config.index = next;
       config.pref += str;
       config.word = full ? pref : false;
+    } else {
+      const { full, matches } = this.nodes.get(index || 0);
+      if (full) {
+        config.word = pref;
+      }
+      if (matches.length) {
+        config.matches = matches;
+      }
+      // TODO
     }
     return config;
   }
