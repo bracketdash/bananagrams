@@ -20,6 +20,7 @@ class Solve {
     this.step(createState({
       blacklist: this.blacklist,
       board: createBoard(new Map()),
+      tray: this.tray,
       tray: this.trie,
     }));
     return this.start;
