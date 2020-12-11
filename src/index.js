@@ -22,13 +22,19 @@ const App = () => {
     setLetters(newLetters);
     solver.solve(newLetters, blacklist);
   };
-  solver.onReady(() => {
-    setReady(true);
-  });
-  solver.onUpdate(({ tray, message, board }) => {
-    setTray(tray);
-    setMessage(message);
-    setBoard(board);
+  solver.onUpdate(({ board, message, ready, tray }) => {
+    if (board) {
+      setBoard(board);
+    }
+    if (message) {
+      setMessage(message);
+    }
+    if (ready) {
+      setReady(ready);
+    }
+    if (tray) {
+      setTray(tray);
+    }
   });
   return (
     <div>
