@@ -18,7 +18,7 @@ class Solve {
     const now = new Date().getTime();
     this.start = now;
     this.states.set(0, createState({
-      board: createBoard(/* blank board input */),
+      board: createBoard(new Map()),
       tray: this.trie,
     }));
     this.step("0");
