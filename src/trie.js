@@ -83,24 +83,21 @@ class Trie {
       });
     });
   }
-  step({ index, matchIndex, pref, prefixGate, onFullWord }) {
-    // TODO: refactor
-    const { full, matches } = this.nodes.get(index);
-    if (matchIndex === -1) {
-      if (full) {
-        onFullWord(pref, { index, matchIndex: 0, pref, prefixGate, onFullWord });
-      } else {
-        prefixGate(pref, { index, matchIndex: 0, pref, prefixGate, onFullWord });
-      }
-    } else {
+  step({ index, matchIndex, pref }) {
+    const { full, matches } = this.nodes.get(index || 0);
+    const config = {
+      index,
+      matchIndex: (matchIndex || -1) + 1,
+      pref: pref || "",
+      word: full ? pref : false,
+    };
+    if (typeof matchIndex !== "undefined") {
       const { str, full, next } = matches[matchIndex];
-      const have = pref + str;
-      if (full) {
-        onFullWord(have, { index: next, matchIndex: matchIndex + 1, pref: have, prefixGate, onFullWord });
-      } else {
-        prefixGate(have, { index: next, matchIndex: matchIndex + 1, pref: have, prefixGate, onFullWord });
-      }
+      config.index = next;
+      config.pref += str;
+      config.word = full ? pref : false;
     }
+    return config;
   }
 }
 
