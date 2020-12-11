@@ -1,13 +1,12 @@
 import wordsTxt from "./assets/words.txt";
 
 /*
-Tray(tray)
-  Creator: Solve (constructor)
-  Methods:
-    getAsArray() => String[] (trayAsArray)
-    getAsString() => String (trayAsString)
-    getLetterCounts() => Map (trayLetterCounts)
-    getNext(tilesToRemove) => Tray (nextTray)
+this.trie = new Trie();
+this.trie.init() => Promise (ready: Boolean) -- downloads and builds the trie
+this.trie.step(
+  index, pref, matchIndex, // position info
+  function(str: String, isFullWord: Boolean, nextPosition: Position): Boolean
+);
 */
 
 class Trie {
