@@ -1,20 +1,32 @@
-/*
-Solve(solver: Solver, tray: String, blacklist: String)
-  Creator: Solver.solve
-  Methods:
-    start() => Number (solveStart)
-    getBlacklist() => Blacklist (blacklist)
-    getTray() => Tray (tray)
-*/
+import { createBoard } from "./board";
+import { createState } from "./state";
 
 class Solve {
-  constructor(config) {
-    // TODO
+  constructor({ blacklist, tray, trie }) {
+    this.blacklist = blacklist;
+    this.states = new Map();
+    this.tray = tray;
+    this.trie = trie;
+  }
+  update(update) {
+    return this.updateFn(update, this.start);
+  }
+  onUpdate(updateFn) {
+    this.updateFn = updateFn;
   }
   start() {
+    const now = new Date().getTime();
+    this.start = now;
+    this.states.set(0, createState({
+      board: createBoard(/* blank board input */),
+      tray: this.trie,
+    }));
+    this.step("0");
+    return now;
+  }
+  step(key) {
     // TODO
   }
-  // TODO
 }
 
 export const createSolve = (config) => new Solve(config);
