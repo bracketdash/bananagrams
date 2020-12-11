@@ -1,11 +1,20 @@
 import wordsTxt from "./assets/words.txt";
 
+/*
+Tray(tray)
+  Creator: Solve (constructor)
+  Methods:
+    getAsArray() => String[] (trayAsArray)
+    getAsString() => String (trayAsString)
+    getLetterCounts() => Map (trayLetterCounts)
+    getNext(tilesToRemove) => Tray (nextTray)
+*/
+
 class Trie {
   constructor() {
     this.nodes = new Map();
   }
-
-  downloadAndBuild() {
+  init() {
     return new Promise((resolve, _) => {
       const alphaMap = new Map();
       const firstAlphas = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -84,26 +93,23 @@ class Trie {
       });
     });
   }
-
-  traverse({ onFullWord, prefixGate }) {
-    const loop = (index, pref) => {
-      if (pref && !prefixGate(pref)) {
+  getNext(config) {
+    // TODO: rewrite
+    if (pref && !prefixGate(pref)) {
+      return;
+    }
+    const { full, matches } = this.nodes.get(index);
+    if (full) {
+      onFullWord(pref);
+    }
+    matches.forEach(({ str, full, next }) => {
+      const have = pref + str;
+      if (full) {
+        onFullWord(have);
         return;
       }
-      const { full, matches } = this.nodes.get(index);
-      if (full) {
-        onFullWord(pref);
-      }
-      matches.forEach(({ str, full, next }) => {
-        const have = pref + str;
-        if (full) {
-          onFullWord(have);
-          return;
-        }
-        loop(next, have);
-      });
-    };
-    loop(0, "");
+      loop(next, have);
+    });
   }
 }
 
