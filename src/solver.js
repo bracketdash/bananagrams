@@ -3,6 +3,11 @@ import { createSolve } from "./solve";
 import { createTray } from "./tray";
 import { createTrie } from "./trie";
 
+// Solver is insantiated in: index.js (root)
+// Solver.onUpdate and Solver.solve are called in: index.js (App)
+// It manages which solve is happening, making sure to stop old solves if a new one is started
+// It also passes along updates from the solve to the UI
+
 class Solver {
   constructor() {
     this.solveStart = 0;
