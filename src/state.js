@@ -1,150 +1,71 @@
-import { performPlacement } from "./placer.js";
+import { createPlacement } from "./placement";
+
+// State is instantiated in: solve.js (Solve.start)
+// The following methods are called in solve.js (Solve.solve): getAdvanced, getNext, getPrev, isSolved
+// The following methods are called in solve.js (Solve.update): getBoard, getTray
+// All other methods are only used in this file
+// It represents a state of the solve and provides state traversal functionality
 
 class State {
-  constructor(tray, board, columns) {
-    this.board = board || new Map();
-    this.columns = columns || 1;
+  constructor({ blacklist, board, parent, placement, tray, trie }) {
+    this.blacklist = blacklist;
+    this.board = board;
+    this.parent = parent;
+    this.placement = placement;
     this.tray = tray;
+    this.trie = trie;
   }
-
-  getBoard() {
-    const numRows = this.board.size ? Math.max(...this.board.keys()) + 1 : 1;
-    let numColumns = 1;
-    this.board.forEach((rowCols) => {
-      const rowNumCols = Math.max(...rowCols.keys()) + 1;
-      if (rowNumCols > numColumns) {
-        numColumns = rowNumCols;
-      }
-    });
-    return [...Array(numRows).keys()].map((rowIndex) => {
-      const row = this.board.get(rowIndex);
-      const columns = Array(numColumns).fill(" ");
-      if (row) {
-        row.forEach((col, colIndex) => {
-          columns[colIndex] = col;
-        });
-      }
-      return columns;
-    });
-  }
-
-  getPatterns(tiles) {
-    const fullPattern = `.*${tiles.replace(/\s+/g, (m) => `.{${m.length}}`)}.*`;
-    const moddedPatternTest = /[a-z]+[^a-z]+[a-z]+/;
-    const loop = (fullPattern, patterns, leftTrim, rightTrim) => {
-      let allDone = false;
-      let needsLeftTrimIteration = false;
-      let moddedPattern = fullPattern;
-      [...Array(leftTrim).keys()].forEach(() => {
-        if (moddedPatternTest.test(moddedPattern)) {
-          moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
-          moddedPattern = moddedPattern.replace(/^\.\{([0-9]*)\}/, function (_, captured) {
-            const num = parseInt(captured);
-            if (num < 2) {
-              return "";
-            }
-            return ".{0," + (num - 1) + "}";
-          });
-        } else {
-          allDone = true;
-        }
-      });
-      [...Array(rightTrim).keys()].forEach(() => {
-        if (moddedPatternTest.test(moddedPattern)) {
-          moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
-          moddedPattern = moddedPattern.replace(/\.\{([0-9]*)\}$/, function (_, captured) {
-            const num = parseInt(captured);
-            if (num < 2) {
-              return "";
-            }
-            return ".{0," + (num - 1) + "}";
-          });
-        } else {
-          needsLeftTrimIteration = true;
-        }
-      });
-      if (leftTrim > 0) {
-        moddedPattern = "^" + moddedPattern;
-      }
-      if (rightTrim > 0) {
-        moddedPattern = moddedPattern + "$";
-      }
-      if (allDone) {
-        return patterns;
-      }
-      if (needsLeftTrimIteration) {
-        return loop(fullPattern, patterns, leftTrim + 1, 0);
-      } else {
-        patterns.push(moddedPattern);
-      }
-      return loop(fullPattern, patterns, leftTrim, rightTrim + 1);
-    };
-    return new Promise(async (resolve) => {
-      setTimeout(() => {
-        resolve(new RegExp(loop(fullPattern, [fullPattern], 0, 1).join("|")));
-      });
-    });
-  }
-
-  async getSegments() {
-    const columns = new Map();
-    const segments = new Set();
-    // TODO: break segments up, one pattern per segment
-    await Promise.all([...this.board].map(async ([row, rowCols]) => {
-      rowCols.forEach((col, colKey) => {
-        if (!columns.has(colKey)) {
-          columns.set(colKey, new Map());
-        }
-        columns.get(colKey).set(row, col);
-      });
-      const tiles = [...Array(Math.max(...rowCols.keys()) + 1).keys()]
-        .map((index) => {
-          if (rowCols.has(index)) {
-            return rowCols.get(index);
-          } else {
-            return " ";
-          }
-        })
-        .join("");
-      if (tiles) {
-        const patterns = await this.getPatterns(tiles);
-        segments.add({ row, col: 0, down: false, tiles, patterns });
-      }
-    }));
-    await Promise.all([...columns].map(async ([col, colRows]) => {
-      const tiles = [...Array(Math.max(...colRows.keys()) + 1).keys()]
-        .map((_, index) => {
-          if (colRows.has(index)) {
-            return colRows.get(index);
-          } else {
-            return " ";
-          }
-        })
-        .join("");
-      if (tiles) {
-        const patterns = await this.getPatterns(tiles);
-        segments.add({ row: 0, col, down: true, tiles, patterns });
-      }
-    }));
-    return segments;
-  }
-  
-  getStateAfterPlacement(placement, dictionary) {
-    const config = performPlacement(this, placement, dictionary);
-    if (!config) {
+  getAdvanced() {
+    const { blacklist, board, tray, trie } = this;
+    const placement = createPlacement({ blacklist, board, tray, trie });
+    if (!placement) {
       return false;
     }
-    const { trayClone, boardClone, columnsClone } = config;
-    return new State(trayClone, boardClone, columnsClone);
+    const board = board.getNext(placement);
+    if (!board) {
+      return false;
+    }
+    return new State({
+      blacklist,
+      board,
+      parent: this,
+      placement,
+      tray: tray.getNext(placement.getPlacedTiles()),
+    });
   }
-
+  getBoard() {
+    return this.board;
+  }
+  getNext() {
+    const parent = this.parent;
+    const placement = parent.getPlacement().getNext();
+    if (!placement) {
+      return false;
+    }
+    const board = this.board.getNext(placement);
+    if (!board) {
+      return false;
+    }
+    return new State({
+      blacklist: this.blacklist,
+      board,
+      parent,
+      placement,
+      tray: this.tray.getNext(placement.getPlacedTiles()),
+    });
+  }
+  getPlacement() {
+    return this.placement;
+  }
+  getPrev() {
+    return this.previous;
+  }
   getTray() {
     return this.tray;
   }
-
-  isSolution() {
-    return !this.tray;
+  isSolved() {
+    return this.tray.isEmpty();
   }
 }
 
-export const createState = (tray) => new State(tray);
+export const createState = (config) => new State(config);

@@ -4,8 +4,9 @@ class Trie {
   constructor() {
     this.nodes = new Map();
   }
-  init() {
-    return new Promise((resolve) => {
+
+  downloadAndBuild() {
+    return new Promise((resolve, _) => {
       const alphaMap = new Map();
       const firstAlphas = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
       firstAlphas.forEach((char, index) => {
@@ -83,23 +84,26 @@ class Trie {
       });
     });
   }
-  step(config) {
-    // TODO: rewrite
-    if (pref && !prefixGate(pref)) {
-      return;
-    }
-    const { full, matches } = this.nodes.get(index);
-    if (full) {
-      onFullWord(pref);
-    }
-    matches.forEach(({ str, full, next }) => {
-      const have = pref + str;
-      if (full) {
-        onFullWord(have);
+
+  traverse({ onFullWord, prefixGate }) {
+    const loop = (index, pref) => {
+      if (pref && !prefixGate(pref)) {
         return;
       }
-      loop(next, have);
-    });
+      const { full, matches } = this.nodes.get(index);
+      if (full) {
+        onFullWord(pref);
+      }
+      matches.forEach(({ str, full, next }) => {
+        const have = pref + str;
+        if (full) {
+          onFullWord(have);
+          return;
+        }
+        loop(next, have);
+      });
+    };
+    loop(0, "");
   }
 }
 
