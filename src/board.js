@@ -12,7 +12,9 @@ class Board {
   getNext() {
     // TODO
   }
-  // TODO
+  getArray() {
+    // TODO
+  }
 }
 
-export const createBoard = (str) => new Board(config);
+export const createBoard = (rows) => new Board(rows);
