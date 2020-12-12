@@ -85,7 +85,20 @@ class Trie {
   }
   step({ index, matches, matchIndex, pref }) {
     const config = { index, pref };
-    if (typeof matchIndex !== "undefined") {
+    if (typeof matchIndex === "undefined") {
+      const node = this.nodes.get(index || 0);
+      if (node.full) {
+        config.word = pref;
+      }
+      if (node.matches) {
+        config.matches = node.matches;
+        config.matchIndex = 0;
+      } else {
+        config.matchIndex = -1;
+      }
+    } else if (config.matchIndex === -1) {
+      return false;
+    } else {
       const { str, full, next } = matches[matchIndex || 0];
       Object.assign(config, {
         index: next,
@@ -95,15 +108,11 @@ class Trie {
       if (full) {
         config.word = config.pref;
       }
-    } else {
-      const node = this.nodes.get(index || 0);
-      if (node.full) {
-        config.word = pref;
+      if (matchIndex < matches.length - 1) {
+        config.matchIndex = matchIndex + 1;
+      } else {
+        config.matchIndex = -1;
       }
-      if (node.matches) {
-        config.matches = node.matches;
-      }
-      // TODO: config.matchIndex
     }
     return config;
   }
