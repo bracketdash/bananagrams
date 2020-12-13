@@ -1,3 +1,5 @@
+// Instantiated once per solve (each time the user changes the tray or blacklist)
+
 class Tray {
   constructor(str) {
     this.str = str;
