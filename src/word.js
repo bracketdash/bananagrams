@@ -28,8 +28,15 @@ class Word {
   }
   getNextValidWord() {
     // TODO: traverse branches until we find a word that meets all criteria (blacklist, segment, tray)
-    // let branch = this.branch || this.trie.getData();
-    // while () {}
+    let branch = this.branch || this.trie.getData();
+    let parts = this.parts.splice();
+    let word = false;
+    while (word === false || !this.blacklist.allows(word)) {
+      // TODO
+      while (!this.partMeetsCriteria(part)) {
+        // TODO
+      }
+    }
   }
   getString() {
     return this.word;
@@ -44,10 +51,19 @@ class Word {
     this.word = result.word;
   }
   partMeetsCriteria(part) {
-    // TODO
-  }
-  wordMeetsCriteria(word) {
-    // TODO
+    const counts = this.tray.getCounts(this.segment);
+    while (part.length > 0) {
+      const letter = part[0];
+      let instances = 0;
+      part = part.replaceAll(letter, () => {
+        instances++;
+        return "";
+      });
+      if (!counts.has(letter) || counts.get(letter) < instances) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
