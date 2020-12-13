@@ -1,6 +1,8 @@
 import { BRANCHES_KEY, FINISHES_WORD, PARENT_BRANCH } from "./symbols";
 import wordsTxt from "./assets/words.txt";
 
+// Instantiated once per app
+
 const codes = new Map("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((c, n) => [c, n]));
 
 const decode = (code) => {
