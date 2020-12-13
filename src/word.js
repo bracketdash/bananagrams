@@ -1,11 +1,12 @@
 class Word {
-  constructor({ blacklist, index, matchIndex, pref, segment, tray, trie, word }) {
+  constructor({ blacklist, index, matches, matchIndex, pref, segment, tray, trie, word }) {
     this.blacklist = blacklist;
     this.segment = segment;
     this.tray = tray;
     this.trie = trie;
     if (typeof this.index !== "undefined") {
       this.index = index;
+      this.matches = matches;
       this.matchIndex = matchIndex;
       this.pref = pref;
       this.word = word;
@@ -20,6 +21,7 @@ class Word {
     return new Word({
       blacklist,
       index: result.index,
+      matches: result.matches,
       matchIndex: result.matchIndex,
       pref: result.pref,
       segment,
@@ -30,17 +32,22 @@ class Word {
   }
   getNextValidWord() {
     let index = this.index;
+    let matches = this.matches;
     let matchIndex = this.matchIndex;
     let pref = this.pref;
     let result = false;
     let step;
     while (!result) {
-      step = this.trie.step({ index, matchIndex, pref });
-      // TODO: filter based on step.pref (tray + segment letters) -- canBeMadeWith()
+      step = this.trie.step({ index, matches, matchIndex, pref });
+      if (!this.canBeMadeWith( /* TODO: tray + segment letters */, pref ) {
+        // TODO: stop following this branch
+      }
       if (step.word && this.blacklist.allows(step.word)) {
         result = step;
       } else {
+        // TODO: if matchIndex === -1, back up a node and try it's next sibling, etc.
         index = step.index;
+        matches = step.matches;
         matchIndex = step.matchIndex;
         pref = step.pref;
       }
