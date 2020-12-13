@@ -3,7 +3,7 @@
 [Live Demo](http://bracketdash.github.io/bananagrams-helper/)
 
 ```
-git clone git@github.com:bracketdash/bananagrams-helper.git
+git clone
 cd bananagrams-helper
 yarn
 ```

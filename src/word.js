@@ -1,16 +1,13 @@
+import { BRANCHES_KEY, FINISHES_WORD, PARENT_BRANCH } from "./symbols";
+
 class Word {
-  constructor({ blacklist, index, matches, matchIndex, pref, segment, tray, trie, word }) {
+  constructor({ blacklist, branch, segment, tray, trie, word }) {
     this.blacklist = blacklist;
+    this.branch = branch;
     this.segment = segment;
     this.tray = tray;
     this.trie = trie;
-    if (typeof this.index !== "undefined") {
-      this.index = index;
-      this.matches = matches;
-      this.matchIndex = matchIndex;
-      this.pref = pref;
-      this.word = word;
-    }
+    this.word = word;
   }
   getNext() {
     const result = this.getNextValidWord();
@@ -20,10 +17,7 @@ class Word {
     const { blacklist, segment, tray, trie } = this;
     return new Word({
       blacklist,
-      index: result.index,
-      matches: result.matches,
-      matchIndex: result.matchIndex,
-      pref: result.pref,
+      branch: result.branch,
       segment,
       tray,
       trie,
@@ -31,29 +25,9 @@ class Word {
     });
   }
   getNextValidWord() {
-    let index = this.index;
-    let matches = this.matches;
-    let matchIndex = this.matchIndex;
-    let pref = this.pref;
-    let result = false;
-    let step;
-    // TODO: first step will just be this.trie.step(["a"])
-    while (!result) {
-      step = this.trie.step({ index, matches, matchIndex, pref });
-      // if (!this.canBeMadeWith( /* TODO: tray + segment letters */, pref ) {
-        // TODO: stop following this branch
-      // }
-      if (step.word && this.blacklist.allows(step.word)) {
-        result = step;
-      } else {
-        index = step.index;
-        matches = step.matches;
-        matchIndex = step.matchIndex;
-        pref = step.pref;
-      }
-      // TODO: return false if we get to the end of the whole trie
-    }
-    return result;
+    // TODO: traverse branches until we find a word that meets all criteria (blacklist, segment, tray)
+    // let branch = this.branch || this.trie.getData();
+    // while () {}
   }
   getString() {
     return this.word;
@@ -63,10 +37,7 @@ class Word {
     if (!result) {
       return false;
     }
-    this.index = result.index;
-    this.matchIndex = result.matchIndex;
-    this.pref = result.pref;
-    this.word = result.word;
+    this.branch = result.branch;
   }
 }
 
