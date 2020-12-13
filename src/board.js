@@ -18,7 +18,7 @@ class Board {
   }
   getNext(placement) {
     const rows = new Map();
-    // TODO: apply the placement
+    // TODO: apply the placement (can assume valid placement; invalid placements won't make it to this stage)
     let numCols = 1;
     const numRows = Math.max(...rows.keys()) + 1;
     return new Board({ numCols, numRows, rows });
