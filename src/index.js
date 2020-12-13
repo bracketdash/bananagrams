@@ -23,7 +23,7 @@ const App = () => {
     setTrayStr(newTrayStr);
     solver.solve({ blacklistStr, trayStr: newTrayStr });
   };
-  solver.onUpdate((update) => update.keys().forEach((key) => setters[`set${key.slice(0, 1).toUpperCase()}${key.slice(1)}`](update[key])));
+  solver.onUpdate((update) => Object.keys(update).forEach((key) => setters[`set${key.slice(0, 1).toUpperCase()}${key.slice(1)}`](update[key])));
   return (
     <div>
       <div className="header">

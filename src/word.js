@@ -37,16 +37,15 @@ class Word {
     let pref = this.pref;
     let result = false;
     let step;
+    // TODO: first step will just be this.trie.step(["a"])
     while (!result) {
       step = this.trie.step({ index, matches, matchIndex, pref });
-      // TODO: we should be saving `step` in an array/map somewhere so we can back up, try next siblings, etc. 
-      if (!this.canBeMadeWith( /* TODO: tray + segment letters */, pref ) {
+      // if (!this.canBeMadeWith( /* TODO: tray + segment letters */, pref ) {
         // TODO: stop following this branch
-      }
+      // }
       if (step.word && this.blacklist.allows(step.word)) {
         result = step;
       } else {
-        // TODO: if matchIndex === -1, back up a node and try it's next sibling, etc.
         index = step.index;
         matches = step.matches;
         matchIndex = step.matchIndex;

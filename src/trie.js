@@ -1,120 +1,96 @@
 import wordsTxt from "./assets/words.txt";
 
+const BRANCHES_KEY = Symbol("Branches");
+const FINISHES_WORD = Symbol("Finishes Word");
+
 class Trie {
-  constructor() {
-    this.nodes = new Map();
-  }
   init() {
     return new Promise((resolve) => {
-      const alphaMap = new Map();
-      const firstAlphas = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-      firstAlphas.forEach((char, index) => {
-        alphaMap.set(char, index);
-      });
-      const fromAlphaCode = (s) => {
-        if (alphaMap.has(s)) {
-          return alphaMap.get(s);
+      const codes = new Map(
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((code, num) => {
+          return [code, num];
+        })
+      );
+      const decode = (code) => {
+        if (codes.has(code)) {
+          return codes.get(code);
         }
-        const BASE = 36;
-        let n = 0;
+        const base = 36;
+        const codeLength = code.length;
+        let num = 0;
         let places = 1;
-        let range = BASE;
         let pow = 1;
-        while (places < s.length) {
-          n += range;
+        let range = base;
+        while (places < codeLength) {
+          num += range;
           places++;
-          range *= BASE;
+          range *= base;
         }
-        for (let i = s.length - 1; i >= 0; i--) {
-          let d = s.charCodeAt(i) - 48;
+        for (let i = codeLength - 1; i >= 0; i--) {
+          let d = code.charCodeAt(i) - 48;
           if (d > 10) {
             d -= 7;
           }
-          n += d * pow;
-          pow *= BASE;
+          num += d * pow;
+          pow *= base;
         }
-        alphaMap.set(s, n);
-        return n;
+        codes.set(code, num);
+        return num;
       };
       fetch(wordsTxt.slice(1)).then(async (response) => {
-        const wordsStr = await response.text();
-        const nodesArr = wordsStr.split(";");
         const pattern = new RegExp("([0-9A-Z]+):([0-9A-Z]+)");
         const syms = new Map();
-        let symCount = 0;
-        nodesArr.some((node, index) => {
-          const m = pattern.exec(node);
-          if (!m) {
-            symCount = index;
+        let nodes = (await response.text()).split(";");
+        nodes.some((node, index) => {
+          const symParts = pattern.exec(node);
+          if (!symParts) {
             return true;
           }
-          syms.set(m[1], fromAlphaCode(m[2]));
+          syms.set(symParts[1], decode(symParts[2]));
           return false;
         });
-        nodesArr.slice(symCount).forEach((nodeStr, index) => {
-          const node = {
-            matches: new Set(),
-          };
-          if (nodeStr[0] === "!") {
-            node.full = true;
-            nodeStr = nodeStr.slice(1);
+        nodes = nodes.slice(syms.size);
+        const processNode = (index) => {
+          let node = nodes[index];
+          const branch = new Map();
+          const branches = new Map();
+          branch.set(BRANCHES_KEY, branches);
+          if (node[0] === "!") {
+            branch.set(FINISHES_WORD, true);
+            node = node.slice(1);
           }
-          const matches = nodeStr.split(/([A-Z0-9,]+)/g);
+          const matches = node.split(/([A-Z0-9,]+)/g);
           let i = 0;
           while (i < matches.length) {
-            const str = matches[i];
-            if (!str) {
+            const part = matches[i];
+            if (!part) {
               i += 2;
               continue;
             }
             const ref = matches[i + 1];
             if (ref === "," || ref === undefined) {
-              node.matches.add({ str, full: true });
+              branches.set(part, new Map([[FINISHES_WORD, true]]));
               i += 2;
               continue;
             }
-            const next = syms.has(ref) ? syms.get(ref) : index + fromAlphaCode(ref) + 1 - symCount;
-            node.matches.add({ str, next });
+            branches.set(part, processNode(syms.has(ref) ? syms.get(ref) : index + decode(ref) + 1 - syms.size));
             i += 2;
           }
-          this.nodes.set(index, node);
-        });
+          return branch;
+        };
+        this.data = processNode(0);
         resolve();
       });
     });
   }
-  step({ index, matches, matchIndex, pref }) {
-    const config = { index, pref };
-    if (typeof matchIndex === "undefined") {
-      const node = this.nodes.get(index || 0);
-      if (node.full) {
-        config.word = pref;
-      }
-      if (node.matches) {
-        config.matches = node.matches;
-        config.matchIndex = 0;
-      } else {
-        config.matchIndex = -1;
-      }
-    } else if (config.matchIndex === -1) {
-      return false;
-    } else {
-      const { str, full, next } = matches[matchIndex || 0];
-      Object.assign(config, {
-        index: next,
-        matches,
-        pref: pref + str,
-      });
-      if (full) {
-        config.word = config.pref;
-      }
-      if (matchIndex < matches.length - 1) {
-        config.matchIndex = matchIndex + 1;
-      } else {
-        config.matchIndex = -1;
-      }
-    }
-    return config;
+  step(parts) {
+    const response = new Map();
+    const updatedParts = parts.slice();
+    response.set("parts", updatedParts);
+    // TODO: access the part in this.data
+    // if this part FINISHES_WORD, response.set("fin", true);
+    // if this part has BRANCHES_KEY, ...
+    return response;
   }
 }
 
