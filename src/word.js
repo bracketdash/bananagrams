@@ -1,9 +1,10 @@
 import { BRANCHES_KEY, FINISHES_WORD, PARENT_BRANCH } from "./symbols";
 
 class Word {
-  constructor({ blacklist, branch, segment, tray, trie, word }) {
+  constructor({ blacklist, branch, parts, segment, tray, trie, word }) {
     this.blacklist = blacklist;
     this.branch = branch;
+    this.parts = parts;
     this.segment = segment;
     this.tray = tray;
     this.trie = trie;
@@ -18,6 +19,7 @@ class Word {
     return new Word({
       blacklist,
       branch: result.branch,
+      parts: result.parts,
       segment,
       tray,
       trie,
@@ -38,6 +40,14 @@ class Word {
       return false;
     }
     this.branch = result.branch;
+    this.parts = result.parts;
+    this.word = result.word;
+  }
+  partMeetsCriteria(part) {
+    // TODO
+  }
+  wordMeetsCriteria(word) {
+    // TODO
   }
 }
 
