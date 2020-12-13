@@ -1,3 +1,7 @@
+// Instantiated:
+// -- once per solve (each time the user changes the tray or blacklist)
+// -- whenever we make a placement on the board (once per state)
+
 class Board {
   constructor({ numCols, numRows, rows }) {
     this.numCols = numCols || 1;
