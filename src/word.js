@@ -28,8 +28,6 @@ class Word {
   }
   getNextValidWord() {
     const loop = (parts, branch) => {
-      // TODO: currently, we are only doing 0:0 => 0:0:0 and 0:0 => 0
-      // TODO: need to add 0:0 => 0:1
       if (branch.has(BRANCHES_KEY)) {
         branch.get(BRANCHES_KEY).some((childBranch, part) => {
           if (this.partMeetsCriteria(part)) {
@@ -39,13 +37,32 @@ class Word {
           }
           return false;
         });
-      } else {
-        parts.pop();
-        if (branch.has(PARENT_BRANCH)) {
-          branch = branch.get(PARENT_BRANCH);
+      } else if (branch.has(PARENT_BRANCH)) {
+        let lastPart = parts.pop();
+        branch = branch.get(PARENT_BRANCH);
+        if (branch.has(BRANCHES_KEY)) {
+          const gotABranch = branch.get(BRANCHES_KEY).some((childBranch, part) => {
+            if (lastPart) {
+              if (lastPart === part) {
+                lastPart = false;
+              }
+              return false;
+            }
+            if (this.partMeetsCriteria(part)) {
+              parts.push(part);
+              branch = childBranch;
+              return true;
+            }
+            return false;
+          });
+          if (!gotABranch) {
+            return false;
+          }
         } else {
-          return false;
+          // TODO: back up again -- looks like we need a while loop
         }
+      } else {
+        return false;
       }
       const word = parts.join("");
       if (branch.has(FINISHES_WORD) && this.blacklist.allows(word)) {
