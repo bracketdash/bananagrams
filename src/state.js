@@ -1,5 +1,8 @@
 import { createPlacement } from "./placement";
 
+// Instantiated each time we try a new state in a solve, from 1 to tens of thousands of times per solve
+// Everything from here on down (placement, segment, word) must be very efficient
+
 class State {
   constructor({ blacklist, board, parent, placement, tray, trie }) {
     this.blacklist = blacklist;
@@ -15,13 +18,9 @@ class State {
     if (!placement) {
       return false;
     }
-    const board = this.board.getNext(placement);
-    if (!board) {
-      return false;
-    }
     return new State({
       blacklist,
-      board,
+      board: this.board.getNext(placement),
       parent: this,
       placement,
       tray: tray.getNext(placement.getPlacedTiles()),
