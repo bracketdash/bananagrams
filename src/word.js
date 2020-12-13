@@ -27,16 +27,35 @@ class Word {
     });
   }
   getNextValidWord() {
-    // TODO: traverse branches until we find a word that meets all criteria (blacklist, segment, tray)
-    let branch = this.branch || this.trie.getData();
-    let parts = this.parts.splice();
-    let word = false;
-    while (word === false || !this.blacklist.allows(word)) {
-      // TODO
-      while (!this.partMeetsCriteria(part)) {
-        // TODO
+    const loop = (parts, branch) => {
+      // TODO: currently, we are only doing 0:0 => 0:0:0 and 0:0 => 0
+      // TODO: need to add 0:0 => 0:1
+      if (branch.has(BRANCHES_KEY)) {
+        branch.get(BRANCHES_KEY).some((childBranch, part) => {
+          if (this.partMeetsCriteria(part)) {
+            parts.push(part);
+            branch = childBranch;
+            return true;
+          }
+          return false;
+        });
+      } else {
+        parts.pop();
+        if (branch.has(PARENT_BRANCH)) {
+          branch = branch.get(PARENT_BRANCH);
+        } else {
+          return false;
+        }
       }
-    }
+      const word = parts.join("");
+      if (branch.has(FINISHES_WORD) && this.blacklist.allows(word)) {
+        const { blacklist, segment, tray, trie } = this;
+        return new Word({ blacklist, branch, parts, segment, tray, trie, word });
+      } else {
+        return loop(parts.slice(), branch);
+      }
+    };
+    return loop(this.parts.slice() || ["a"], this.branch || this.trie.getData().get("a"));
   }
   getString() {
     return this.word;
@@ -51,7 +70,7 @@ class Word {
     this.word = result.word;
   }
   partMeetsCriteria(part) {
-    const counts = this.tray.getCounts(this.segment);
+    const counts = this.tray.getCountsWith(this.segment);
     while (part.length > 0) {
       const letter = part[0];
       let instances = 0;
