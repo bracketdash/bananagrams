@@ -39,6 +39,7 @@ class Word {
     let step;
     while (!result) {
       step = this.trie.step({ index, matches, matchIndex, pref });
+      // TODO: we should be saving `step` in an array/map somewhere so we can back up, try next siblings, etc. 
       if (!this.canBeMadeWith( /* TODO: tray + segment letters */, pref ) {
         // TODO: stop following this branch
       }
@@ -51,7 +52,7 @@ class Word {
         matchIndex = step.matchIndex;
         pref = step.pref;
       }
-      // TODO: return false if we get to the end of the trie
+      // TODO: return false if we get to the end of the whole trie
     }
     return result;
   }
