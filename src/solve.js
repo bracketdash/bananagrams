@@ -11,6 +11,9 @@ class Solve {
     this.tray = tray;
     this.update = update;
   }
+  getTray() {
+    return this.tray;
+  }
   handleUpdate(state, message) {
     const boardArr = state.getBoard().getArray();
     const remainingTray = state.getTray().getString();
