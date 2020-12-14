@@ -38,6 +38,9 @@ class Placement {
   getPlacedTiles() {
     return this.placedTiles;
   }
+  getState() {
+    return this.state;
+  }
 }
 
 export const createPlacement = ({ state }) => {
