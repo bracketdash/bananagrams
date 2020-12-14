@@ -2,12 +2,19 @@ import { BRANCHES_KEY, FINISHES_WORD, PARENT_BRANCH } from "./symbols";
 
 class Word {
   constructor({ branch, parts, placement, segment, state, word }) {
-    this.blacklist = state ? state.getSolve().getBlacklist() : placement.getState().getSolve().getBlacklist();
+    let solve;
+    if (state) {
+      solve = state.getSolve();
+    } else {
+      state = placement.getState();
+      solve = state.getSolve();
+    }
+    this.blacklist = solve.getBlacklist();
     this.branch = branch;
     this.parts = parts;
     this.segment = segment;
-    this.tray = state ? state.getTray() : placement.getState().getTray();
-    this.trie = state ? state.getSolve().getSolver().getTrie() : placement.getState().getSolve().getSolver().getTrie();
+    this.tray = state.getTray();
+    this.trie = solve.getSolver().getTrie();
     this.word = word;
   }
   getNext() {
