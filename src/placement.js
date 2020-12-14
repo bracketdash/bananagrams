@@ -2,58 +2,54 @@ import { createSegment } from "./segment";
 import { createWord } from "./word";
 
 class Placement {
-  constructor(config) {
-    config.keys().forEach((key) => {
-      // TODO: calculate if missing: row, col, down, placedTiles, total
-      // TODO: we might need to do the this.init() thing here too
-      // TODO: we will need to return `false` from createPlacement if a valid placement can't be made
-      this[key] = config[key];
-    });
+  constructor({ index, placement, segment, state, word }) {
+    // TODO: calculate row, col, down, placedTiles, total
+    // TODO: we might need to do the this.init() thing here too
+    // TODO: we will need to return `false` from createPlacement if a valid placement can't be made
   }
   getDelta() {
     const { col, down, row, word } = this;
     return { col, down, row, word };
   }
   getNext() {
-    const { blacklist, board, total, tray, trie } = this;
     const index = this.index ? this.index + 1 : 1;
-    if (index < total) {
-      return new Placement({ blacklist, board, index, segment: this.segment, total, tray, trie, word: this.word });
+    if (index < this.total) {
+      return new Placement({ index, placement: this });
     }
     let word = this.word.getNext();
     if (word) {
-      return new Placement({ blacklist, board, segment: this.segment, tray, trie, word });
+      return new Placement({ placement: this, word });
     }
     let segment = this.segment.getNext();
     if (!segment) {
       return false;
     }
-    word = createWord({ blacklist, segment, tray, trie });
+    word = createWord({ placement: this, segment });
     while (!word) {
       segment = segment.getNext();
       if (segment) {
-        word = createWord({ blacklist, segment, tray, trie });
+        word = createWord({ placement: this, segment });
       } else {
         return false;
       }
     }
-    return new Placement({ blacklist, board, segment, tray, trie, word });
+    return new Placement({ placement: this, segment, word });
   }
   getPlacedTiles() {
     return this.placedTiles;
   }
 }
 
-export const createPlacement = ({ blacklist, board, tray, trie }) => {
+export const createPlacement = ({ state }) => {
   const segment = createSegment({ board });
   if (!segment) {
     return false;
   }
-  const word = createWord({ blacklist, segment, tray, trie });
+  const word = createWord({ state, segment });
   if (!word) {
     return false;
   }
   this.segment = segment;
   this.word = word;
-  return new Placement({ blacklist, board, segment, tray, trie, word });
+  return new Placement({ segment, state, word });
 };
