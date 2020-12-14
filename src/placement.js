@@ -45,7 +45,7 @@ export const createPlacement = ({ state }) => {
   if (!segment) {
     return false;
   }
-  const word = createWord({ state, segment });
+  const word = createWord({ segment, state });
   if (!word) {
     return false;
   }
