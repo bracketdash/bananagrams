@@ -16,6 +16,9 @@ class Solver {
       this.updateFn({ ready: true });
     });
   }
+  getTrie() {
+    return this.trie;
+  }
   onUpdate(updateFn) {
     this.updateFn = updateFn;
   }
