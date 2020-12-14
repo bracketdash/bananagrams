@@ -12,7 +12,7 @@ class State {
     this.tray = tray || solve.getTray();
   }
   getAdvanced() {
-    const placement = createPlacement(this);
+    const placement = createPlacement({ state: this });
     if (!placement) {
       return false;
     }
