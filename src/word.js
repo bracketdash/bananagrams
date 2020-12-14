@@ -38,10 +38,12 @@ class Word {
           return false;
         });
       } else if (branch.has(PARENT_BRANCH)) {
-        let lastPart = parts.pop();
-        branch = branch.get(PARENT_BRANCH);
-        if (branch.has(BRANCHES_KEY)) {
-          const gotABranch = branch.get(BRANCHES_KEY).some((childBranch, part) => {
+        let gotABranch = false;
+        let lastPart = false;
+        while (gotABranch === false) {
+          branch = branch.get(PARENT_BRANCH);
+          lastPart = parts.pop();
+          gotABranch = branch.get(BRANCHES_KEY).some((childBranch, part) => {
             if (lastPart) {
               if (lastPart === part) {
                 lastPart = false;
@@ -55,11 +57,6 @@ class Word {
             }
             return false;
           });
-          if (!gotABranch) {
-            return false;
-          }
-        } else {
-          // TODO: back up again -- looks like we need a while loop
         }
       } else {
         return false;
