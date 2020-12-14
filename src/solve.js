@@ -5,29 +5,30 @@ import { createState } from "./state";
 // Traverses the possible states until a solution is found or we find out no solution is possible
 
 class Solve {
-  constructor({ blacklist, tray, trie }) {
+  constructor({ blacklist, solver, tray, update }) {
     this.blacklist = blacklist;
+    this.solver = solver;
     this.tray = tray;
-    this.trie = trie;
+    this.update = update;
   }
-  onUpdate(updateFn) {
-    this.updateFn = updateFn;
+  handleUpdate(state, message) {
+    const boardArr = state.getBoard().getArray();
+    const remainingTray = state.getTray().getString();
+    return this.update({ boardArr, message, remainingTray }, this.start);
   }
   start() {
     this.start = new Date().getTime();
     this.step(
       createState({
-        blacklist: this.blacklist,
         board: createBoard({}),
-        tray: this.tray,
-        trie: this.trie,
+        solve: this,
       })
     );
     return this.start;
   }
   step(state) {
     if (state.isSolved()) {
-      this.update(state, "Solution found!");
+      this.handleUpdate(state, "Solution found!");
       return;
     }
     if (!this.tryNextStep(state.getAdvanced(), "Advancing state...")) {
@@ -39,7 +40,7 @@ class Solve {
           }
           prevState = prevState.getPrev();
         }
-        this.update(state, "No solutions possible!");
+        this.handleUpdate(state, "No solutions possible!");
       }
     }
   }
@@ -48,21 +49,14 @@ class Solve {
       return false;
     }
     const nextStepTimeout = setTimeout(() => this.step(maybeNextState));
-    if (!this.update(maybeNextState, message)) {
+    if (!this.handleUpdate(maybeNextState, message)) {
       clearTimeout(nextStepTimeout);
     }
     return true;
   }
-  update(state, message) {
-    return this.updateFn(
-      {
-        board: state.getBoard(),
-        message,
-        tray: state.getTray(),
-      },
-      this.start
-    );
-  }
 }
 
-export const createSolve = (config) => new Solve(config);
+export const createSolve = (config) => {
+  const solve = new Solve(config);
+  return solve.start();
+};
