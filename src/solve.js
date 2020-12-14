@@ -11,6 +11,9 @@ class Solve {
     this.tray = tray;
     this.update = update;
   }
+  getBlacklist() {
+    return this.blacklist;
+  }
   getSolver() {
     return this.solver;
   }
