@@ -50,6 +50,9 @@ class State {
   getPrev() {
     return this.previous;
   }
+  getSolve() {
+    return this.solve;
+  }
   getTray() {
     return this.tray;
   }
