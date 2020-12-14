@@ -11,6 +11,9 @@ class Solve {
     this.tray = tray;
     this.update = update;
   }
+  getSolver() {
+    return this.solver;
+  }
   getTray() {
     return this.tray;
   }
