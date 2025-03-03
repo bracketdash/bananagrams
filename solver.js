@@ -1,5 +1,3 @@
-// TODO: fix issue where we need to solve once more after a solution is found for the board to be up to date
-
 function crawlBoard(board, rowCallback, colCallback) {
   var columns = [];
   for (var i = 0; i < board[0].length; i++) {

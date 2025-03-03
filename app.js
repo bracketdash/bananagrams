@@ -1,5 +1,6 @@
 const tilesInput = document.getElementById("tiles");
 const blacklistInput = document.getElementById("blacklist");
+const solveButton = document.getElementById("solve");
 const boardBox = document.getElementById("board");
 const trayBox = document.getElementById("tray");
 const messageBox = document.getElementById("message");
@@ -40,7 +41,15 @@ function handleSolveTick({
   return true;
 }
 
-function solveBoard(trie) {
+const trie = JSON.parse(
+  "{" +
+    compressedTrie
+      .replace(/([a-z])/g, '"$1":{')
+      .replace(/([0-9]+)/g, (num) => "}".repeat(parseInt(num)))
+      .replace(/_/g, '"_":1')
+);
+
+function solveBoard() {
   const currLetters = tilesInput.value.replace(/[^A-Z]/gi, "");
   tilesInput.value = currLetters;
 
@@ -52,13 +61,12 @@ function solveBoard(trie) {
   );
 }
 
-const trie = JSON.parse(
-  "{" +
-    compressedTrie
-      .replace(/([a-z])/g, '"$1":{')
-      .replace(/([0-9]+)/g, (num) => "}".repeat(parseInt(num)))
-      .replace(/_/g, '"_":1')
-);
+function handleEnter(event) {
+  if (event.key === "Enter") {
+    solveBoard();
+  }
+}
 
-tilesInput.addEventListener("keyup", () => solveBoard(trie));
-blacklistInput.addEventListener("keyup", () => solveBoard(trie));
+tilesInput.addEventListener("keydown", handleEnter);
+blacklistInput.addEventListener("keydown", handleEnter);
+solveButton.addEventListener("click", solveBoard);

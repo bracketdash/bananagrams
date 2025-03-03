@@ -48,9 +48,8 @@ body {
 .controls > div {
   padding: 10px;
 }
-.controls > div:last-child {
+.controls > div:not(:first-child) {
   border-left: 1px solid #fff;
-  flex-grow: 1;
 }
 .controls > div > label {
   color: #666;
@@ -64,6 +63,10 @@ body {
   font-size: 11px;
 }
 
+.blacklist-container {
+  flex-grow: 1;
+}
+
 #blacklist {
   border: 1px solid #ccc;
   border-radius: 3px;
@@ -74,6 +77,26 @@ body {
   text-indent: 8px;
   text-transform: uppercase;
   width: calc(100% - 5px);
+}
+
+#solve {
+  background-color: #080;
+  border-radius: 4px;
+  border: 1px solid #060;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  height: 33px;
+  line-height: 33px;
+  padding-left: 20px;
+  padding-right: 20px;
+  user-select: none;
+}
+#solve:hover {
+  background-color: #090;
+}
+#solve:active {
+  background-color: #070;
 }
 
 .boardbox {
