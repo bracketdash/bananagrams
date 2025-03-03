@@ -1,15 +1,17 @@
+// TODO: fix issue where we need to solve once more after a solution is found for the board to be up to date
+
 function crawlBoard(board, rowCallback, colCallback) {
   var columns = [];
-  _.times(board[0].length, function () {
+  for (var i = 0; i < board[0].length; i++) {
     columns.push([]);
-  });
-  _.forEach(board, function (boardRow, boardRowIndex) {
+  }
+  board.forEach(function (boardRow, boardRowIndex) {
     rowCallback(boardRow, boardRowIndex);
-    _.forEach(boardRow, function (boardCol, boardColIndex) {
+    boardRow.forEach(function (boardCol, boardColIndex) {
       columns[boardColIndex].push(boardCol);
     });
   });
-  _.forEach(columns, function (boardColumn, boardColumnIndex) {
+  columns.forEach(function (boardColumn, boardColumnIndex) {
     colCallback(boardColumn, boardColumnIndex);
   });
 }
@@ -18,7 +20,8 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
   var allDone = false;
   var needsLeftTrimIteration = false;
   var moddedPattern = fullPattern;
-  _.times(leftTrim, function () {
+
+  for (var i = 0; i < leftTrim; i++) {
     if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
       moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
       moddedPattern = moddedPattern.replace(
@@ -34,8 +37,9 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
     } else {
       allDone = true;
     }
-  });
-  _.times(rightTrim, function () {
+  }
+
+  for (var j = 0; j < rightTrim; j++) {
     if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
       moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
       moddedPattern = moddedPattern.replace(
@@ -51,38 +55,46 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
     } else {
       needsLeftTrimIteration = true;
     }
-  });
+  }
+
   if (leftTrim > 0) {
     moddedPattern = "^" + moddedPattern;
   }
+
   if (rightTrim > 0) {
     moddedPattern = moddedPattern + "$";
   }
+
   if (allDone) {
     return patterns;
   }
+
   if (needsLeftTrimIteration) {
     return getPatternLoop(fullPattern, patterns, leftTrim + 1, 0);
   } else {
     patterns.push(moddedPattern);
   }
+
   return getPatternLoop(fullPattern, patterns, leftTrim, rightTrim + 1);
 }
 
 function getPattern(stripArr) {
   var fullPattern =
     ".*" +
-    _.trim(stripArr.join("")).replace(/\s+/g, function (match) {
-      return ".{" + match.length + "}";
-    }) +
+    stripArr
+      .join("")
+      .trim()
+      .replace(/\s+/g, function (match) {
+        return ".{" + match.length + "}";
+      }) +
     ".*";
   return new RegExp(getPatternLoop(fullPattern, [fullPattern], 0, 1).join("|"));
 }
 
 function narrowWordsBy(wordlist, letters) {
-  return _.filter(wordlist, function (word) {
+  return wordlist.filter(function (word) {
     var lettersLeft = letters;
-    _.forEach(word.split(""), function (letter) {
+    word.split("").forEach(function (letter) {
       lettersLeft = lettersLeft.replace(letter, "");
     });
     if (letters.length - lettersLeft.length != word.length) {
