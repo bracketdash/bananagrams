@@ -1,41 +1,58 @@
-var trie = {};
+const trie = getTrie();
 
-var app = new Vue({
-  el: "#app",
-  data: {
-    blacklist: "",
-    board: [[]],
-    letters: "",
-    message: "",
-    tray: "",
-  },
-  methods: {
-    solve: function () {
-      var self = this;
-      this.letters = this.letters.replace(/[^A-Z]/gi, "");
-      this.blacklist = this.blacklist.replace(/[^,A-Z]/gi, "");
-      this.message = "";
-      solve(
-        self.letters,
-        self.blacklist.split(","),
-        trie,
-        function (clientState) {
-          if (clientState.end) {
-            self.message = clientState.message;
-          } else if (
-            self.letters != clientState.originalLetters ||
-            self.blacklist != clientState.blacklist.join(",")
-          ) {
-            return false;
-          }
-          self.board = clientState.board;
-          self.tray = clientState.tray;
-          return true;
-        }
-      );
-    },
-  },
-  mounted: function () {
-    trie = getTrie();
-  },
-});
+const tilesInput = document.getElementById("tiles");
+const blacklistInput = document.getElementById("blacklist");
+const boardBox = document.getElementById("board");
+const trayBox = document.getElementById("tray");
+const messageBox = document.getElementById("message");
+
+function printBoard(board) {
+  let boardHtml = "";
+  board.forEach((row) => {
+    boardHtml += '<div class="row">';
+    row.forEach((cell) => {
+      boardHtml += `<div class="cell${
+        cell === " " ? " empty" : ""
+      }">${cell}</div>`;
+    });
+    boardHtml += "</div>";
+  });
+  boardBox.innerHTML = boardHtml;
+}
+
+function handleSolveTick({
+  blacklist,
+  board,
+  currBlacklist,
+  currLetters,
+  end,
+  message,
+  originalLetters,
+  tray,
+}) {
+  if (
+    !end &&
+    (currLetters != originalLetters || currBlacklist != blacklist.join(","))
+  ) {
+    return false;
+  }
+  printBoard(board);
+  trayBox.innerHTML = tray;
+  messageBox.innerHTML = end ? message : "";
+  return true;
+}
+
+function solveBoard() {
+  const currLetters = tilesInput.value.replace(/[^A-Z]/gi, "");
+  tilesInput.value = currLetters;
+
+  const currBlacklist = blacklistInput.value.replace(/[^,A-Z]/gi, "");
+  blacklistInput.value = currBlacklist;
+
+  solve(currLetters, currBlacklist.split(","), trie, (state) =>
+    handleSolveTick({ ...state, currLetters, currBlacklist })
+  );
+}
+
+tilesInput.addEventListener("keyup", solveBoard);
+blacklistInput.addEventListener("keyup", solveBoard);

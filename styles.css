@@ -23,7 +23,7 @@ body {
   text-align: center;
 }
 
-.letterbox > input {
+#tiles {
   border: 0;
   font-size: 20px;
   height: 40px;
@@ -35,7 +35,7 @@ body {
   text-transform: uppercase;
   width: 100%;
 }
-.letterbox > input:focus {
+#tiles:focus {
   outline: 0;
 }
 
@@ -63,7 +63,8 @@ body {
   display: block;
   font-size: 11px;
 }
-.controls > div > input {
+
+#blacklist {
   border: 1px solid #ccc;
   border-radius: 3px;
   color: #f15555;
@@ -83,7 +84,8 @@ body {
   min-height: calc(100vh - 250px);
   padding: 10px 0;
 }
-.boardbox > .board > .row > .cell {
+
+#board > .row > .cell {
   border-radius: 3px;
   border: 1px solid #000;
   display: inline-block;
@@ -97,12 +99,12 @@ body {
   vertical-align: text-top;
   width: 40px;
 }
-.boardbox > .board > .row > .cell.empty {
+#board > .row > .cell.empty {
   border-radius: 0;
   border-color: #ddd;
 }
 
-.tray {
+#tray {
   color: #999;
   font-size: 24px;
   letter-spacing: 5px;
@@ -111,7 +113,7 @@ body {
   text-transform: uppercase;
 }
 
-.message {
+#message {
   color: #999;
   font-size: 14px;
   padding: 10px 0;

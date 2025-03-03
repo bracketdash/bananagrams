@@ -14,13 +14,8 @@
       <div class="header">
         <h1>Bananagrams Solver</h1>
       </div>
-      <div class="letterbox">
-        <input
-          type="text"
-          placeholder="yourtileshere"
-          v-model="letters"
-          @keyup="solve"
-        />
+      <div>
+        <input id="tiles" type="text" placeholder="yourtileshere" />
       </div>
       <div class="controls">
         <div>
@@ -28,26 +23,15 @@
           <small>(Comma-separated)</small>
         </div>
         <div>
-          <input type="text" v-model="blacklist" @keyup="solve" />
+          <input id="blacklist" type="text" />
         </div>
       </div>
       <div class="boardbox">
-        <div class="board">
-          <div class="row" v-for="row in board">
-            <div
-              class="cell"
-              v-for="cell in row"
-              :class="cell == ' ' ? 'empty' : ''"
-            >
-              {{cell}}
-            </div>
-          </div>
-        </div>
+        <div id="board"></div>
       </div>
-      <div class="tray">{{tray}}</div>
-      <div class="message">{{message}}</div>
+      <div id="tray" class="tray"></div>
+      <div id="message" class="message"></div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
     <script src="trie.js"></script>
     <script src="solver.js"></script>
