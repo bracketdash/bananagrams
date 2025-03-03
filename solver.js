@@ -18,7 +18,6 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
   var allDone = false;
   var needsLeftTrimIteration = false;
   var moddedPattern = fullPattern;
-
   for (var i = 0; i < leftTrim; i++) {
     if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
       moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
@@ -36,7 +35,6 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
       allDone = true;
     }
   }
-
   for (var j = 0; j < rightTrim; j++) {
     if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
       moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
@@ -54,25 +52,20 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
       needsLeftTrimIteration = true;
     }
   }
-
   if (leftTrim > 0) {
     moddedPattern = "^" + moddedPattern;
   }
-
   if (rightTrim > 0) {
     moddedPattern = moddedPattern + "$";
   }
-
   if (allDone) {
     return patterns;
   }
-
   if (needsLeftTrimIteration) {
     return getPatternLoop(fullPattern, patterns, leftTrim + 1, 0);
   } else {
     patterns.push(moddedPattern);
   }
-
   return getPatternLoop(fullPattern, patterns, leftTrim, rightTrim + 1);
 }
 
@@ -103,10 +96,10 @@ function narrowWordsBy(wordlist, letters) {
 }
 
 function getIndexOfWordInStripLoop(pattern, word, strip, index) {
-  var spliced = _.clone(strip);
+  var spliced = [...strip];
   if (index === "first") {
     index = -word.length + 1;
-    _.some(strip, function (tile) {
+    strip.some(function (tile) {
       if (tile === " ") {
         index += 1;
       } else {
@@ -144,15 +137,15 @@ function getMatchesLoop(
 ) {
   var pattern;
   var stripStr = strip.join("");
-  var stripStrTrimmed = _.trim(stripStr);
+  var stripStrTrimmed = stripStr.trim();
   if (!stripStrTrimmed) {
     return;
   }
   pattern = getPattern(strip);
-  _.forEach(stripStrTrimmed.split(""), function (tileOnBoard, tileIndex) {
+  stripStrTrimmed.split("").forEach(function (tileOnBoard, tileIndex) {
     if (tileOnBoard !== " ") {
       var words = narrowWordsBy(wordlist, letters + tileOnBoard);
-      _.forEach(words, function (word) {
+      words.forEach(function (word) {
         if (pattern.test(word)) {
           var stripMatch = {
             word: word,
@@ -175,6 +168,26 @@ function getMatchesLoop(
       }
     }
   });
+}
+
+function calculatePoints(board, match) {
+  var points = 100;
+  if (match.row > 0 && match.row < board.length) {
+    points -= 1;
+    if (match.dir === "col" && match.row + match.word.length < board.length) {
+      points -= 2;
+    }
+  }
+  if (match.col > 0 && match.col < board[0].length) {
+    points -= 1;
+    if (
+      match.dir === "row" &&
+      match.col + match.word.length < board[0].length
+    ) {
+      points -= 2;
+    }
+  }
+  return points;
 }
 
 function getMatches(letters, board, wordlist, resolve) {
@@ -203,28 +216,9 @@ function getMatches(letters, board, wordlist, resolve) {
         matches,
         function () {
           if (boardColumnIndex === board[0].length - 1) {
-            matches = _.sortBy(matches, function (match) {
-              var points = 100;
-              if (match.row > 0 && match.row < board.length) {
-                points -= 1;
-                if (
-                  match.dir === "col" &&
-                  match.row + match.word.length < board.length
-                ) {
-                  points -= 2;
-                }
-              }
-              if (match.col > 0 && match.col < board[0].length) {
-                points -= 1;
-                if (
-                  match.dir === "row" &&
-                  match.col + match.word.length < board[0].length
-                ) {
-                  points -= 2;
-                }
-              }
-              return points;
-            });
+            matches = matches.sort(
+              (a, b) => calculatePoints(board, a) - calculatePoints(board, b)
+            );
             resolve(matches);
           }
         }
@@ -233,40 +227,53 @@ function getMatches(letters, board, wordlist, resolve) {
   );
 }
 
+function hasWordInTrie(trie, chars) {
+  var current = trie;
+  for (var i = 0; i < chars.length; i++) {
+    if (!current.hasOwnProperty(chars[i])) {
+      return false;
+    }
+    current = current[chars[i]];
+  }
+  return true;
+}
+
 function isBoardValid(board, trie, blacklist) {
   var valid = true;
   crawlBoard(
     board,
     function (boardRow) {
-      var words = _.split(_.trim(boardRow.join("")), /\s+/);
-      _.forEach(words, function (word) {
+      var words = boardRow.join("").trim().split(/\s+/);
+      for (var i = 0; i < words.length; i++) {
+        var word = words[i];
         if (
           word.length > 1 &&
-          (!_.has(trie, (word + "_").split("")) ||
-            _.indexOf(blacklist, word) > -1)
+          (!hasWordInTrie(trie, (word + "_").split("")) ||
+            blacklist.indexOf(word) > -1)
         ) {
           valid = false;
         }
-      });
+      }
     },
     function (boardColumn) {
-      var words = _.split(_.trim(boardColumn.join("")), /\s+/);
-      _.forEach(words, function (word) {
+      var words = boardColumn.join("").trim().split(/\s+/);
+      for (var i = 0; i < words.length; i++) {
+        var word = words[i];
         if (
           word.length > 1 &&
-          (!_.has(trie, (word + "_").split("")) ||
-            _.indexOf(blacklist, word) > -1)
+          (!hasWordInTrie(trie, (word + "_").split("")) ||
+            blacklist.indexOf(word) > -1)
         ) {
           valid = false;
         }
-      });
+      }
     }
   );
   return valid;
 }
 
 function placeWord(oldBoard, match) {
-  var board = _.cloneDeep(oldBoard);
+  var board = JSON.parse(JSON.stringify(oldBoard));
   var word = match.word;
   var row = match.row;
   var col = match.col;
@@ -274,41 +281,48 @@ function placeWord(oldBoard, match) {
   var wordLen = { row: 0, col: 0 };
   wordLen[dir] = word.length;
   if (row < 0 || row + wordLen.col > board.length) {
-    var newRow = _.map(Array(board[0].length), () => " ");
+    var newRow = Array.from({ length: board[0].length }, () => " ");
     if (row < 0) {
-      _.times(-row, () => board.unshift(_.clone(newRow)));
+      if (-row > 0) {
+        for (let i = 0; i < -row; i++) {
+          board.unshift([...newRow]);
+        }
+      }
       row = 0;
     }
     if (row + wordLen.col > board.length) {
-      _.times(row + wordLen.col - board.length, () =>
-        board.push(_.clone(newRow))
-      );
+      const times = row + wordLen.col - board.length;
+      if (times > 0) {
+        for (let i = 0; i < times; i++) {
+          board.push([...newRow]);
+        }
+      }
     }
   }
   if (col < 0 || col + wordLen.row > board[0].length) {
     if (col < 0) {
-      board = _.map(board, (boardRow) =>
-        _.map(Array(-col), () => " ").concat(boardRow)
+      board = board.map((boardRow) =>
+        Array.from({ length: -col }, () => " ").concat(boardRow)
       );
       col = 0;
     }
     if (col + wordLen.row > board[0].length) {
-      board = _.map(board, (boardRow) =>
+      board = board.map((boardRow) =>
         boardRow.concat(
-          _.map(Array(col + wordLen.row - board[0].length), () => " ")
+          Array.from({ length: col + wordLen.row - board[0].length }, () => " ")
         )
       );
     }
   }
   board[row][col] = word[0];
-  _.forEach(word.substring(1), function (letter) {
+  for (const letter of word.substring(1)) {
     if (dir === "col") {
       row += 1;
     } else {
       col += 1;
     }
     board[row][col] = letter;
-  });
+  }
   return board;
 }
 
@@ -320,17 +334,15 @@ function getNewLetters(incomingLetters, oldBoard, newBoard, match) {
     newStrip = newBoard[match.row];
     oldStrip = oldBoard[match.row];
   } else {
-    newStrip = _.map(newBoard, function (row) {
-      return row[match.col];
-    });
-    oldStrip = _.map(oldBoard, function (row) {
-      return row[match.col];
-    });
+    newStrip = newBoard.map((row) => row[match.col]);
+    oldStrip = oldBoard.map((row) => row[match.col]);
   }
-  let lettersToBeRemoved = _.difference(newStrip, oldStrip);
-  _.forEach(lettersToBeRemoved, function (letterToBeRemoved) {
+  let lettersToBeRemoved = newStrip.filter(
+    (letter) => !oldStrip.includes(letter)
+  );
+  for (const letterToBeRemoved of lettersToBeRemoved) {
     newLetters = newLetters.replace(letterToBeRemoved, "");
-  });
+  }
   return newLetters;
 }
 
@@ -414,8 +426,8 @@ function solveLoop(solveState) {
 function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
   var newPrefix = "";
   var lastLeaf = true;
-  _.forEach(_.uniq(letters), function (letter) {
-    if (!!branch[letter]) {
+  for (const letter of [...new Set(letters)]) {
+    if (branch[letter]) {
       if (lastLeaf) {
         lastLeaf = false;
       }
@@ -425,13 +437,13 @@ function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
       }
       makeWordsWithLoop(
         branch[letter],
-        _.replace(letters, letter, ""),
+        letters.replace(letter, ""),
         newPrefix,
         words,
         resolve
       );
     }
-  });
+  }
   if (lastLeaf) {
     resolve(words);
   }
@@ -443,7 +455,7 @@ function makeWordsWith(letters, trie, disallowedWords) {
     words = result;
   });
   if (disallowedWords) {
-    words = _.difference(words, disallowedWords);
+    words = words.filter((word) => !disallowedWords.includes(word));
   }
   return words;
 }
@@ -454,9 +466,7 @@ function solve(incomingLetters, blacklist, trie, callback) {
   var words = makeWordsWith(
     letters,
     trie,
-    _.map(blacklist, function (disallowedWord) {
-      return disallowedWord.toLowerCase();
-    })
+    blacklist.map((disallowedWord) => disallowedWord.toLowerCase())
   );
   if (words.length) {
     solveLoop({
@@ -466,9 +476,12 @@ function solve(incomingLetters, blacklist, trie, callback) {
         {
           board: board,
           letters: letters,
-          matches: _.map(words, function (word) {
-            return { word: word, dir: "row", row: 0, col: 0 };
-          }),
+          matches: words.map((word) => ({
+            word: word,
+            dir: "row",
+            row: 0,
+            col: 0,
+          })),
           matchIndex: 0,
         },
       ],
