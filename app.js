@@ -1,5 +1,3 @@
-const trie = getTrie();
-
 const tilesInput = document.getElementById("tiles");
 const blacklistInput = document.getElementById("blacklist");
 const boardBox = document.getElementById("board");
@@ -42,7 +40,7 @@ function handleSolveTick({
   return true;
 }
 
-function solveBoard() {
+function solveBoard(trie) {
   const currLetters = tilesInput.value.replace(/[^A-Z]/gi, "");
   tilesInput.value = currLetters;
 
@@ -54,5 +52,13 @@ function solveBoard() {
   );
 }
 
-tilesInput.addEventListener("keyup", solveBoard);
-blacklistInput.addEventListener("keyup", solveBoard);
+const trie = JSON.parse(
+  "{" +
+    compressedTrie
+      .replace(/([a-z])/g, '"$1":{')
+      .replace(/([0-9]+)/g, (num) => "}".repeat(parseInt(num)))
+      .replace(/_/g, '"_":1')
+);
+
+tilesInput.addEventListener("keyup", () => solveBoard(trie));
+blacklistInput.addEventListener("keyup", () => solveBoard(trie));
