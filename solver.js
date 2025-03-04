@@ -1,54 +1,48 @@
 function crawlBoard(board, rowCallback, colCallback) {
-  var columns = [];
-  for (var i = 0; i < board[0].length; i++) {
-    columns.push([]);
+  const numCols = board[0].length;
+  const columns = Array.from({ length: numCols }, () => []);
+  for (let rowIndex = 0; rowIndex < board.length; rowIndex++) {
+    const boardRow = board[rowIndex];
+    rowCallback(boardRow, rowIndex);
+    for (let colIndex = 0; colIndex < boardRow.length; colIndex++) {
+      columns[colIndex].push(boardRow[colIndex]);
+    }
   }
-  board.forEach(function (boardRow, boardRowIndex) {
-    rowCallback(boardRow, boardRowIndex);
-    boardRow.forEach(function (boardCol, boardColIndex) {
-      columns[boardColIndex].push(boardCol);
-    });
-  });
-  columns.forEach(function (boardColumn, boardColumnIndex) {
-    colCallback(boardColumn, boardColumnIndex);
-  });
+  for (let colIndex = 0; colIndex < numCols; colIndex++) {
+    colCallback(columns[colIndex], colIndex);
+  }
 }
 
+function moddedPatternReplacer(_, captured) {
+  const num = parseInt(captured, 10);
+  return num < 2 ? "" : ".{0," + (num - 1) + "}";
+}
+
+const gplRegexA = /[a-z]+[^a-z]+[a-z]+/;
+const gplRegexB = /^[^a-z]*[a-z]+/;
+const gplRegexC = /^\.\{([0-9]*)\}/;
+const gplRegexD = /[a-z]+[^a-z]*$/;
+const gplRegexE = /\.\{([0-9]*)\}$/;
+
 function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
-  var allDone = false;
-  var needsLeftTrimIteration = false;
-  var moddedPattern = fullPattern;
-  for (var i = 0; i < leftTrim; i++) {
-    if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
-      moddedPattern = moddedPattern.replace(/^[^a-z]*[a-z]+/, "");
-      moddedPattern = moddedPattern.replace(
-        /^\.\{([0-9]*)\}/,
-        function (match, captured) {
-          var num = parseInt(captured);
-          if (num < 2) {
-            return "";
-          }
-          return ".{0," + (num - 1) + "}";
-        }
-      );
+  let allDone = false;
+  let moddedPattern = fullPattern;
+  let needsLeftTrimIteration = false;
+  for (let i = 0; i < leftTrim; i++) {
+    if (gplRegexA.test(moddedPattern)) {
+      moddedPattern = moddedPattern
+        .replace(gplRegexB, "")
+        .replace(gplRegexC, moddedPatternReplacer);
     } else {
       allDone = true;
     }
   }
-  for (var j = 0; j < rightTrim; j++) {
-    if (/[a-z]+[^a-z]+[a-z]+/.test(moddedPattern)) {
-      moddedPattern = moddedPattern.replace(/[a-z]+[^a-z]*$/, "");
-      moddedPattern = moddedPattern.replace(
-        /\.\{([0-9]*)\}$/,
-        function (match, captured) {
-          var num = parseInt(captured);
-          if (num < 2) {
-            return "";
-          }
-          return ".{0," + (num - 1) + "}";
-        }
-      );
-    } else {
+  for (let j = 0; j < rightTrim; j++) {
+    if (gplRegexA.test(moddedPattern)) {
+      moddedPattern = moddedPattern
+        .replace(gplRegexD, "")
+        .replace(gplRegexE, moddedPatternReplacer);
+    } else if (!allDone && !needsLeftTrimIteration) {
       needsLeftTrimIteration = true;
     }
   }
@@ -56,7 +50,7 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
     moddedPattern = "^" + moddedPattern;
   }
   if (rightTrim > 0) {
-    moddedPattern = moddedPattern + "$";
+    moddedPattern += "$";
   }
   if (allDone) {
     return patterns;
@@ -69,25 +63,25 @@ function getPatternLoop(fullPattern, patterns, leftTrim, rightTrim) {
   return getPatternLoop(fullPattern, patterns, leftTrim, rightTrim + 1);
 }
 
+const whitespaceRegex = /\s+/g;
+
 function getPattern(stripArr) {
-  var fullPattern =
+  const fullPattern =
     ".*" +
     stripArr
       .join("")
       .trim()
-      .replace(/\s+/g, function (match) {
-        return ".{" + match.length + "}";
-      }) +
+      .replace(whitespaceRegex, (match) => ".{" + match.length + "}") +
     ".*";
   return new RegExp(getPatternLoop(fullPattern, [fullPattern], 0, 1).join("|"));
 }
 
 function narrowWordsBy(wordlist, letters) {
-  return wordlist.filter(function (word) {
-    var lettersLeft = letters;
-    word.split("").forEach(function (letter) {
-      lettersLeft = lettersLeft.replace(letter, "");
-    });
+  return wordlist.filter((word) => {
+    let lettersLeft = letters;
+    for (let i = 0; i < word.length; i++) {
+      lettersLeft = lettersLeft.replace(word[i], "");
+    }
     if (letters.length - lettersLeft.length != word.length) {
       return false;
     }
@@ -96,27 +90,26 @@ function narrowWordsBy(wordlist, letters) {
 }
 
 function getIndexOfWordInStripLoop(pattern, word, strip, index) {
-  var spliced = [...strip];
+  const wordLength = word.length;
+  let spliced = [...strip];
   if (index === "first") {
-    index = -word.length + 1;
-    strip.some(function (tile) {
-      if (tile === " ") {
+    index = -wordLength + 1;
+    for (let i = 0; i < strip.length; i++) {
+      if (strip[i] === " ") {
         index += 1;
       } else {
-        return true;
+        break;
       }
-    });
+    }
   }
   if (index < 0) {
-    Array.prototype.splice.apply(
-      spliced,
-      [0, word.length + index].concat(word)
-    );
+    spliced.splice(0, wordLength + index, ...word);
   } else {
-    Array.prototype.splice.apply(spliced, [index, word.length].concat(word));
+    spliced.splice(index, wordLength, ...word);
   }
-  if (pattern.test(spliced.join(""))) {
-    if (spliced.join("") === strip.join("")) {
+  const splicedStr = spliced.join("");
+  if (pattern.test(splicedStr)) {
+    if (splicedStr === strip.join("")) {
       return false;
     }
     return index;
@@ -135,66 +128,69 @@ function getMatchesLoop(
   matches,
   callback
 ) {
-  var pattern;
-  var stripStr = strip.join("");
-  var stripStrTrimmed = stripStr.trim();
+  const stripStr = strip.join("");
+  const stripStrTrimmed = stripStr.trim();
   if (!stripStrTrimmed) {
     return;
   }
-  pattern = getPattern(strip);
-  stripStrTrimmed.split("").forEach(function (tileOnBoard, tileIndex) {
+  const pattern = getPattern(strip);
+  const stripStrTrimmedLength = stripStrTrimmed.length;
+
+  for (let i = 0; i < stripStrTrimmedLength; i++) {
+    const tileOnBoard = stripStrTrimmed[i];
     if (tileOnBoard !== " ") {
-      var words = narrowWordsBy(wordlist, letters + tileOnBoard);
-      words.forEach(function (word) {
+      const words = narrowWordsBy(wordlist, letters + tileOnBoard);
+      for (let j = 0; j < words.length; j++) {
+        const word = words[j];
         if (pattern.test(word)) {
-          var stripMatch = {
-            word: word,
-            dir: dir,
-          };
-          stripMatch[dir] = stripdex;
-          stripMatch[notDir] = getIndexOfWordInStripLoop(
-            new RegExp(stripStr.replace(/\s/g, ".")),
+          const indexOfWordInStripLoop = getIndexOfWordInStripLoop(
+            new RegExp(stripStr.replaceAll(" ", ".")),
             word.split(""),
             strip,
             "first"
           );
-          if (stripMatch[notDir] !== false) {
+          if (indexOfWordInStripLoop !== false) {
+            const stripMatch = { word, dir };
+            stripMatch[dir] = stripdex;
+            stripMatch[notDir] = indexOfWordInStripLoop;
             matches.push(stripMatch);
           }
         }
-      });
-      if (!!callback && tileIndex === stripStrTrimmed.length - 1) {
+      }
+      if (callback && i === stripStrTrimmedLength - 1) {
         callback();
       }
     }
-  });
+  }
 }
 
-function calculatePoints(board, match) {
-  var points = 100;
-  if (match.row > 0 && match.row < board.length) {
-    points -= 1;
-    if (match.dir === "col" && match.row + match.word.length < board.length) {
-      points -= 2;
+function calculatePoints(board, { row, col, dir, word }) {
+  const wordLength = word.length;
+  const rows = board.length;
+  const cols = board[0].length;
+  let points = 7;
+  if (row > 0 && row < rows) {
+    if (dir === "col" && row + wordLength < rows) {
+      points -= 3;
+    } else {
+      points -= 1;
     }
   }
-  if (match.col > 0 && match.col < board[0].length) {
-    points -= 1;
-    if (
-      match.dir === "row" &&
-      match.col + match.word.length < board[0].length
-    ) {
-      points -= 2;
+  if (col > 0 && col < cols) {
+    if (dir === "row" && col + wordLength < cols) {
+      points -= 3;
+    } else {
+      points -= 1;
     }
   }
   return points;
 }
 
 function getMatches(letters, board, wordlist, resolve) {
-  var matches = [];
+  const matches = [];
   crawlBoard(
     board,
-    function (boardRow, boardRowIndex) {
+    (boardRow, boardRowIndex) => {
       getMatchesLoop(
         boardRow,
         boardRowIndex,
@@ -205,7 +201,7 @@ function getMatches(letters, board, wordlist, resolve) {
         matches
       );
     },
-    function (boardColumn, boardColumnIndex) {
+    (boardColumn, boardColumnIndex) => {
       getMatchesLoop(
         boardColumn,
         boardColumnIndex,
@@ -214,12 +210,13 @@ function getMatches(letters, board, wordlist, resolve) {
         letters,
         wordlist,
         matches,
-        function () {
+        () => {
           if (boardColumnIndex === board[0].length - 1) {
-            matches = matches.sort(
-              (a, b) => calculatePoints(board, a) - calculatePoints(board, b)
+            resolve(
+              matches.sort(
+                (a, b) => calculatePoints(board, a) - calculatePoints(board, b)
+              )
             );
-            resolve(matches);
           }
         }
       );
@@ -228,124 +225,95 @@ function getMatches(letters, board, wordlist, resolve) {
 }
 
 function hasWordInTrie(trie, chars) {
-  var current = trie;
-  for (var i = 0; i < chars.length; i++) {
-    if (!current.hasOwnProperty(chars[i])) {
+  let current = trie;
+  for (const char of chars) {
+    if (!(char in current)) {
       return false;
     }
-    current = current[chars[i]];
+    current = current[char];
   }
   return true;
 }
 
+function isStripValid(strip, trie, blacklist) {
+  return strip
+    .join("")
+    .trim()
+    .split(whitespaceRegex)
+    .every(
+      (word) =>
+        word.length <= 1 ||
+        (hasWordInTrie(trie, [...word, "_"]) && !blacklist.includes(word))
+    );
+}
+
 function isBoardValid(board, trie, blacklist) {
-  var valid = true;
+  let valid = true;
   crawlBoard(
     board,
-    function (boardRow) {
-      var words = boardRow.join("").trim().split(/\s+/);
-      for (var i = 0; i < words.length; i++) {
-        var word = words[i];
-        if (
-          word.length > 1 &&
-          (!hasWordInTrie(trie, (word + "_").split("")) ||
-            blacklist.indexOf(word) > -1)
-        ) {
-          valid = false;
-        }
+    (strip) => {
+      if (!isStripValid(strip, trie, blacklist)) {
+        valid = false;
       }
     },
-    function (boardColumn) {
-      var words = boardColumn.join("").trim().split(/\s+/);
-      for (var i = 0; i < words.length; i++) {
-        var word = words[i];
-        if (
-          word.length > 1 &&
-          (!hasWordInTrie(trie, (word + "_").split("")) ||
-            blacklist.indexOf(word) > -1)
-        ) {
-          valid = false;
-        }
+    (strip) => {
+      if (!isStripValid(strip, trie, blacklist)) {
+        valid = false;
       }
     }
   );
   return valid;
 }
 
-function placeWord(oldBoard, match) {
-  var board = JSON.parse(JSON.stringify(oldBoard));
-  var word = match.word;
-  var row = match.row;
-  var col = match.col;
-  var dir = match.dir;
-  var wordLen = { row: 0, col: 0 };
-  wordLen[dir] = word.length;
-  if (row < 0 || row + wordLen.col > board.length) {
-    var newRow = Array.from({ length: board[0].length }, () => " ");
-    if (row < 0) {
-      if (-row > 0) {
-        for (let i = 0; i < -row; i++) {
-          board.unshift([...newRow]);
-        }
-      }
-      row = 0;
-    }
-    if (row + wordLen.col > board.length) {
-      const times = row + wordLen.col - board.length;
-      if (times > 0) {
-        for (let i = 0; i < times; i++) {
-          board.push([...newRow]);
-        }
-      }
-    }
+function placeWord(oldBoard, { dir, word, row, col }) {
+  const isVertical = dir === "col";
+  const wordLength = word.length;
+  let board = oldBoard.map((row) => [...row]);
+  if (row < 0) {
+    board.unshift(
+      ...Array.from({ length: -row }, () => Array(board[0].length).fill(" "))
+    );
+    row = 0;
   }
-  if (col < 0 || col + wordLen.row > board[0].length) {
-    if (col < 0) {
-      board = board.map((boardRow) =>
-        Array.from({ length: -col }, () => " ").concat(boardRow)
-      );
-      col = 0;
-    }
-    if (col + wordLen.row > board[0].length) {
-      board = board.map((boardRow) =>
-        boardRow.concat(
-          Array.from({ length: col + wordLen.row - board[0].length }, () => " ")
-        )
-      );
-    }
+  while (row + (isVertical ? wordLength : 0) > board.length) {
+    board.push(Array(board[0].length).fill(" "));
   }
-  board[row][col] = word[0];
-  for (const letter of word.substring(1)) {
-    if (dir === "col") {
-      row += 1;
+  if (col < 0) {
+    board = board.map((row) => [...Array(-col).fill(" "), ...row]);
+    col = 0;
+  }
+  while (col + (isVertical ? 0 : wordLength) > board[0].length) {
+    board = board.map((row) => [
+      ...row,
+      ...Array(wordLength + col - row.length).fill(" "),
+    ]);
+  }
+  for (let i = 0; i < wordLength; i++) {
+    board[row][col] = word[i];
+    if (isVertical) {
+      row++;
     } else {
-      col += 1;
+      col++;
     }
-    board[row][col] = letter;
   }
   return board;
 }
 
-function getNewLetters(incomingLetters, oldBoard, newBoard, match) {
+function getNewLetters(incomingLetters, oldBoard, newBoard, { dir, row, col }) {
+  const isRow = dir === "row";
+  const newStrip = isRow ? newBoard[row] : newBoard.map((row) => row[col]);
+  const oldStrip = isRow ? oldBoard[row] : oldBoard.map((row) => row[col]);
+  const letterSet = new Set(oldStrip);
   let newLetters = incomingLetters;
-  var newStrip = [];
-  var oldStrip = [];
-  if (match.dir === "row") {
-    newStrip = newBoard[match.row];
-    oldStrip = oldBoard[match.row];
-  } else {
-    newStrip = newBoard.map((row) => row[match.col]);
-    oldStrip = oldBoard.map((row) => row[match.col]);
-  }
-  let lettersToBeRemoved = newStrip.filter(
-    (letter) => !oldStrip.includes(letter)
-  );
-  for (const letterToBeRemoved of lettersToBeRemoved) {
-    newLetters = newLetters.replace(letterToBeRemoved, "");
+  for (const letter of newStrip) {
+    if (!letterSet.has(letter)) {
+      newLetters = newLetters.replace(letter, "");
+    }
   }
   return newLetters;
 }
 
+// TODO: Continue optimizations from here down
 function solveLoop(solveState) {
   var currentState = solveState.history[solveState.historyIndex];
   var currentMatch = currentState.matches[currentState.matchIndex];
