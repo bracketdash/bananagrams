@@ -14,9 +14,11 @@ const trie = JSON.parse(
 );
 
 function solveBoard() {
-  const currLetters = tilesInput.value.replace(/[^A-Z]/gi, "");
+  const currLetters = tilesInput.value.replace(/[^A-Z]/gi, "").toLowerCase();
   tilesInput.value = currLetters;
-  const currBlacklist = blacklistInput.value.replace(/[^,A-Z]/gi, "");
+  const currBlacklist = blacklistInput.value
+    .replace(/[^,A-Z]/gi, "")
+    .toLowerCase();
   blacklistInput.value = currBlacklist;
   solve(
     currLetters,

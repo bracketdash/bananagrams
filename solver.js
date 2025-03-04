@@ -313,93 +313,14 @@ function getNewLetters(incomingLetters, oldBoard, newBoard, { dir, row, col }) {
   return newLetters;
 }
 
-// TODO: Continue optimizations from here down
-function solveLoop(solveState) {
-  var currentState = solveState.history[solveState.historyIndex];
-  var currentMatch = currentState.matches[currentState.matchIndex];
-  var newBoard;
-  var newLetters;
-  if (
-    !solveState.callback({
-      blacklist: solveState.blacklist,
-      board: currentState.board,
-      originalLetters: solveState.originalLetters,
-      tray: currentState.letters,
-    })
-  ) {
-    return;
-  }
-  if (!currentMatch) {
-    if (solveState.historyIndex > 0) {
-      solveState.historyIndex -= 1;
-      solveState.history[solveState.historyIndex].matchIndex += 1;
-      solveState.history = solveState.history.slice(0, -1);
-      setTimeout(function () {
-        solveLoop(solveState);
-      });
-    } else {
-      solveState.callback({
-        message: "No possible solution. Wait for a pull.",
-        board: currentState.board,
-        tray: currentState.letters,
-        end: true,
-      });
-    }
-    return;
-  }
-  newBoard = placeWord(currentState.board, currentMatch);
-  newLetters = getNewLetters(
-    currentState.letters,
-    currentState.board,
-    newBoard,
-    currentMatch
-  );
-  if (!isBoardValid(newBoard, solveState.trie, solveState.blacklist)) {
-    currentState.matchIndex += 1;
-    setTimeout(function () {
-      solveLoop(solveState);
-    });
-    return;
-  }
-  if (newLetters.length) {
-    getMatches(newLetters, newBoard, solveState.words, function (matches) {
-      if (matches.length) {
-        solveState.history.push({
-          board: newBoard,
-          letters: newLetters,
-          matches: matches,
-          matchIndex: 0,
-        });
-        solveState.historyIndex += 1;
-        setTimeout(function () {
-          solveLoop(solveState);
-        });
-      } else {
-        currentState.matchIndex = currentState.matchIndex + 1;
-        setTimeout(function () {
-          solveLoop(solveState);
-        });
-      }
-    });
-  } else {
-    solveState.callback({
-      message: "SOLVED!",
-      board: newBoard,
-      tray: "",
-      end: true,
-    });
-  }
-}
-
 function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
-  var newPrefix = "";
-  var lastLeaf = true;
+  let lastLeaf = true;
   for (const letter of [...new Set(letters)]) {
     if (branch[letter]) {
       if (lastLeaf) {
         lastLeaf = false;
       }
-      newPrefix = prefix + letter;
+      const newPrefix = prefix + letter;
       if (branch[letter]["_"]) {
         words.push(newPrefix);
       }
@@ -418,32 +339,101 @@ function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
 }
 
 function makeWordsWith(letters, trie, disallowedWords) {
-  var words = [];
-  makeWordsWithLoop(trie, letters, "", [], function (result) {
+  let words = [];
+  makeWordsWithLoop(trie, letters, "", [], (result) => {
     words = result;
   });
-  if (disallowedWords) {
-    words = words.filter((word) => !disallowedWords.includes(word));
-  }
-  return words;
+  return disallowedWords
+    ? words.filter((word) => !disallowedWords.includes(word))
+    : words;
 }
 
-function solve(incomingLetters, blacklist, trie, callback) {
-  var board = [[]];
-  var letters = incomingLetters.toLowerCase();
-  var words = makeWordsWith(
-    letters,
-    trie,
-    blacklist.map((disallowedWord) => disallowedWord.toLowerCase())
+function solveLoop(solveState) {
+  const currentState = solveState.history[solveState.historyIndex];
+  const currentMatch = currentState.matches[currentState.matchIndex];
+  if (
+    !solveState.callback({
+      blacklist: solveState.blacklist,
+      board: currentState.board,
+      originalLetters: solveState.originalLetters,
+      tray: currentState.letters,
+    })
+  ) {
+    return;
+  }
+  if (!currentMatch) {
+    if (solveState.historyIndex > 0) {
+      solveState.historyIndex -= 1;
+      solveState.history[solveState.historyIndex].matchIndex += 1;
+      solveState.history = solveState.history.slice(0, -1);
+      setTimeout(() => {
+        solveLoop(solveState);
+      });
+    } else {
+      solveState.callback({
+        message: "No possible solution. Wait for a pull.",
+        board: currentState.board,
+        tray: currentState.letters,
+        end: true,
+      });
+    }
+    return;
+  }
+  const newBoard = placeWord(currentState.board, currentMatch);
+  const newLetters = getNewLetters(
+    currentState.letters,
+    currentState.board,
+    newBoard,
+    currentMatch
   );
+  if (!isBoardValid(newBoard, solveState.trie, solveState.blacklist)) {
+    currentState.matchIndex += 1;
+    setTimeout(() => {
+      solveLoop(solveState);
+    });
+    return;
+  }
+  if (newLetters.length) {
+    getMatches(newLetters, newBoard, solveState.words, (matches) => {
+      if (matches.length) {
+        solveState.history.push({
+          board: newBoard,
+          letters: newLetters,
+          matches: matches,
+          matchIndex: 0,
+        });
+        solveState.historyIndex += 1;
+        setTimeout(() => {
+          solveLoop(solveState);
+        });
+      } else {
+        currentState.matchIndex = currentState.matchIndex + 1;
+        setTimeout(() => {
+          solveLoop(solveState);
+        });
+      }
+    });
+  } else {
+    solveState.callback({
+      message: "SOLVED!",
+      board: newBoard,
+      tray: "",
+      end: true,
+    });
+  }
+}
+
+function solve(letters, blacklist, trie, callback) {
+  const board = [[]];
+  const words = makeWordsWith(letters, trie, blacklist);
   if (words.length) {
     solveLoop({
-      blacklist: blacklist,
-      callback: callback,
+      blacklist,
+      callback,
       history: [
         {
-          board: board,
-          letters: letters,
+          board,
+          letters,
           matches: words.map((word) => ({
             word: word,
             dir: "row",
@@ -454,14 +444,14 @@ function solve(incomingLetters, blacklist, trie, callback) {
         },
       ],
       historyIndex: 0,
-      originalLetters: incomingLetters,
-      trie: trie,
-      words: words,
+      originalLetters: letters,
+      trie,
+      words,
     });
   } else {
     callback({
       message: "No possible solution. Wait for a pull.",
-      board: board,
+      board,
       tray: letters,
       end: true,
     });
