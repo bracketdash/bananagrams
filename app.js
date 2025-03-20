@@ -5,14 +5,6 @@ const boardBox = document.getElementById("board");
 const trayBox = document.getElementById("tray");
 const messageBox = document.getElementById("message");
 
-const trie = JSON.parse(
-  "{" +
-    compressedTrie
-      .replace(/([a-z])/g, '"$1":{')
-      .replace(/([0-9]+)/g, (num) => "}".repeat(parseInt(num)))
-      .replace(/_/g, '"_":1')
-);
-
 function solveBoard() {
   const currLetters = tilesInput.value.replace(/[^A-Z]/gi, "").toLowerCase();
   tilesInput.value = currLetters;

@@ -1,3 +1,17 @@
+function decompress(compressed) {
+  let decompressed = compressed;
+  decompressed = decompressed.replace(/([A-Z])/g, (c) => c.toLowerCase() + "$");
+  decompressed = decompressed.replace(/([a-z])/g, '"$1":{');
+  decompressed = decompressed.replace(/([0-9]+)/g, "$1,").slice(0, -1);
+  decompressed = decompressed.replace(/\$([^0-9])/g, "$,$1");
+  const getEndBrackets = (c) => "}".repeat(parseInt(c, 10));
+  decompressed = decompressed.replace(/([0-9]+)/g, getEndBrackets);
+  decompressed = decompressed.replaceAll("$", '"$":1');
+  return JSON.parse(decompressed);
+}
+
+const trie = decompress(compressedTrie);
+
 function crawlBoard(board, rowCallback, colCallback) {
   const numCols = board[0].length;
   const columns = Array.from({ length: numCols }, () => []);
@@ -243,7 +257,7 @@ function isStripValid(strip, trie, blacklist) {
     .every(
       (word) =>
         word.length <= 1 ||
-        (hasWordInTrie(trie, [...word, "_"]) && !blacklist.includes(word))
+        (hasWordInTrie(trie, [...word, "$"]) && !blacklist.includes(word))
     );
 }
 
@@ -321,7 +335,7 @@ function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
         lastLeaf = false;
       }
       const newPrefix = prefix + letter;
-      if (branch[letter]["_"]) {
+      if (branch[letter]["$"]) {
         words.push(newPrefix);
       }
       makeWordsWithLoop(
