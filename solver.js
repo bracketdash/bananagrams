@@ -12,18 +12,14 @@ function decompress(compressed) {
 
 const trie = decompress(compressedTrie);
 
-// Cancellation flag checked by long-running functions (cooperative cancel).
-// Worker sets this via globalThis.__solverCancelled = true when a cancel
-// request is received. Defaults to false.
-if (typeof globalThis.__solverCancelled === 'undefined') {
+if (typeof globalThis.__solverCancelled === "undefined") {
   globalThis.__solverCancelled = false;
 }
 
-// Caches to improve performance and avoid repeated work during a single solve
-const patternCache = new Map(); // stripKey -> RegExp
-const narrowCache = new Map(); // sortedLettersKey -> filtered words array
-const wordCountCache = new Map(); // word -> {counts: Uint8Array(26), len: number}
-const prunedCache = new Map(); // lettersKey|stripKey -> filtered words respecting strip
+const patternCache = new Map();
+const narrowCache = new Map();
+const wordCountCache = new Map();
+const prunedCache = new Map();
 
 function crawlBoard(board, rowCallback, colCallback) {
   const numCols = board[0].length;
@@ -103,13 +99,14 @@ function getPattern(stripArr) {
       .trim()
       .replace(whitespaceRegex, (match) => ".{" + match.length + "}") +
     ".*";
-  const regex = new RegExp(getPatternLoop(fullPattern, [fullPattern], 0, 1).join("|"));
+  const regex = new RegExp(
+    getPatternLoop(fullPattern, [fullPattern], 0, 1).join("|"),
+  );
   patternCache.set(stripKey, regex);
   return regex;
 }
 
 function narrowWordsBy(wordlist, letters) {
-  // Normalize letters key (order-independent) so caching is effective.
   const key = letters.split("").sort().join("");
   if (narrowCache.has(key)) return narrowCache.get(key);
 
@@ -123,7 +120,6 @@ function narrowWordsBy(wordlist, letters) {
       wordCountCache.set(word, meta);
     }
     if (meta.len > letters.length) return false;
-    // Check counts: every letter in word must be <= available letters
     for (let i = 0; i < 26; i++) {
       if (meta.counts[i] > lettersCounts[i]) return false;
     }
@@ -145,9 +141,6 @@ function getLetterCounts(s) {
 
 function getIndexOfWordInStripLoop(pattern, word, strip, index) {
   const wordLength = word.length;
-  // Convert recursive search into an iterative one so it always terminates.
-  // Determine start index when "first" is requested: align the word to the
-  // first non-space in the strip (keeping same behavior as before).
   let startIndex;
   if (index === "first") {
     startIndex = -wordLength + 1;
@@ -162,26 +155,23 @@ function getIndexOfWordInStripLoop(pattern, word, strip, index) {
     startIndex = index;
   }
 
-  const maxIndex = strip.length; // placing word at or beyond this will append
+  const maxIndex = strip.length;
   const stripJoined = strip.join("");
   for (let i = startIndex; i <= maxIndex; i++) {
     let spliced = [...strip];
     if (i < 0) {
-      // negative i: replace from 0 up to wordLength + i
       spliced.splice(0, wordLength + i, ...word);
     } else {
       spliced.splice(i, wordLength, ...word);
     }
     const splicedStr = spliced.join("");
     if (pattern.test(splicedStr)) {
-      // If nothing changed compared to the original strip, treat as no-op
       if (splicedStr === stripJoined) {
         return false;
       }
       return i;
     }
   }
-  // Not found in any valid placement
   return false;
 }
 
@@ -195,7 +185,7 @@ function getMatchesLoop(
   matches,
   trieArg = trie,
   blacklistArg = [],
-  callback
+  callback,
 ) {
   const stripStr = strip.join("");
   const stripStrTrimmed = stripStr.trim();
@@ -204,20 +194,19 @@ function getMatchesLoop(
   }
   const pattern = getPattern(strip);
   const stripStrTrimmedLength = stripStrTrimmed.length;
-  // reuse a simple placement regex for checking placements (dot for spaces)
   const placementRegex = new RegExp(stripStr.replaceAll(" ", "."));
 
   for (let i = 0; i < stripStrTrimmedLength; i++) {
     if (globalThis.__solverCancelled) return;
     const tileOnBoard = stripStrTrimmed[i];
     if (tileOnBoard !== " ") {
-      // Use the trie to generate only words buildable from available letters
-      // (letters + tileOnBoard). Cache results per sorted-letters key to
-      // avoid recomputation within a solve.
       const lettersForThis = letters + tileOnBoard;
-      // Generate candidate words pruned by the strip so incompatible prefixes
-      // are not explored. makeWordsWithPruned uses its own cache.
-      const words = makeWordsWithPruned(lettersForThis, trieArg, blacklistArg, strip);
+      const words = makeWordsWithPruned(
+        lettersForThis,
+        trieArg,
+        blacklistArg,
+        strip,
+      );
       for (let j = 0; j < words.length; j++) {
         if (globalThis.__solverCancelled) return;
         const word = words[j];
@@ -226,7 +215,7 @@ function getMatchesLoop(
             placementRegex,
             word.split(""),
             strip,
-            "first"
+            "first",
           );
           if (indexOfWordInStripLoop !== false) {
             const stripMatch = { word, dir };
@@ -265,12 +254,16 @@ function calculatePoints(board, { row, col, dir, word }) {
   return points;
 }
 
-function getMatches(letters, board, wordlist, resolve, trieArg = trie, blacklistArg = []) {
+function getMatches(
+  letters,
+  board,
+  wordlist,
+  resolve,
+  trieArg = trie,
+  blacklistArg = [],
+) {
   const matches = [];
-  // Clear per-solve narrow cache because cached results depend on the provided
-  // wordlist and available letters; avoid returning words from a previous run.
   narrowCache.clear();
-  // We'll pass trieArg and blacklistArg through to getMatchesLoop via closure.
   crawlBoard(
     board,
     (boardRow, boardRowIndex) => {
@@ -283,7 +276,7 @@ function getMatches(letters, board, wordlist, resolve, trieArg = trie, blacklist
         wordlist,
         matches,
         trieArg,
-        blacklistArg
+        blacklistArg,
       );
     },
     (boardColumn, boardColumnIndex) => {
@@ -301,13 +294,13 @@ function getMatches(letters, board, wordlist, resolve, trieArg = trie, blacklist
           if (boardColumnIndex === board[0].length - 1) {
             resolve(
               matches.sort(
-                (a, b) => calculatePoints(board, a) - calculatePoints(board, b)
-              )
+                (a, b) => calculatePoints(board, a) - calculatePoints(board, b),
+              ),
             );
           }
-        }
+        },
       );
-    }
+    },
   );
 }
 
@@ -322,41 +315,29 @@ function hasWordInTrie(trie, chars) {
   return true;
 }
 
-// Validate a single strip (row or column). We allow single-letter segments
-// only when they are part of a perpendicular word of length >= 2. The
-// optional `context` object should be provided when called from
-// `isBoardValid` and contains { board, dir, index } where `dir` is either
-// 'row' or 'col' and `index` is the strip index in that orientation.
 function isStripValid(strip, trie, blacklist, context) {
   const board = context && context.board;
-  const dir = context && context.dir; // 'row' or 'col'
-  const idx = context && typeof context.index === 'number' ? context.index : null;
+  const dir = context && context.dir;
+  const idx =
+    context && typeof context.index === "number" ? context.index : null;
 
-  // Walk the strip and validate each contiguous word segment, but keep
-  // track of positions so we can check perpendicular words for single
-  // letter segments.
   for (let i = 0; i < strip.length; ) {
     if (strip[i] === " ") {
       i++;
       continue;
     }
-    // start of a word
     const start = i;
     while (i < strip.length && strip[i] !== " ") i++;
     const end = i - 1;
     const word = strip.slice(start, end + 1).join("");
     if (word.length >= 2) {
-      if (!hasWordInTrie(trie, [...word, "$"]) || blacklist.includes(word)) return false;
+      if (!hasWordInTrie(trie, [...word, "$"]) || blacklist.includes(word))
+        return false;
     } else {
-      // Single-letter segment: allow only if it is part of a perpendicular
-      // word of length >= 2. If we don't have board/context info, treat
-      // single-letter as invalid (conservative).
       let perpLen = 1;
       if (board && dir && idx !== null) {
         if (dir === "row") {
-          // perpendicular is column at column index = start..end (only one)
           const colIndex = start;
-          // count contiguous letters vertically including this row (idx)
           let r = idx - 1;
           while (r >= 0 && board[r][colIndex] !== " ") {
             perpLen++;
@@ -368,7 +349,6 @@ function isStripValid(strip, trie, blacklist, context) {
             r++;
           }
         } else if (dir === "col") {
-          // perpendicular is row at row index = start..end (only one)
           const rowIndex = start;
           let c = idx - 1;
           while (c >= 0 && board[rowIndex][c] !== " ") {
@@ -383,18 +363,13 @@ function isStripValid(strip, trie, blacklist, context) {
         }
       }
       if (perpLen < 2) return false;
-      // Additionally, ensure the perpendicular word (if any) itself is valid
-      // by checking trie membership when possible. This is conservative but
-      // keeps the board valid.
       if (board && dir && idx !== null && perpLen >= 2) {
         let perpWord = "";
         if (dir === "row") {
           const colIndex = start;
           let c = 0;
-          // find top of perpendicular word
           let r = idx;
           while (r > 0 && board[r - 1][colIndex] !== " ") r--;
-          // collect letters downward
           while (r < board.length && board[r][colIndex] !== " ") {
             perpWord += board[r][colIndex];
             r++;
@@ -402,16 +377,19 @@ function isStripValid(strip, trie, blacklist, context) {
         } else if (dir === "col") {
           const rowIndex = start;
           let c = 0;
-          // find leftmost of perpendicular word
           let col = idx;
           while (col > 0 && board[rowIndex][col - 1] !== " ") col--;
-          // collect letters rightward
           while (col < board[0].length && board[rowIndex][col] !== " ") {
             perpWord += board[rowIndex][col];
             col++;
           }
         }
-        if (perpWord && (!hasWordInTrie(trie, [...perpWord, "$"]) || blacklist.includes(perpWord))) return false;
+        if (
+          perpWord &&
+          (!hasWordInTrie(trie, [...perpWord, "$"]) ||
+            blacklist.includes(perpWord))
+        )
+          return false;
       }
     }
   }
@@ -423,15 +401,27 @@ function isBoardValid(board, trie, blacklist) {
   crawlBoard(
     board,
     (strip, rowIndex) => {
-      if (!isStripValid(strip, trie, blacklist, { board, dir: 'row', index: rowIndex })) {
+      if (
+        !isStripValid(strip, trie, blacklist, {
+          board,
+          dir: "row",
+          index: rowIndex,
+        })
+      ) {
         valid = false;
       }
     },
     (strip, colIndex) => {
-      if (!isStripValid(strip, trie, blacklist, { board, dir: 'col', index: colIndex })) {
+      if (
+        !isStripValid(strip, trie, blacklist, {
+          board,
+          dir: "col",
+          index: colIndex,
+        })
+      ) {
         valid = false;
       }
-    }
+    },
   );
   return valid;
 }
@@ -442,7 +432,7 @@ function placeWord(oldBoard, { dir, word, row, col }) {
   let board = oldBoard.map((row) => [...row]);
   if (row < 0) {
     board.unshift(
-      ...Array.from({ length: -row }, () => Array(board[0].length).fill(" "))
+      ...Array.from({ length: -row }, () => Array(board[0].length).fill(" ")),
     );
     row = 0;
   }
@@ -500,7 +490,7 @@ function makeWordsWithLoop(branch, letters, prefix, words, resolve) {
         letters.replace(letter, ""),
         newPrefix,
         words,
-        resolve
+        resolve,
       );
     }
   }
@@ -519,20 +509,16 @@ function makeWordsWith(letters, trie, disallowedWords) {
     : words;
 }
 
-// Faster trie traversal using letter counts (avoids string.replace and
-// minimizes allocations). This generates all words from `trie` that can be
-// built from `letters` (each letter used at most as many times as provided).
 function makeWordsWithFast(letters, trie, disallowedWords) {
   const counts = getLetterCounts(letters);
   const results = [];
 
   function dfs(node, prefix) {
-    // Cooperative cancellation check.
     if (globalThis.__solverCancelled) return;
-    if (node['$']) results.push(prefix);
+    if (node["$"]) results.push(prefix);
     for (const ch in node) {
       if (globalThis.__solverCancelled) return;
-      if (ch === '$') continue;
+      if (ch === "$") continue;
       const idx = ch.charCodeAt(0) - 97;
       if (idx < 0 || idx >= 26) continue;
       if (counts[idx] > 0) {
@@ -544,12 +530,11 @@ function makeWordsWithFast(letters, trie, disallowedWords) {
   }
 
   dfs(trie, "");
-  return disallowedWords ? results.filter((w) => !disallowedWords.includes(w)) : results;
+  return disallowedWords
+    ? results.filter((w) => !disallowedWords.includes(w))
+    : results;
 }
 
-// Generate words buildable from `letters` that are compatible with at least
-// one placement on `strip` (i.e., their prefixes don't conflict with fixed
-// letters on the strip). This prunes trie branches early.
 function makeWordsWithPruned(letters, trie, disallowedWords, strip) {
   const counts = getLetterCounts(letters);
   const stripKey = strip.join("");
@@ -560,8 +545,6 @@ function makeWordsWithPruned(letters, trie, disallowedWords, strip) {
   const results = [];
 
   function prefixCompatible(prefix) {
-    // For a given prefix, determine if there exists a placement index i
-    // such that for all j in prefix, strip[i+j] is either a space or equals prefix[j].
     const pLen = prefix.length;
     const minI = -pLen + 1;
     const maxI = strip.length - 1;
@@ -571,7 +554,7 @@ function makeWordsWithPruned(letters, trie, disallowedWords, strip) {
         const idx = i + j;
         if (idx >= 0 && idx < strip.length) {
           const ch = strip[idx];
-          if (ch !== ' ' && ch !== prefix[j]) {
+          if (ch !== " " && ch !== prefix[j]) {
             ok = false;
             break;
           }
@@ -584,12 +567,11 @@ function makeWordsWithPruned(letters, trie, disallowedWords, strip) {
 
   function dfs(node, prefix) {
     if (globalThis.__solverCancelled) return;
-    // Early prune: if current prefix cannot fit anywhere on the strip, stop.
     if (prefix && !prefixCompatible(prefix)) return;
-    if (node['$']) results.push(prefix);
+    if (node["$"]) results.push(prefix);
     for (const ch in node) {
       if (globalThis.__solverCancelled) return;
-      if (ch === '$') continue;
+      if (ch === "$") continue;
       const idx = ch.charCodeAt(0) - 97;
       if (idx < 0 || idx >= 26) continue;
       if (counts[idx] > 0) {
@@ -601,7 +583,9 @@ function makeWordsWithPruned(letters, trie, disallowedWords, strip) {
   }
 
   dfs(trie, "");
-  const filtered = disallowedWords ? results.filter((w) => !disallowedWords.includes(w)) : results;
+  const filtered = disallowedWords
+    ? results.filter((w) => !disallowedWords.includes(w))
+    : results;
   prunedCache.set(cacheKey, filtered);
   return filtered;
 }
@@ -642,7 +626,7 @@ function solveLoop(solveState) {
     currentState.letters,
     currentState.board,
     newBoard,
-    currentMatch
+    currentMatch,
   );
   if (!isBoardValid(newBoard, solveState.trie, solveState.blacklist)) {
     currentState.matchIndex += 1;
@@ -676,7 +660,7 @@ function solveLoop(solveState) {
         }
       },
       solveState.trie,
-      solveState.blacklist
+      solveState.blacklist,
     );
   } else {
     solveState.callback({
