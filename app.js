@@ -1,7 +1,6 @@
 const tilesInput = document.getElementById("tiles");
 const blacklistInput = document.getElementById("blacklist");
 const solveButton = document.getElementById("solve");
-const cancelButton = document.getElementById("cancel");
 const boardBox = document.getElementById("board");
 const trayBox = document.getElementById("tray");
 const messageBox = document.getElementById("message");
@@ -126,22 +125,6 @@ function handleEnter(event) {
 tilesInput.addEventListener("keydown", handleEnter);
 blacklistInput.addEventListener("keydown", handleEnter);
 solveButton.addEventListener("click", solveBoard);
-// Visible cancel button for users
-if (cancelButton) {
-  cancelButton.addEventListener('click', () => {
-    if (solverWorker) {
-      solverWorker.postMessage({ cmd: 'cancel' });
-      messageBox.innerHTML = 'Cancelling...';
-      // The worker will post back 'cancelled'.
-    } else {
-      // Cooperative cancel on main thread fallback.
-      globalThis.__solverCancelled = true;
-      messageBox.innerHTML = 'Cancelling...';
-      solveButton.disabled = false;
-      solveBoard._pending = false;
-    }
-  });
-}
 
 // Allow cancelling a running worker by pressing Escape.
 window.addEventListener('keydown', (ev) => {
